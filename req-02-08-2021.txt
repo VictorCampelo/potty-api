@@ -1,0 +1,17 @@
+loja 1->n produtos n<-n usuarios
+
+user 3 Roles
+
+usuario dono da loja -> dashboard
+Usuario Admin -> geral
+usuario normal -> precisa de login para fazer pedido.
+
+Usuario:
+numero do whatsapp
+
+whatsapp.module -> quando usuario fizer pedido -> pegar todas as informação e redirecionar ao whatsapp da empresa.
+
+
+produtos <- user faz o pedido.
+redirecionado para o whatsapp com uma mensagem pre-montada
+mensagem deve ter os detalhes do produtos, o id, o endereço do usuário e o metodo de pagamento.
