@@ -10,7 +10,6 @@ import { mailerConfig } from './configs/mailer.config';
 import { configService } from './configs/typeorm.config';
 import { winstonConfig } from './configs/winston.config';
 import { LoggerInterceptor } from './interceptors/logger.interceptor';
-import { ToolsModule } from './tools/tools.module';
 import { UsersModule } from './users/users.module';
 import { ShopsModule } from './shops/shops.module';
 import { ProductsModule } from './products/products.module';
@@ -24,7 +23,6 @@ dotenv.config();
     MailerModule.forRoot(mailerConfig),
     UsersModule,
     AuthModule,
-    ToolsModule,
     ShopsModule,
     ProductsModule,
   ],

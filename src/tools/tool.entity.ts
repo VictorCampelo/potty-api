@@ -32,7 +32,7 @@ export class Tool extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (author: User) => author.posts)
-  @Exclude()
-  public owner: User;
+  //@ManyToOne(() => User, (author: User) => author.posts)
+  //@Exclude()
+  //public owner: User;
 }
