@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:12
 
 # diretório alvo
 RUN mkdir -p /usr/src/vuttr

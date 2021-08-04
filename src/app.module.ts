@@ -12,6 +12,7 @@ import { winstonConfig } from './configs/winston.config';
 import { LoggerInterceptor } from './interceptors/logger.interceptor';
 import { ToolsModule } from './tools/tools.module';
 import { UsersModule } from './users/users.module';
+import { ShopsModule } from './shops/shops.module';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ dotenv.config();
     UsersModule,
     AuthModule,
     ToolsModule,
+    ShopsModule,
   ],
   controllers: [AppController],
   providers: [
