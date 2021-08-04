@@ -13,6 +13,7 @@ import { LoggerInterceptor } from './interceptors/logger.interceptor';
 import { ToolsModule } from './tools/tools.module';
 import { UsersModule } from './users/users.module';
 import { ShopsModule } from './shops/shops.module';
+import { ProductsModule } from './products/products.module';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ dotenv.config();
     AuthModule,
     ToolsModule,
     ShopsModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [
