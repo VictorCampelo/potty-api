@@ -7,7 +7,7 @@ import { WinstonModule } from 'nest-winston';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { mailerConfig } from './configs/mailer.config';
-import { typeOrmConfig } from './configs/typeorm.config';
+import { configService } from './configs/typeorm.config';
 import { winstonConfig } from './configs/winston.config';
 import { LoggerInterceptor } from './interceptors/logger.interceptor';
 import { ToolsModule } from './tools/tools.module';
@@ -17,7 +17,7 @@ dotenv.config();
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(typeOrmConfig),
+    TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
     WinstonModule.forRoot(winstonConfig),
     MailerModule.forRoot(mailerConfig),
     UsersModule,
