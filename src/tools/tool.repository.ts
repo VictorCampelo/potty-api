@@ -16,7 +16,7 @@ export class ToolRepository extends Repository<Tool> {
   ): Promise<Tool> {
     const { title, description, tags } = createToolDto;
 
-    const tool = this.create({owner: user});
+    const tool = this.create(/*{owner: user}*/);
     tool.title = title;
     tool.description = description;
     tool.tags = tags;

@@ -16,13 +16,13 @@ export class UserRepository extends Repository<User> {
   async findUsers(
     queryDto: FindUsersQueryDto,
   ): Promise<{ users: User[]; total: number }> {
-    queryDto.status = queryDto.status === undefined ? true : queryDto.status;
+    queryDto.enabled = queryDto.enabled === undefined ? true : queryDto.enabled;
     queryDto.page = queryDto.page < 1 ? 1 : queryDto.page;
     queryDto.limit = queryDto.limit > 100 ? 100 : queryDto.limit;
 
-    const { email, name, status, role } = queryDto;
+    const { email, name, enabled, role } = queryDto;
     const query = this.createQueryBuilder('user'); //alias utilizado durante a montagem da query
-    query.where('user.status = :status', { status });
+    query.where('user.enabled = :enabled', { enabled });
 
     if (email) {
       query.andWhere('user.email ILIKE :email', { email: `%${email}%` });
@@ -38,7 +38,7 @@ export class UserRepository extends Repository<User> {
     const skp = (queryDto.page - 1) * queryDto.limit;
     query.take(+queryDto.limit);
     query.orderBy(queryDto.sort ? JSON.parse(queryDto.sort) : undefined);
-    query.select(['user.name', 'user.email', 'user.role', 'user.status']);
+    query.select(['user.name', 'user.email', 'user.role', 'user.enabled']);
 
     /* getManyAndCount() retorna dois valores:
      * o primeiro são os usuários encontrados,
@@ -59,7 +59,7 @@ export class UserRepository extends Repository<User> {
     user.email = email;
     user.name = name;
     user.role = role;
-    user.status = true;
+    user.enabled = true;
     user.confirmationToken = crypto.randomBytes(32).toString('hex');
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
@@ -82,7 +82,7 @@ export class UserRepository extends Repository<User> {
 
   async checkCredentials(credentialsDto: CredentialsDto): Promise<User> {
     const { email, password } = credentialsDto;
-    const user = await this.findOne({ email, status: true });
+    const user = await this.findOne({ email, enabled: true });
 
     if (user && (await user.checkPassword(password))) {
       return user;

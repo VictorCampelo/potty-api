@@ -1,5 +1,4 @@
-import { User } from 'src/users/user.entity';
-import { Exclude } from 'class-transformer';
+import { Shop } from 'src/shops/shop.entity';
 import {
   Entity,
   Unique,
@@ -11,9 +10,9 @@ import {
   ManyToOne,
 } from 'typeorm';
 
-@Entity('tool')
+@Entity('product')
 @Unique(['id', 'title'])
-export class Tool extends BaseEntity {
+export class Product extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -32,7 +31,6 @@ export class Tool extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  //@ManyToOne(() => User, (author: User) => author.posts)
-  //@Exclude()
-  //public owner: User;
+  @ManyToOne(() => Shop, (shop: Shop) => shop.products)
+  shop: Shop;
 }

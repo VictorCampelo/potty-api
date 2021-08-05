@@ -6,10 +6,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Tool } from 'src/tools/tool.entity';
+import { Product } from 'src/products/product.entity';
 
 @Entity('user')
 @Unique(['email'])
@@ -27,7 +28,7 @@ export class User extends BaseEntity {
   role: string;
 
   @Column({ nullable: false, default: true })
-  status: boolean;
+  enabled: boolean;
 
   @Column({ nullable: false })
   password: string;
@@ -47,8 +48,9 @@ export class User extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Tool, (tool: Tool) => tool.owner)
-  public posts: Tool[];
+  @ManyToMany(() => Product)
+  @JoinTable()
+  products: Product[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

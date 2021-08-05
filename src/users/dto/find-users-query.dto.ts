@@ -3,6 +3,6 @@ import { BaseQueryParametersDto } from '../../shared/dto/base-query-parameters.d
 export class FindUsersQueryDto extends BaseQueryParametersDto {
   name?: string;
   email?: string;
-  status?: boolean;
+  enabled?: boolean;
   role?: string;
 }
