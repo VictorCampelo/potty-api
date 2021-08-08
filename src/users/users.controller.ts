@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -22,26 +23,18 @@ import { UpdateUserDto } from './dto/update-users.dto';
 import { UserRole } from './user-roles.enum';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
+import { SentryInterceptor } from '../interceptors/sentry.interceptor';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { HttpResponseDto } from 'src/configs/http-response.dto';
 
-/**
- * Posts users controller
- * Get user controller
- * Patch user controller
- * Deletes users controller
- * Gets users controller
- */
 @Controller('users')
 @UseGuards(AuthGuard(), RolesGuard) //protect all user endpoints
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  /**
-   * Posts users controller
-   * @param createUserDto
-   * @returns admin user
-   */
+  @ApiTags('admin')
   @Post()
-  @Role(UserRole.ADMIN) //somente admin pode criar admin
+  @Role(UserRole.ADMIN) //only admin user can create other admin user
   async createAdminUser(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<ReturnUserDto> {
@@ -52,28 +45,33 @@ export class UsersController {
     };
   }
 
-  /**
-   * Posts users controller
-   * @param createUserDto
-   * @returns admin user
-   */
+  @ApiTags('owner')
   @Post()
-  @Role(UserRole.OWNER) //somente admin pode criar admin
   async createOwnerUser(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<ReturnUserDto> {
-    const user = await this.usersService.createAdminUser(createUserDto);
+    const user = await this.usersService.createOwnerUser(createUserDto);
     return {
       user,
       message: 'Dono cadastrado com sucesso',
     };
   }
 
-  /**
-   * Get user controller
-   * @param id
-   * @returns user by id
-   */
+  @UseInterceptors(SentryInterceptor)
+  @ApiOperation({ summary: 'Get a authenticate user informations' })
+  @ApiTags('users')
+  @Get()
+  async getAuthUser(@GetUser() authUser: User): Promise<ReturnUserDto> {
+    try {
+      const user = await this.usersService.findUserById(authUser.id);
+      return {
+        user,
+        message: 'Usuário encontrado',
+      };
+    } catch (error) {}
+  }
+
+  @ApiTags('admin')
   @Get(':id')
   @Role(UserRole.ADMIN)
   async findUserById(@Param('id') id): Promise<ReturnUserDto> {
@@ -84,13 +82,7 @@ export class UsersController {
     };
   }
 
-  /**
-   * Patch user controller with admin role
-   * @param updateUserDto
-   * @param user
-   * @param id
-   * @returns user
-   */
+  @ApiTags('users')
   @Patch(':id')
   async updateUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
@@ -106,12 +98,7 @@ export class UsersController {
     }
   }
 
-  /**
-   * Patch normal user controller
-   * @param updateUserDto
-   * @param user
-   * @returns
-   */
+  @ApiTags('users')
   @Patch()
   async updateNormalUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
@@ -120,11 +107,7 @@ export class UsersController {
     return this.usersService.updateUser(updateUserDto, user.id);
   }
 
-  /**
-   * Deletes users controller
-   * @param id
-   * @returns {string} message
-   */
+  @ApiTags('admin')
   @Delete(':id')
   @Role(UserRole.ADMIN)
   async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
@@ -134,11 +117,7 @@ export class UsersController {
     };
   }
 
-  /**
-   * Gets users controller
-   * @param query
-   * @returns list of user
-   */
+  @ApiTags('admin')
   @Get()
   @Role(UserRole.ADMIN)
   async findUsers(@Query() query: FindUsersQueryDto) {

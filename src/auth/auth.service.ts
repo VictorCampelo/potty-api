@@ -11,30 +11,19 @@ import { User } from '../users/user.entity';
 import { UserRole } from '../users/user-roles.enum';
 import { CredentialsDto } from './dto/credentials.dto';
 import { JwtService } from '@nestjs/jwt';
-import { MailerService } from '@nestjs-modules/mailer';
 import { randomBytes } from 'crypto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { EmailsService } from 'src/emails/emails.service';
 
-/**
- *
- * Signs up
- * Signs in
- * Confirms email
- */
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
     private jwtService: JwtService,
-    private mailerService: MailerService,
+    private emailsService: EmailsService,
   ) {}
 
-  /**
-   * Signs up
-   * @param createUserDto
-   * @returns user
-   */
   async signUp(createUserDto: CreateUserDto): Promise<User> {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
@@ -43,25 +32,18 @@ export class AuthService {
         createUserDto,
         UserRole.USER,
       );
-      const mail = {
-        to: user.email,
-        from: 'noreply@application.com',
-        subject: 'Email de confirmação',
-        template: process.cwd() + '/templates/email-confirmation.hbs',
-        context: {
+      await this.emailsService.sendEmail(
+        user.email,
+        'Email de confirmação',
+        'email-confirmation',
+        {
           token: user.confirmationToken,
         },
-      };
-      await this.mailerService.sendMail(mail);
+      );
       return user;
     }
   }
 
-  /**
-   * Signs in
-   * @param credentialsDto
-   * @returns
-   */
   async signIn(credentialsDto: CredentialsDto) {
     const user = await this.userRepository.checkCredentials(credentialsDto);
 
@@ -77,26 +59,14 @@ export class AuthService {
     return { jwtToken };
   }
 
-  /**
-   * Confirms email
-   * @param confirmationToken
-   * @returns email
-   */
   async confirmEmail(confirmationToken: string): Promise<void> {
-    console.log(confirmationToken);
     const result = await this.userRepository.update(
-      { confirmationToken },
+      { confirmationToken }, //busca o usuário pelo token
       { confirmationToken: null },
     );
-    console.log(result);
     if (result.affected === 0) throw new NotFoundException('Token inválido');
   }
 
-  /**
-   * Sends recover password email
-   * @param email
-   * @returns recover password email
-   */
   async sendRecoverPasswordEmail(email: string): Promise<void> {
     const user = await this.userRepository.findOne({ email });
 
@@ -105,17 +75,14 @@ export class AuthService {
 
     user.recoverToken = randomBytes(32).toString('hex');
     await user.save();
-
-    const mail = {
-      to: user.email,
-      from: 'noreply@application.com',
-      subject: 'Recuperação de senha',
-      template: process.cwd() + '/templates/recover-password.hbs',
-      context: {
+    await this.emailsService.sendEmail(
+      user.email,
+      'Recuperação de senha',
+      'recover-password',
+      {
         token: user.recoverToken,
       },
-    };
-    await this.mailerService.sendMail(mail);
+    );
   }
 
   async changePassword(

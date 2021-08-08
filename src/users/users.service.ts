@@ -26,6 +26,15 @@ export class UsersService {
     }
   }
 
+  //TODO criar dtos para owner
+  async createOwnerUser(createUserDto: CreateUserDto): Promise<User> {
+    if (createUserDto.password != createUserDto.passwordConfirmation) {
+      throw new UnprocessableEntityException('As senhas não conferem');
+    } else {
+      return this.userRepository.createUser(createUserDto, UserRole.OWNER);
+    }
+  }
+
   async findUserById(userId: string): Promise<User> {
     const user = await this.userRepository.findOne(userId, {
       select: ['email', 'name', 'role', 'id'],

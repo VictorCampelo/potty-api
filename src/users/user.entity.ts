@@ -27,7 +27,7 @@ export class User extends BaseEntity {
   @Column({ nullable: false, type: 'varchar', length: 20 })
   role: string;
 
-  @Column({ nullable: false, default: true })
+  @Column({ nullable: false, default: true }) //TODO por default o enable so virará true quando o email foir confirmado
   enabled: boolean;
 
   @Column({ nullable: false })

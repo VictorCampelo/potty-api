@@ -1,15 +1,15 @@
-import { EntityRepository, Repository } from 'typeorm';
-import { User } from './user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserRole } from './user-roles.enum';
-import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import {
   ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { EntityRepository, Repository } from 'typeorm';
 import { CredentialsDto } from '../auth/dto/credentials.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { UserRole } from './user-roles.enum';
+import { User } from './user.entity';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -35,15 +35,11 @@ export class UserRepository extends Repository<User> {
     if (role) {
       query.andWhere('user.role = :role', { role });
     }
-    const skp = (queryDto.page - 1) * queryDto.limit;
+
     query.take(+queryDto.limit);
     query.orderBy(queryDto.sort ? JSON.parse(queryDto.sort) : undefined);
     query.select(['user.name', 'user.email', 'user.role', 'user.enabled']);
 
-    /* getManyAndCount() retorna dois valores:
-     * o primeiro são os usuários encontrados,
-     * o segundo o total de dados que satisfazem as condições especificadas,
-     * ignorando a paginação */
     const [users, total] = await query.getManyAndCount();
 
     return { users, total };
@@ -69,7 +65,6 @@ export class UserRepository extends Repository<User> {
       delete user.salt;
       return user;
     } catch (error) {
-      //E11000 duplicate key error collection
       if (error.code === 11000) {
         throw new ConflictException('Endereço de email já está em uso');
       } else {

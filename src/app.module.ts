@@ -13,6 +13,7 @@ import { LoggerInterceptor } from './interceptors/logger.interceptor';
 import { UsersModule } from './users/users.module';
 import { ShopsModule } from './shops/shops.module';
 import { ProductsModule } from './products/products.module';
+import { EmailsModule } from './emails/emails.module';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ dotenv.config();
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
     WinstonModule.forRoot(winstonConfig),
     MailerModule.forRoot(mailerConfig),
+    EmailsModule,
     UsersModule,
     AuthModule,
     ShopsModule,
