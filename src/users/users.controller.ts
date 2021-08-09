@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -26,6 +27,11 @@ import { UsersService } from './users.service';
 import { SentryInterceptor } from '../interceptors/sentry.interceptor';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { HttpResponseDto } from 'src/configs/http-response.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import * as fs from 'fs';
+import sharp from 'sharp';
+import { Express } from 'express';
 
 @Controller('users')
 @UseGuards(AuthGuard(), RolesGuard) //protect all user endpoints
@@ -84,26 +90,41 @@ export class UsersController {
 
   @ApiTags('users')
   @Patch(':id')
+  @Role(UserRole.ADMIN)
   async updateUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
     @GetUser() user: User,
     @Param('id') id: string,
   ) {
-    if (user.role != UserRole.ADMIN && user.id.toString() != id) {
-      throw new ForbiddenException(
-        'Você não tem autorização para acessar esse recurso',
-      );
-    } else {
-      return this.usersService.updateUser(updateUserDto, id);
-    }
+    return this.usersService.updateUser(updateUserDto, id);
   }
 
   @ApiTags('users')
+  // ! If api will use extern store service then we should use memoryStorage, but if we dont use that, then use dickStorage !
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+    }),
+  )
   @Patch()
   async updateNormalUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
+    @UploadedFile() file: Express.Multer.File,
     @GetUser() user: User,
   ) {
+    fs.access('./../../public/uploads', (error) => {
+      if (error) {
+        fs.mkdirSync('./../../public/uploads');
+      }
+    });
+    const { buffer, originalname } = file;
+    const timestamp = new Date().toISOString();
+    const ref = `${timestamp}-${originalname}.webp`;
+    await sharp(buffer)
+      .webp({ quality: 20 })
+      .toFile('./../../public/uploads/' + ref);
+    const link = `http://localhost:3000/${ref}`;
+    // TODO: 
     return this.usersService.updateUser(updateUserDto, user.id);
   }
 

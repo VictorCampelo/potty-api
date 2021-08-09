@@ -11,9 +11,10 @@ import { configService } from './configs/typeorm.config';
 import { winstonConfig } from './configs/winston.config';
 import { LoggerInterceptor } from './interceptors/logger.interceptor';
 import { UsersModule } from './users/users.module';
-import { ShopsModule } from './shops/shops.module';
+import { StoresModule } from './stores/stores.module';
 import { ProductsModule } from './products/products.module';
 import { EmailsModule } from './emails/emails.module';
+import { UploadFilesModule } from './upload-files/upload-files.module';
 
 dotenv.config();
 
@@ -25,8 +26,9 @@ dotenv.config();
     EmailsModule,
     UsersModule,
     AuthModule,
-    ShopsModule,
+    StoresModule,
     ProductsModule,
+    UploadFilesModule,
   ],
   controllers: [AppController],
   providers: [

@@ -17,10 +17,10 @@ export class Tool extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 200 })
+  @Column({ nullable: false, type: 'varchar', length: 255 })
   title: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 200 })
+  @Column({ nullable: false, type: 'varchar', length: 255 })
   description: string;
 
   @Column('simple-array')

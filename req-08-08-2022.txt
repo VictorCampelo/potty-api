@@ -1,0 +1,58 @@
+1. deve haver uma entidade para upload de imagens: upload_files
+2. usuários, produtos, lojas e ordem devem ter relacionamento com upload_files atraves da tabela intermediária upload_morph
+
+3. o campo formats:
+
+{
+    "small": {
+        "ext": ".png",
+        "url": "/uploads/small_1621259781857_4b0e7b39b4.png",
+        "hash": "small_1621259781857_4b0e7b39b4",
+        "mime": "image/png",
+        "name": "small_1621259781857.png",
+        "path": null,
+        "size": 74.22,
+        "width": 500,
+        "height": 500
+    },
+    "thumbnail": {
+        "ext": ".png",
+        "url": "/uploads/thumbnail_1621259781857_4b0e7b39b4.png",
+        "hash": "thumbnail_1621259781857_4b0e7b39b4",
+        "mime": "image/png",
+        "name": "thumbnail_1621259781857.png",
+        "path": null,
+        "size": 9.73,
+        "width": 156,
+        "height": 156
+    }
+}
+
+exemplo de entrada completa no banco de dados:
+
+{
+"upload_file": [
+	{
+		"id" : 1,
+		"name" : "1621259781857.png",
+		"alternativeText" : "",
+		"caption" : "",
+		"width" : 600,
+		"height" : 600,
+		"formats" : "{\"small\": {\"ext\": \".png\", \"url\": \"\/uploads\/small_1621259781857_4b0e7b39b4.png\", \"hash\": \"small_1621259781857_4b0e7b39b4\", \"mime\": \"image\/png\", \"name\": \"small_1621259781857.png\", \"path\": null, \"size\": 74.22, \"width\": 500, \"height\": 500}, \"thumbnail\": {\"ext\": \".png\", \"url\": \"\/uploads\/thumbnail_1621259781857_4b0e7b39b4.png\", \"hash\": \"thumbnail_1621259781857_4b0e7b39b4\", \"mime\": \"image\/png\", \"name\": \"thumbnail_1621259781857.png\", \"path\": null, \"size\": 9.73, \"width\": 156, \"height\": 156}}",
+		"hash" : "1621259781857_4b0e7b39b4",
+		"ext" : ".png",
+		"mime" : "image\/png",
+		"size" : 92.79,
+		"url" : "\/uploads\/1621259781857_4b0e7b39b4.png",
+		"previewUrl" : null,
+		"provider" : "local",
+		"provider_metadata" : null,
+		"created_by" : 1,
+		"updated_by" : 1,
+		"created_at" : "2021-08-05T12:19:38.872Z",
+		"updated_at" : "2021-08-05T12:19:38.889Z"
+	}
+]}
+
+criar o service que preenche todos esses campos e gera as imagens minimas(menores) e salvar no banco e fazer o relacionamento da tabela chamante com o upload_morph

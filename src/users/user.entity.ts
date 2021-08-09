@@ -18,10 +18,10 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 200 })
+  @Column({ nullable: false, type: 'varchar', length: 255 })
   email: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 200 })
+  @Column({ nullable: false, type: 'varchar', length: 255 })
   name: string;
 
   @Column({ nullable: false, type: 'varchar', length: 20 })

@@ -1,4 +1,4 @@
-import { Shop } from 'src/shops/shop.entity';
+import { Store } from 'src/stores/store.entity';
 import {
   Entity,
   Unique,
@@ -16,10 +16,10 @@ export class Product extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 200 })
+  @Column({ nullable: false, type: 'varchar', length: 255 })
   title: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 200 })
+  @Column({ nullable: false, type: 'varchar', length: 255 })
   description: string;
 
   @Column('simple-array')
@@ -31,6 +31,6 @@ export class Product extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Shop, (shop: Shop) => shop.products)
-  shop: Shop;
+  @ManyToOne(() => Store, (store: Store) => store.products)
+  store: Store;
 }
