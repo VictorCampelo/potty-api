@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -25,13 +24,13 @@ import { UserRole } from './user-roles.enum';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
 import { SentryInterceptor } from '../interceptors/sentry.interceptor';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
-import { HttpResponseDto } from 'src/configs/http-response.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import * as fs from 'fs';
 import sharp from 'sharp';
-import { Express } from 'express';
+import gm from 'gm';
+// import { multerOptions } from 'src/configs/multer.config';
 
 @Controller('users')
 @UseGuards(AuthGuard(), RolesGuard) //protect all user endpoints
@@ -106,10 +105,12 @@ export class UsersController {
       storage: memoryStorage(),
     }),
   )
+  // ! call this interceptor if dickstorage will be use
+  // @UseInterceptors(FileInterceptor('file', multerOptions))
   @Patch()
   async updateNormalUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file,
     @GetUser() user: User,
   ) {
     fs.access('./../../public/uploads', (error) => {
@@ -124,7 +125,10 @@ export class UsersController {
       .webp({ quality: 20 })
       .toFile('./../../public/uploads/' + ref);
     const link = `http://localhost:3000/${ref}`;
-    // TODO: 
+    // TODO: Create a file
+    gm('/path/to/img.png').identify(function (err, data) {
+      if (!err) console.log(data);
+    });
     return this.usersService.updateUser(updateUserDto, user.id);
   }
 

@@ -14,7 +14,7 @@ import { UsersModule } from './users/users.module';
 import { StoresModule } from './stores/stores.module';
 import { ProductsModule } from './products/products.module';
 import { EmailsModule } from './emails/emails.module';
-import { UploadFilesModule } from './upload-files/upload-files.module';
+import { FilesModule } from './files/files.module';
 
 dotenv.config();
 
@@ -28,7 +28,7 @@ dotenv.config();
     AuthModule,
     StoresModule,
     ProductsModule,
-    UploadFilesModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,5 +1,5 @@
-1. deve haver uma entidade para upload de imagens: upload_files
-2. usuários, produtos, lojas e ordem devem ter relacionamento com upload_files atraves da tabela intermediária upload_morph
+1. deve haver uma entidade para upload de imagens: files
+2. usuários, produtos, lojas e ordem devem ter relacionamento com files atraves da tabela intermediária upload_morph
 
 3. o campo formats:
 
@@ -31,7 +31,7 @@
 exemplo de entrada completa no banco de dados:
 
 {
-"upload_file": [
+"file": [
 	{
 		"id" : 1,
 		"name" : "1621259781857.png",

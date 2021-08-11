@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUploadFileDto } from './dto/create-upload-file.dto';
-import { UpdateUploadFileDto } from './dto/update-upload-file.dto';
+import { CreateFileDto } from './dto/create-file.dto';
+import { UpdateFileDto } from './dto/update-file.dto';
 // import * as AWS from 'aws-sdk';
 // import * as Minio from 'minio';
 
 @Injectable()
-export class UploadFilesService {
+export class FilesService {
   // private aws;
   // private awsMinio;
 
@@ -26,28 +26,28 @@ export class UploadFilesService {
   //   });
   // }
 
-  create(createUploadFileDto: CreateUploadFileDto) {
-    return 'This action adds a new uploadFile';
+  create(createFileDto: CreateFileDto) {
+    return 'This action adds a new file';
   }
 
   findAll() {
-    return `This action returns all uploadFiles`;
+    return `This action returns all files`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} uploadFile`;
+    return `This action returns a #${id} file`;
   }
 
-  update(id: number, updateUploadFileDto: UpdateUploadFileDto) {
-    return `This action updates a #${id} uploadFile`;
+  update(id: number, updateFileDto: UpdateFileDto) {
+    return `This action updates a #${id} file`;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} uploadFile`;
+    return `This action removes a #${id} file`;
   }
 
   /**
-     async uploadFileToS3(fileStreamOrBuffer, fileName, userId) {
+     async fileToS3(fileStreamOrBuffer, fileName, userId) {
      const extension = /(?:\.([^.]+))?$/.exec(fileName)[0];
       const { Location } = await this.aws
         .upload({
@@ -61,7 +61,7 @@ export class UploadFilesService {
       return Location;
     }
 
-    async uploadFileToS3Minio(fileStreamOrBuffer, fileName, userId) {
+    async fileToS3Minio(fileStreamOrBuffer, fileName, userId) {
       const extension = /(?:\.([^.]+))?$/.exec(fileName)[0];
       const name = `users/${userId}/photo-${new Date().getTime()}${extension}`;
       const metaData = {

@@ -2,11 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Product } from 'src/products/product.entity';
+import { File as Files } from 'src/files/file.entity';
 
 @Entity('store')
 export class Store {
@@ -54,4 +57,7 @@ export class Store {
 
   @OneToMany(() => Product, (product: Product) => product.store)
   products: Product[];
+
+  @OneToMany(() => Files, (file) => file.user)
+  files: Files[];
 }

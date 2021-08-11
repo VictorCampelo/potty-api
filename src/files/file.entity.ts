@@ -1,3 +1,6 @@
+import { Store } from 'src/stores/store.entity';
+import { Product } from 'src/products/product.entity';
+import { User } from 'src/users/user.entity';
 import {
   Entity,
   Unique,
@@ -7,11 +10,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
-@Entity('upload_file')
+@Entity('file')
 @Unique(['id', 'url', 'hash'])
-export class UploadFile extends BaseEntity {
+export class File extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -59,6 +63,15 @@ export class UploadFile extends BaseEntity {
 
   @Column({ nullable: true, type: 'jsonb' })
   providerMetadata: any;
+
+  @ManyToOne(() => User, (user) => user.files)
+  user: User;
+
+  @ManyToOne(() => Product, (product) => product.files)
+  product: Product;
+
+  @ManyToOne(() => Store, (store) => store.files)
+  store: Store;
 
   @Column('simple-array')
   tags: string[];

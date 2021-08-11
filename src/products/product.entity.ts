@@ -8,7 +8,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
+import { File as Files } from 'src/files/file.entity';
 
 @Entity('product')
 @Unique(['id', 'title'])
@@ -33,4 +35,7 @@ export class Product extends BaseEntity {
 
   @ManyToOne(() => Store, (store: Store) => store.products)
   store: Store;
+
+  @OneToMany(() => Files, (file) => file.user)
+  files: Files[];
 }

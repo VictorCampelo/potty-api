@@ -8,9 +8,11 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Product } from 'src/products/product.entity';
+import { File as Files } from 'src/files/file.entity';
 
 @Entity('user')
 @Unique(['email'])
@@ -51,6 +53,9 @@ export class User extends BaseEntity {
   @ManyToMany(() => Product)
   @JoinTable()
   products: Product[];
+
+  @OneToMany(() => Files, (file) => file.user)
+  files: Files[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);
