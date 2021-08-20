@@ -1,11 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
+import { FileRepository } from './files.repository';
+import { File } from './file.entity';
+import { Store } from 'src/stores/store.entity';
+import { User } from 'src/users/user.entity';
+import { Product } from 'src/products/product.entity';
 // import * as AWS from 'aws-sdk';
 // import * as Minio from 'minio';
 
 @Injectable()
 export class FilesService {
+  constructor(
+    @InjectRepository(FileRepository)
+    private fileRepository: FileRepository,
+  ) {}
   // private aws;
   // private awsMinio;
 
@@ -26,8 +36,23 @@ export class FilesService {
   //   });
   // }
 
-  create(createFileDto: CreateFileDto) {
-    return 'This action adds a new file';
+  create(
+    file: Express.Multer.File,
+    createFileDto: CreateFileDto,
+    user: User,
+    //product: Product,
+    //store: Store,
+  ): Promise<File> {
+    const { url, tags } = createFileDto;
+
+    const fileToUpload = {
+      url: url,
+      tags: tags,
+      filename: file.originalname,
+      user: user,
+    };
+
+    return this.fileRepository.createFile(fileToUpload); //,product, store);
   }
 
   findAll() {
