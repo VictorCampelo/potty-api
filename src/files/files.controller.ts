@@ -4,6 +4,7 @@ import {
   HttpCode,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
@@ -12,14 +13,18 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/users/user.entity';
 import { CreateFileDto } from './dto/create-file.dto';
 import { File } from './file.entity';
-import { FilesService } from './files.service';
 import { Express } from 'express';
 import { multerOptions } from 'src/configs/multer.config';
+import { Request } from '@nestjs/common';
+import { FilesService } from './files.service';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('files')
 export class FilesController {
   constructor(private filesService: FilesService) {}
 
+  @UseGuards(AuthGuard(), RolesGuard)
   @Post()
   @HttpCode(201)
   @UseInterceptors(FileInterceptor('file', multerOptions))
@@ -28,13 +33,13 @@ export class FilesController {
     @Body(ValidationPipe) createFileDto: CreateFileDto,
     @GetUser() user: User,
   ): Promise<File> {
-    console.log(file);
-
     const fileUploaded = await this.filesService.create(
       file,
       createFileDto,
       user,
     );
+    console.log(file);
+
     return fileUploaded;
   }
 }

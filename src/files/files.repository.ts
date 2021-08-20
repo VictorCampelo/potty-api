@@ -19,7 +19,7 @@ interface IFile {
 @EntityRepository(File)
 export class FileRepository extends Repository<File> {
   async createFile({ url, tags, filename, user }: IFile): Promise<File> {
-    const fileToUpload = this.create(); //user, product, store });
+    const fileToUpload = this.create();
     fileToUpload.name = filename;
     fileToUpload.url = url;
     fileToUpload.user = user;

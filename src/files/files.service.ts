@@ -43,12 +43,12 @@ export class FilesService {
     //product: Product,
     //store: Store,
   ): Promise<File> {
-    const { url, tags } = createFileDto;
+    const { tags } = createFileDto;
 
     const fileToUpload = {
-      url: url,
+      url: `http://localhost:3000/${file.path}`,
       tags: tags,
-      filename: file.originalname,
+      filename: file.filename,
       user: user,
     };
 
@@ -82,10 +82,8 @@ export class FilesService {
           ACL: 'public-read',
         })
         .promise();
-
       return Location;
     }
-
     async fileToS3Minio(fileStreamOrBuffer, fileName, userId) {
       const extension = /(?:\.([^.]+))?$/.exec(fileName)[0];
       const name = `users/${userId}/photo-${new Date().getTime()}${extension}`;
@@ -102,7 +100,6 @@ export class FilesService {
       } catch (error) {
         throw error;
       }
-
       return `https://${process.env.S3_BUCKET}.s3.${process.env.S3_REGION}.amazonaws.com/${name}`;
     }
  */
