@@ -73,7 +73,7 @@ export class File extends BaseEntity {
   @ManyToOne(() => Store, (store) => store.files)
   store: Store;
 
-  @Column('simple-array')
+  @Column({ nullable: true, type: 'simple-array' })
   tags: string[];
 
   @CreateDateColumn()

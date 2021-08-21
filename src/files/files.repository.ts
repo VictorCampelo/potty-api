@@ -10,20 +10,18 @@ import { Product } from 'src/products/product.entity';
 import { Store } from 'src/stores/store.entity';
 
 interface IFile {
+  name: string;
   filename: string;
   url: string;
-  tags: string[];
-  user: User;
+  tags?: string[];
+  // user: User;
 }
 
 @EntityRepository(File)
 export class FileRepository extends Repository<File> {
-  async createFile({ url, tags, filename, user }: IFile): Promise<File> {
-    const fileToUpload = this.create();
-    fileToUpload.name = filename;
-    fileToUpload.url = url;
-    fileToUpload.user = user;
-    fileToUpload.tags = tags;
+  async createFile(IFile): Promise<File> {
+    let fileToUpload = this.create();
+    fileToUpload = Object.assign(fileToUpload, IFile);
     try {
       await fileToUpload.save();
       return fileToUpload;

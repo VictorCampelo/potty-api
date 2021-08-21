@@ -87,15 +87,21 @@ export class UsersController {
     };
   }
 
-  @ApiTags('users')
+  @ApiTags('admin')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+    }),
+  )
   @Patch(':id')
   @Role(UserRole.ADMIN)
   async updateUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
+    @UploadedFile() file,
     @GetUser() user: User,
     @Param('id') id: string,
   ) {
-    return this.usersService.updateUser(updateUserDto, id);
+    return this.usersService.updateUser({ id, updateUserDto, file });
   }
 
   @ApiTags('users')
@@ -105,31 +111,19 @@ export class UsersController {
       storage: memoryStorage(),
     }),
   )
-  // ! call this interceptor if dickstorage will be use
-  // @UseInterceptors(FileInterceptor('file', multerOptions))
   @Patch()
   async updateNormalUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
     @UploadedFile() file,
     @GetUser() user: User,
   ) {
-    fs.access('./../../public/uploads', (error) => {
-      if (error) {
-        fs.mkdirSync('./../../public/uploads');
-      }
-    });
-    const { buffer, originalname } = file;
-    const timestamp = new Date().toISOString();
-    const ref = `${timestamp}-${originalname}.webp`;
-    await sharp(buffer)
-      .webp({ quality: 20 })
-      .toFile('./../../public/uploads/' + ref);
-    const link = `http://localhost:3000/${ref}`;
-    // TODO: Create a file
-    gm('/path/to/img.png').identify(function (err, data) {
-      if (!err) console.log(data);
-    });
-    return this.usersService.updateUser(updateUserDto, user.id);
+    try {
+      console.log(user.id);
+      const id = user.id;
+      return this.usersService.updateUser({ id, updateUserDto, file });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @ApiTags('admin')

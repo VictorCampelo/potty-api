@@ -24,7 +24,10 @@ export class User extends BaseEntity {
   email: string;
 
   @Column({ nullable: false, type: 'varchar', length: 255 })
-  name: string;
+  firstName: string;
+
+  @Column({ nullable: false, type: 'varchar', length: 255 })
+  lastName: string;
 
   @Column({ nullable: false, type: 'varchar', length: 20 })
   role: string;

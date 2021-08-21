@@ -3,7 +3,10 @@ import { BaseQueryParametersDto } from '../../shared/dto/base-query-parameters.d
 
 export class FindUsersQueryDto extends BaseQueryParametersDto {
   @ApiProperty()
-  name?: string;
+  firstName?: string;
+
+  @ApiProperty()
+  lastName?: string;
 
   @ApiProperty()
   email?: string;

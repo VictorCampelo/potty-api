@@ -1,3 +1,4 @@
+import { UpdateUserRequestDto } from './dto/update-user-request.dto';
 import {
   Injectable,
   UnprocessableEntityException,
@@ -10,12 +11,14 @@ import { User } from './user.entity';
 import { UserRole } from './user-roles.enum';
 import { UpdateUserDto } from './dto/update-users.dto';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
+    private filesService: FilesService,
   ) {}
 
   async createAdminUser(createUserDto: CreateUserDto): Promise<User> {
@@ -37,7 +40,7 @@ export class UsersService {
 
   async findUserById(userId: string): Promise<User> {
     const user = await this.userRepository.findOne(userId, {
-      select: ['email', 'name', 'role', 'id'],
+      select: ['email', 'firstName', 'lastName', 'role', 'id'],
     });
 
     if (!user) throw new NotFoundException('Usuário não encontrado');
@@ -45,13 +48,27 @@ export class UsersService {
     return user;
   }
 
-  async updateUser(updateUserDto: UpdateUserDto, id: string) {
-    const result = await this.userRepository.update({ id }, updateUserDto);
-    if (result.affected > 0) {
-      const user = await this.findUserById(id);
-      return user;
-    } else {
-      throw new NotFoundException('Usuário não encontrado');
+  async updateUser(updateUserRequestDto: UpdateUserRequestDto): Promise<User> {
+    try {
+      const id = updateUserRequestDto.id;
+      console.log(id);
+      let user = await this.findUserById(id);
+      console.log(user);
+      user = Object.assign(user, updateUserRequestDto.updateUserDto);
+      console.log(user);
+      if (updateUserRequestDto.file) {
+        if (user.files) {
+          user.files = [await this.filesService.createWithFile(updateUserRequestDto.file)]
+        } else {
+          user.files = [
+            await this.filesService.createWithFile(updateUserRequestDto.file),
+          ];
+        }
+      }
+
+      return await this.userRepository.save(user);
+    } catch (err) {
+      throw new NotFoundException('error: ' + err);
     }
   }
 

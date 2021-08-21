@@ -20,7 +20,7 @@ export class UserRepository extends Repository<User> {
     queryDto.page = queryDto.page < 1 ? 1 : queryDto.page;
     queryDto.limit = queryDto.limit > 100 ? 100 : queryDto.limit;
 
-    const { email, name, enabled, role } = queryDto;
+    const { email, firstName, lastName, enabled, role } = queryDto;
     const query = this.createQueryBuilder('user'); //alias utilizado durante a montagem da query
     query.where('user.enabled = :enabled', { enabled });
 
@@ -28,8 +28,12 @@ export class UserRepository extends Repository<User> {
       query.andWhere('user.email ILIKE :email', { email: `%${email}%` });
     }
 
-    if (name) {
-      query.andWhere('user.name ILIKE :name', { name: `%${name}%` });
+    if (firstName) {
+      query.andWhere('user.name ILIKE :name', { name: `%${firstName}%` });
+    }
+
+    if (lastName) {
+      query.andWhere('user.name ILIKE :name', { name: `%${lastName}%` });
     }
 
     if (role) {
@@ -49,11 +53,12 @@ export class UserRepository extends Repository<User> {
     createUserDto: CreateUserDto,
     role: UserRole,
   ): Promise<User> {
-    const { email, name, password } = createUserDto;
+    const { email, firstName, lastName, password } = createUserDto;
 
     const user = this.create();
     user.email = email;
-    user.name = name;
+    user.firstName = firstName;
+    user.lastName = lastName;
     user.role = role;
     user.enabled = true;
     user.confirmationToken = crypto.randomBytes(32).toString('hex');

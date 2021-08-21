@@ -4,9 +4,9 @@ import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { FileRepository } from './files.repository';
 import { File } from './file.entity';
-import { Store } from 'src/stores/store.entity';
 import { User } from 'src/users/user.entity';
-import { Product } from 'src/products/product.entity';
+import * as fs from 'fs';
+
 // import * as AWS from 'aws-sdk';
 // import * as Minio from 'minio';
 
@@ -36,7 +36,7 @@ export class FilesService {
   //   });
   // }
 
-  create(
+  async create(
     file: Express.Multer.File,
     createFileDto: CreateFileDto,
     user: User,
@@ -49,10 +49,38 @@ export class FilesService {
       url: `http://localhost:3000/${file.path}`,
       tags: tags,
       filename: file.filename,
-      user: user,
+      // user: user,
     };
 
-    return this.fileRepository.createFile(fileToUpload); //,product, store);
+    return this.fileRepository.createFile(fileToUpload);
+  }
+
+  async createWithFile(file: Express.Multer.File): Promise<File> {
+    const uploadFolder = process.cwd() + './../../public/uploads';
+    fs.access('public/uploads', (error) => {
+      if (error) {
+        fs.mkdirSync('public/uploads', { recursive: true });
+      }
+    });
+    const { buffer, originalname } = file;
+    const timestamp = new Date().getTime();
+    const ref = `${timestamp}.png`;
+
+    // await sharp(buffer)
+    //   .webp({ quality: 20 })
+    //   .toFile(uploadFolder + ref);
+    await fs.writeFile('public/uploads/' + ref, buffer, (err) => {
+      if (err) throw err;
+    });
+    const link = `http://localhost:3000/${ref}`;
+
+    const fileToUpload = {
+      name: ref,
+      url: link,
+      filename: file.filename,
+    };
+
+    return await this.fileRepository.createFile(fileToUpload);
   }
 
   findAll() {
