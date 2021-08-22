@@ -118,7 +118,6 @@ export class UsersController {
     @GetUser() user: User,
   ) {
     try {
-      console.log(user.id);
       const id = user.id;
       return this.usersService.updateUser({ id, updateUserDto, file });
     } catch (error) {

@@ -95,8 +95,8 @@ export class FilesService {
     return `This action updates a #${id} file`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} file`;
+  async remove(id: string) {
+    return await this.fileRepository.delete(id);
   }
 
   /**

@@ -41,6 +41,7 @@ export class UsersService {
   async findUserById(userId: string): Promise<User> {
     const user = await this.userRepository.findOne(userId, {
       select: ['email', 'firstName', 'lastName', 'role', 'id'],
+      relations: ['files'],
     });
 
     if (!user) throw new NotFoundException('Usuário não encontrado');
@@ -51,21 +52,48 @@ export class UsersService {
   async updateUser(updateUserRequestDto: UpdateUserRequestDto): Promise<User> {
     try {
       const id = updateUserRequestDto.id;
-      console.log(id);
       let user = await this.findUserById(id);
-      console.log(user);
-      user = Object.assign(user, updateUserRequestDto.updateUserDto);
-      console.log(user);
+
       if (updateUserRequestDto.file) {
-        if (user.files) {
-          user.files = [await this.filesService.createWithFile(updateUserRequestDto.file)]
-        } else {
-          user.files = [
-            await this.filesService.createWithFile(updateUserRequestDto.file),
-          ];
-        }
+        const file = await this.filesService.createWithFile(
+          updateUserRequestDto.file,
+        );
+        user.profileImage = file;
+        user.files.push(file);
       }
 
+      user = Object.assign(user, updateUserRequestDto.updateUserDto);
+
+      return await this.userRepository.save(user);
+    } catch (err) {
+      throw new NotFoundException('error: ' + err);
+    }
+  }
+
+  async addUserPic(user: User, newProfileImage: Express.Multer.File) {
+    try {
+      const file = await this.filesService.createWithFile(newProfileImage);
+      user.profileImage = file;
+      return await this.userRepository.save(user);
+    } catch (err) {
+      throw new NotFoundException('error: ' + err);
+    }
+  }
+
+  async deleteUserPic(userFileId: string) {
+    try {
+      await this.filesService.remove(userFileId);
+      return 'User image file was successfully removed';
+    } catch (err) {
+      throw new NotFoundException('error: ' + err);
+    }
+  }
+
+  async updateUserPic(user: User, newProfileImage: Express.Multer.File) {
+    try {
+      await this.filesService.remove(user.profileImage.id);
+      const file = await this.filesService.createWithFile(newProfileImage);
+      user.profileImage = file;
       return await this.userRepository.save(user);
     } catch (err) {
       throw new NotFoundException('error: ' + err);
