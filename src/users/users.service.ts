@@ -57,6 +57,7 @@ export class UsersService {
       if (updateUserRequestDto.file) {
         const file = await this.filesService.createWithFile(
           updateUserRequestDto.file,
+          user,
         );
         user.profileImage = file;
         user.files.push(file);
@@ -72,7 +73,10 @@ export class UsersService {
 
   async addUserPic(user: User, newProfileImage: Express.Multer.File) {
     try {
-      const file = await this.filesService.createWithFile(newProfileImage);
+      const file = await this.filesService.createWithFile(
+        newProfileImage,
+        user,
+      );
       user.profileImage = file;
       return await this.userRepository.save(user);
     } catch (err) {
@@ -92,7 +96,10 @@ export class UsersService {
   async updateUserPic(user: User, newProfileImage: Express.Multer.File) {
     try {
       await this.filesService.remove(user.profileImage.id);
-      const file = await this.filesService.createWithFile(newProfileImage);
+      const file = await this.filesService.createWithFile(
+        newProfileImage,
+        user,
+      );
       user.profileImage = file;
       return await this.userRepository.save(user);
     } catch (err) {

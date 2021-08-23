@@ -49,13 +49,14 @@ export class FilesService {
       url: `http://localhost:3000/${file.path}`,
       tags: tags,
       filename: file.filename,
+      user,
       // user: user,
     };
 
     return this.fileRepository.createFile(fileToUpload);
   }
 
-  async createWithFile(file: Express.Multer.File): Promise<File> {
+  async createWithFile(file: Express.Multer.File, user: User): Promise<File> {
     const uploadFolder = process.cwd() + './../../public/uploads';
     fs.access('public/uploads', (error) => {
       if (error) {
@@ -74,10 +75,13 @@ export class FilesService {
     });
     const link = `http://localhost:3000/${ref}`;
 
+    console.log(ref);
+
     const fileToUpload = {
       name: ref,
       url: link,
-      filename: file.filename,
+      filename: file.originalname,
+      user,
     };
 
     return await this.fileRepository.createFile(fileToUpload);
