@@ -10,6 +10,7 @@ import {
   JoinTable,
   OneToMany,
   OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Product } from 'src/products/product.entity';
@@ -62,6 +63,7 @@ export class User extends BaseEntity {
   files: File[];
 
   @OneToOne(() => File)
+  @JoinColumn()
   profileImage: File;
 
   async checkPassword(password: string): Promise<boolean> {

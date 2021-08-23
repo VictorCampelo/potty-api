@@ -59,6 +59,11 @@ export class UsersService {
           updateUserRequestDto.file,
           user,
         );
+
+        /*o arquivo já foi registrado, se essa informação for junto
+        ficaria algo como user.file.user */
+        file.user = null;
+
         user.profileImage = file;
         user.files.push(file);
       }
