@@ -87,6 +87,10 @@ export class FilesService {
     return await this.fileRepository.createFile(fileToUpload);
   }
 
+  async saveFile(file: File) {
+    await this.fileRepository.save(file);
+  }
+
   findAll() {
     return `This action returns all files`;
   }

@@ -59,7 +59,7 @@ export class User extends BaseEntity {
   @JoinTable()
   products: Product[];
 
-  @OneToMany(() => File, (file) => file.user)
+  @OneToMany(() => File, (file) => file.user, { cascade: true })
   files: File[];
 
   @OneToOne(() => File)
