@@ -40,7 +40,7 @@ export class UsersService {
 
   async findUserById(userId: string): Promise<User> {
     const user = await this.userRepository.findOne(userId, {
-      select: ['email', 'firstName', 'lastName', 'role', 'id'],
+      select: ['email', 'firstName', 'lastName', 'role', 'id', 'profileImage'],
       relations: ['files'],
     });
 
@@ -51,22 +51,21 @@ export class UsersService {
 
   async updateUser(updateUserRequestDto: UpdateUserRequestDto): Promise<User> {
     try {
-      const id = updateUserRequestDto.id;
-      let user = await this.findUserById(id);
-
-      if (updateUserRequestDto.file) {
-        const file = await this.filesService.createWithFile(
+      let file;
+      let user = await this.findUserById(updateUserRequestDto.id);
+      user = Object.assign(user, updateUserRequestDto.updateUserDto);
+      if (updateUserRequestDto.file && user) {
+        file = await this.filesService.createWithFile(
           updateUserRequestDto.file,
         );
         user.profileImage = file;
         user.files.push(file);
       }
-
-      user = Object.assign(user, updateUserRequestDto.updateUserDto);
-
-      return await this.userRepository.save(user);
+      user = await this.userRepository.save(user);
+      await this.filesService.saveFile(file);
+      return user;
     } catch (err) {
-      throw new NotFoundException('error: ' + err);
+      throw new NotFoundException(err);
     }
   }
 

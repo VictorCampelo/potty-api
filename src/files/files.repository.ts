@@ -23,7 +23,6 @@ export class FileRepository extends Repository<File> {
     let fileToUpload = this.create();
     fileToUpload = Object.assign(fileToUpload, IFile);
     try {
-      await fileToUpload.save();
       return fileToUpload;
     } catch (error) {
       throw new InternalServerErrorException(
