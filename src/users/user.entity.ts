@@ -15,6 +15,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { Product } from 'src/products/product.entity';
 import { File } from 'src/files/file.entity';
+import { Order } from 'src/orders/order.entity';
 
 @Entity('user')
 @Unique(['email'])
@@ -55,16 +56,15 @@ export class User extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToMany(() => Product)
-  @JoinTable()
-  products: Product[];
-
   @OneToMany(() => File, (file) => file.user, { cascade: true })
   files: File[];
 
   @OneToOne(() => File)
   @JoinColumn()
   profileImage: File;
+
+  @OneToMany(() => Order, (order) => order.user)
+  public order!: Order[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

@@ -9,7 +9,6 @@ import { UserRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
 import { UserRole } from './user-roles.enum';
-import { UpdateUserDto } from './dto/update-users.dto';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { FilesService } from 'src/files/files.service';
 
@@ -57,15 +56,9 @@ export class UsersService {
       if (updateUserRequestDto.file && user) {
         file = await this.filesService.createWithFile(
           updateUserRequestDto.file,
-          user,
         );
-
-        /*o arquivo já foi registrado, se essa informação for junto
-        ficaria algo como user.file.user */
-        file.user = null;
-
         user.profileImage = file;
-        user.files.push(file);
+        // user.files.push(file);
       }
       user = await this.userRepository.save(user);
       await this.filesService.saveFile(file);
@@ -77,10 +70,7 @@ export class UsersService {
 
   async addUserPic(user: User, newProfileImage: Express.Multer.File) {
     try {
-      const file = await this.filesService.createWithFile(
-        newProfileImage,
-        user,
-      );
+      const file = await this.filesService.createWithFile(newProfileImage);
       user.profileImage = file;
       return await this.userRepository.save(user);
     } catch (err) {
@@ -100,10 +90,7 @@ export class UsersService {
   async updateUserPic(user: User, newProfileImage: Express.Multer.File) {
     try {
       await this.filesService.remove(user.profileImage.id);
-      const file = await this.filesService.createWithFile(
-        newProfileImage,
-        user,
-      );
+      const file = await this.filesService.createWithFile(newProfileImage);
       user.profileImage = file;
       return await this.userRepository.save(user);
     } catch (err) {

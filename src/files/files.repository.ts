@@ -1,19 +1,11 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { File } from './file.entity';
-import {
-  ConflictException,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { CreateFileDto } from './dto/create-file.dto';
-import { User } from 'src/users/user.entity';
-import { Product } from 'src/products/product.entity';
-import { Store } from 'src/stores/store.entity';
+import { InternalServerErrorException } from '@nestjs/common';
 
 interface IFile {
   filename: string;
   url: string;
   tags?: string[];
-  user: User;
   // user: User;
 }
 
