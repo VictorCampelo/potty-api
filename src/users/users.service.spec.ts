@@ -114,7 +114,7 @@ describe('UsersService', () => {
         page: 1,
         role: '',
         sort: '',
-        status: true,
+        enabled: true,
       };
       const result = await service.findUsers(mockFindUsersQueryDto);
       expect(userRepository.findUsers).toHaveBeenCalledWith(

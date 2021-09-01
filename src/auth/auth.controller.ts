@@ -22,11 +22,6 @@ import { UserRole } from 'src/users/user-roles.enum';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  /**
-   * Posts auth controller
-   * @param createUserDto
-   * @returns up
-   */
   @Post('/signup')
   async signUp(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
@@ -37,11 +32,6 @@ export class AuthController {
     };
   }
 
-  /**
-   * Posts auth controller
-   * @param credentiaslsDto
-   * @returns in
-   */
   @Post('/signin')
   async signIn(
     @Body(ValidationPipe) credentiaslsDto: CredentialsDto,
@@ -49,11 +39,6 @@ export class AuthController {
     return await this.authService.signIn(credentiaslsDto);
   }
 
-  /**
-   * Patchs auth controller
-   * @param token
-   * @returns
-   */
   @Patch(':token')
   async confirmEmail(@Param('token') token: string) {
     const user = await this.authService.confirmEmail(token);
@@ -62,11 +47,6 @@ export class AuthController {
     };
   }
 
-  /**
-   * Posts send recover email
-   * @param email
-   * @returns recover password email
-   */
   @Post('/send-recover-email')
   async sendRecoverPasswordEmail(
     @Body('email') email: string,
@@ -77,18 +57,11 @@ export class AuthController {
     };
   }
 
-  /**
-   * Patchs reset password
-   * @param {String} token
-   * @dto changePasswordDto
-   * @returns message
-   */
   @Patch('/reset-password/:token')
   async resetPassword(
     @Param('token') token: string,
     @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
   ): Promise<{ message: string }> {
-    console.log(token);
     await this.authService.resetPassword(token, changePasswordDto);
 
     return {
@@ -96,13 +69,6 @@ export class AuthController {
     };
   }
 
-  /**
-   * Patchs auth controller
-   * @param id
-   * @dto changePasswordDto
-   * @param user
-   * @returns message
-   */
   @Patch(':id/change-password')
   @UseGuards(AuthGuard())
   async changePassword(
@@ -121,11 +87,6 @@ export class AuthController {
     };
   }
 
-  /**
-   * Gets authenticate user informantions controller
-   * @param user
-   * @returns user
-   */
   @Get('/me')
   @UseGuards(AuthGuard())
   getMe(@GetUser() user: User): User {

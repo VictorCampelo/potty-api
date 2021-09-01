@@ -7,22 +7,32 @@ import { WinstonModule } from 'nest-winston';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { mailerConfig } from './configs/mailer.config';
-import { typeOrmConfig } from './configs/typeorm.config';
+import { configService } from './configs/typeorm.config';
 import { winstonConfig } from './configs/winston.config';
 import { LoggerInterceptor } from './interceptors/logger.interceptor';
-import { ToolsModule } from './tools/tools.module';
 import { UsersModule } from './users/users.module';
+import { StoresModule } from './stores/stores.module';
+import { ProductsModule } from './products/products.module';
+import { EmailsModule } from './emails/emails.module';
+import { FilesModule } from './files/files.module';
+import { CategoriesModule } from './categories/categories.module';
+import { OrdersModule } from './orders/orders.module';
 
 dotenv.config();
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(typeOrmConfig),
+    TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
     WinstonModule.forRoot(winstonConfig),
     MailerModule.forRoot(mailerConfig),
+    EmailsModule,
     UsersModule,
     AuthModule,
-    ToolsModule,
+    StoresModule,
+    ProductsModule,
+    FilesModule,
+    CategoriesModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [

@@ -2,13 +2,14 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -22,26 +23,23 @@ import { UpdateUserDto } from './dto/update-users.dto';
 import { UserRole } from './user-roles.enum';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
+import { SentryInterceptor } from '../interceptors/sentry.interceptor';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import * as fs from 'fs';
+import sharp from 'sharp';
+import gm from 'gm';
+// import { multerOptions } from 'src/configs/multer.config';
 
-/**
- * Posts users controller
- * Get user controller
- * Patch user controller
- * Deletes users controller
- * Gets users controller
- */
 @Controller('users')
 @UseGuards(AuthGuard(), RolesGuard) //protect all user endpoints
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  /**
-   * Posts users controller
-   * @param createUserDto
-   * @returns admin user
-   */
+  @ApiTags('admin')
   @Post()
-  @Role(UserRole.ADMIN) //somente admin pode criar admin
+  @Role(UserRole.ADMIN) //only admin user can create other admin user
   async createAdminUser(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<ReturnUserDto> {
@@ -52,28 +50,33 @@ export class UsersController {
     };
   }
 
-  /**
-   * Posts users controller
-   * @param createUserDto
-   * @returns admin user
-   */
+  @ApiTags('owner')
   @Post()
-  @Role(UserRole.OWNER) //somente admin pode criar admin
   async createOwnerUser(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<ReturnUserDto> {
-    const user = await this.usersService.createAdminUser(createUserDto);
+    const user = await this.usersService.createOwnerUser(createUserDto);
     return {
       user,
       message: 'Dono cadastrado com sucesso',
     };
   }
 
-  /**
-   * Get user controller
-   * @param id
-   * @returns user by id
-   */
+  @UseInterceptors(SentryInterceptor)
+  @ApiOperation({ summary: 'Get a authenticate user informations' })
+  @ApiTags('users')
+  @Get()
+  async getAuthUser(@GetUser() authUser: User): Promise<ReturnUserDto> {
+    try {
+      const user = await this.usersService.findUserById(authUser.id);
+      return {
+        user,
+        message: 'Usuário encontrado',
+      };
+    } catch (error) {}
+  }
+
+  @ApiTags('admin')
   @Get(':id')
   @Role(UserRole.ADMIN)
   async findUserById(@Param('id') id): Promise<ReturnUserDto> {
@@ -84,47 +87,45 @@ export class UsersController {
     };
   }
 
-  /**
-   * Patch user controller with admin role
-   * @param updateUserDto
-   * @param user
-   * @param id
-   * @returns user
-   */
+  @ApiTags('admin')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+    }),
+  )
   @Patch(':id')
+  @Role(UserRole.ADMIN)
   async updateUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
+    @UploadedFile() file,
     @GetUser() user: User,
     @Param('id') id: string,
   ) {
-    if (user.role != UserRole.ADMIN && user.id.toString() != id) {
-      throw new ForbiddenException(
-        'Você não tem autorização para acessar esse recurso',
-      );
-    } else {
-      return this.usersService.updateUser(updateUserDto, id);
-    }
+    return this.usersService.updateUser({ id, updateUserDto, file });
   }
 
-  /**
-   * Patch normal user controller
-   * @param updateUserDto
-   * @param user
-   * @returns
-   */
+  @ApiTags('users')
+  // ! If api will use extern store service then we should use memoryStorage, but if we dont use that, then use dickStorage !
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+    }),
+  )
   @Patch()
   async updateNormalUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
+    @UploadedFile() file,
     @GetUser() user: User,
   ) {
-    return this.usersService.updateUser(updateUserDto, user.id);
+    try {
+      const id = user.id;
+      return this.usersService.updateUser({ id, updateUserDto, file });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  /**
-   * Deletes users controller
-   * @param id
-   * @returns {string} message
-   */
+  @ApiTags('admin')
   @Delete(':id')
   @Role(UserRole.ADMIN)
   async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
@@ -134,11 +135,7 @@ export class UsersController {
     };
   }
 
-  /**
-   * Gets users controller
-   * @param query
-   * @returns list of user
-   */
+  @ApiTags('admin')
   @Get()
   @Role(UserRole.ADMIN)
   async findUsers(@Query() query: FindUsersQueryDto) {

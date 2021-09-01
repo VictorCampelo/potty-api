@@ -1,14 +1,45 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { WinstonModule } from 'nest-winston';
-import { winstonConfig } from './configs/winston.config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as Sentry from '@sentry/node';
 import * as dotenv from 'dotenv';
+import { json, urlencoded } from 'express';
+import { WinstonModule } from 'nest-winston';
+import { AppModule } from './app.module';
+import { winstonConfig } from './configs/winston.config';
 
 dotenv.config();
 
 async function bootstrap() {
   const logger = WinstonModule.createLogger(winstonConfig);
   const app = await NestFactory.create(AppModule, { logger });
+
+  Sentry.init({
+    dsn: process.env.SENTRY_DNS,
+  });
+
+  app.useGlobalPipes(new ValidationPipe());
+  app.enableCors();
+
+  app.use(json({ limit: '500mb' }));
+  app.use(urlencoded({ limit: '500mb', extended: true }));
+
+  const config = new DocumentBuilder()
+    .setTitle('Ultimo API')
+    .setDescription('Ultimo API Doc')
+    .setVersion('1.0')
+    .addTag('users')
+    .addTag('admin')
+    .addTag('owner')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
+      'Bearer',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

@@ -1,49 +1,49 @@
-import { EntityRepository, Repository } from 'typeorm';
-import { User } from './user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserRole } from './user-roles.enum';
-import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import {
   ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { EntityRepository, Repository } from 'typeorm';
 import { CredentialsDto } from '../auth/dto/credentials.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { UserRole } from './user-roles.enum';
+import { User } from './user.entity';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
   async findUsers(
     queryDto: FindUsersQueryDto,
   ): Promise<{ users: User[]; total: number }> {
-    queryDto.status = queryDto.status === undefined ? true : queryDto.status;
+    queryDto.enabled = queryDto.enabled === undefined ? true : queryDto.enabled;
     queryDto.page = queryDto.page < 1 ? 1 : queryDto.page;
     queryDto.limit = queryDto.limit > 100 ? 100 : queryDto.limit;
 
-    const { email, name, status, role } = queryDto;
+    const { email, firstName, lastName, enabled, role } = queryDto;
     const query = this.createQueryBuilder('user'); //alias utilizado durante a montagem da query
-    query.where('user.status = :status', { status });
+    query.where('user.enabled = :enabled', { enabled });
 
     if (email) {
       query.andWhere('user.email ILIKE :email', { email: `%${email}%` });
     }
 
-    if (name) {
-      query.andWhere('user.name ILIKE :name', { name: `%${name}%` });
+    if (firstName) {
+      query.andWhere('user.name ILIKE :name', { name: `%${firstName}%` });
+    }
+
+    if (lastName) {
+      query.andWhere('user.name ILIKE :name', { name: `%${lastName}%` });
     }
 
     if (role) {
       query.andWhere('user.role = :role', { role });
     }
-    const skp = (queryDto.page - 1) * queryDto.limit;
+
     query.take(+queryDto.limit);
     query.orderBy(queryDto.sort ? JSON.parse(queryDto.sort) : undefined);
-    query.select(['user.name', 'user.email', 'user.role', 'user.status']);
+    query.select(['user.name', 'user.email', 'user.role', 'user.enabled']);
 
-    /* getManyAndCount() retorna dois valores:
-     * o primeiro são os usuários encontrados,
-     * o segundo o total de dados que satisfazem as condições especificadas,
-     * ignorando a paginação */
     const [users, total] = await query.getManyAndCount();
 
     return { users, total };
@@ -53,13 +53,14 @@ export class UserRepository extends Repository<User> {
     createUserDto: CreateUserDto,
     role: UserRole,
   ): Promise<User> {
-    const { email, name, password } = createUserDto;
+    const { email, firstName, lastName, password } = createUserDto;
 
     const user = this.create();
     user.email = email;
-    user.name = name;
+    user.firstName = firstName;
+    user.lastName = lastName;
     user.role = role;
-    user.status = true;
+    user.enabled = true;
     user.confirmationToken = crypto.randomBytes(32).toString('hex');
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
@@ -69,7 +70,6 @@ export class UserRepository extends Repository<User> {
       delete user.salt;
       return user;
     } catch (error) {
-      //E11000 duplicate key error collection
       if (error.code === 11000) {
         throw new ConflictException('Endereço de email já está em uso');
       } else {
@@ -82,7 +82,7 @@ export class UserRepository extends Repository<User> {
 
   async checkCredentials(credentialsDto: CredentialsDto): Promise<User> {
     const { email, password } = credentialsDto;
-    const user = await this.findOne({ email, status: true });
+    const user = await this.findOne({ email, enabled: true });
 
     if (user && (await user.checkPassword(password))) {
       return user;
