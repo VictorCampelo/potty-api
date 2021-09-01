@@ -9,10 +9,13 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Product } from 'src/products/product.entity';
-import { File as Files } from 'src/files/file.entity';
+import { File } from 'src/files/file.entity';
+import { Order } from 'src/orders/order.entity';
 
 @Entity('user')
 @Unique(['email'])
@@ -24,7 +27,10 @@ export class User extends BaseEntity {
   email: string;
 
   @Column({ nullable: false, type: 'varchar', length: 255 })
-  name: string;
+  firstName: string;
+
+  @Column({ nullable: false, type: 'varchar', length: 255 })
+  lastName: string;
 
   @Column({ nullable: false, type: 'varchar', length: 20 })
   role: string;
@@ -50,12 +56,15 @@ export class User extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToMany(() => Product)
-  @JoinTable()
-  products: Product[];
+  @OneToMany(() => File, (file) => file.user, { cascade: true })
+  files: File[];
 
-  @OneToMany(() => Files, (file) => file.user)
-  files: Files[];
+  @OneToOne(() => File)
+  @JoinColumn()
+  profileImage: File;
+
+  @OneToMany(() => Order, (order) => order.user)
+  public order!: Order[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

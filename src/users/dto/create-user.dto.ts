@@ -19,12 +19,21 @@ export class CreateUserDto {
 
   @ApiProperty({ required: true })
   @IsNotEmpty({
-    message: 'Informe o nome do usuário',
+    message: 'Informe o primeiro nome do usuário',
   })
   @MaxLength(200, {
-    message: 'O nome deve ter menos de 200 caracteres',
+    message: 'O primeiro nome deve ter menos de 200 caracteres',
   })
-  name: string;
+  firstName: string;
+
+  @ApiProperty({ required: true })
+  @IsNotEmpty({
+    message: 'Informe o segundo nome do usuário',
+  })
+  @MaxLength(200, {
+    message: 'O segundo nome deve ter menos de 200 caracteres',
+  })
+  lastName: string;
 
   @ApiProperty({ required: true })
   @IsNotEmpty({

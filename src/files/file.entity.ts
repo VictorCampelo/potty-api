@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('file')
@@ -65,6 +66,7 @@ export class File extends BaseEntity {
   providerMetadata: any;
 
   @ManyToOne(() => User, (user) => user.files)
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToOne(() => Product, (product) => product.files)
@@ -73,7 +75,7 @@ export class File extends BaseEntity {
   @ManyToOne(() => Store, (store) => store.files)
   store: Store;
 
-  @Column('simple-array')
+  @Column({ nullable: true, type: 'simple-array' })
   tags: string[];
 
   @CreateDateColumn()
