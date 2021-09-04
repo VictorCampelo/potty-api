@@ -4,6 +4,7 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +12,7 @@ import {
 import { Product } from 'src/products/product.entity';
 import { File as Files } from 'src/files/file.entity';
 import { Category } from 'src/categories/category.entity';
+import { User } from 'src/users/user.entity';
 
 @Entity('store')
 export class Store {
@@ -65,4 +67,7 @@ export class Store {
   @ManyToMany(() => Category, (category) => category.store)
   @JoinTable({ name: 'store_category' })
   categories: Category[];
+
+  @ManyToOne(() => User, (user) => user.stores)
+  user: User;
 }

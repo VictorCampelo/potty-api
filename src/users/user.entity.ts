@@ -16,6 +16,7 @@ import * as bcrypt from 'bcrypt';
 import { Product } from 'src/products/product.entity';
 import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
+import { Store } from 'src/stores/store.entity';
 
 @Entity('user')
 @Unique(['email'])
@@ -65,6 +66,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Order, (order) => order.user)
   public order!: Order[];
+
+  @OneToMany(() => Store, (store) => store.user)
+  stores: Store[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);
