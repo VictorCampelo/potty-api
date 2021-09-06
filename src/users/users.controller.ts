@@ -31,24 +31,10 @@ import * as fs from 'fs';
 import sharp from 'sharp';
 import gm from 'gm';
 // import { multerOptions } from 'src/configs/multer.config';
-import { StoresService } from '../stores/stores.service';
-import { CreateStoreDto } from 'src/stores/dto/create-store.dto';
 @Controller('users')
 @UseGuards(AuthGuard(), RolesGuard) //protect all user endpoints
 export class UsersController {
-  constructor(
-    private usersService: UsersService,
-    private storesService: StoresService,
-  ) {}
-
-  @Post('createUserAndStore')
-  async createUserAndStore(@Body() createStoreDto: CreateStoreDto) {
-    const user = await this.usersService.createOwnerUser(createStoreDto);
-    createStoreDto.userId = user.id;
-    const store = await this.storesService.create(createStoreDto);
-
-    return { user: user, store: store, message: 'User and Store createds.' };
-  }
+  constructor(private usersService: UsersService) {}
 
   @ApiTags('admin')
   @Post()
