@@ -32,7 +32,7 @@ export class AuthController {
   async createUserAndStore(
     @Body(ValidationPipe) createStoreDto: CreateStoreDto,
   ) {
-    const user = await this.authService.signUp(createStoreDto);
+    const user = await this.authService.signUpAsOwner(createStoreDto);
     createStoreDto.user = user;
     const store = await this.storesService.create(createStoreDto);
 
