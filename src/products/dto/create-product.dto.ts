@@ -1,8 +1,7 @@
 import { IsOptional } from 'class-validator';
-import { Store } from 'src/stores/store.entity';
 
 export class CreateProductDto {
-  store: Store;
+  store_id: string;
 
   title: string;
 

@@ -20,8 +20,8 @@ export class StoresService {
     return `This action returns all stores`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} store`;
+  async findOne(store_id: string) {
+    return await this.storeRepository.findOne({ id: store_id });
   }
 
   update(id: number, updateStoreDto: UpdateStoreDto) {
