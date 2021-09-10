@@ -2,13 +2,15 @@ import {
   Body,
   Controller,
   HttpCode,
+  ParseArrayPipe,
   Post,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CreateFileDto } from './dto/create-file.dto';
 import { File } from './file.entity';
 import { Express } from 'express';
@@ -31,5 +33,25 @@ export class FilesController {
   ): Promise<File> {
     const fileUploaded = await this.filesService.create(file, createFileDto);
     return fileUploaded;
+  }
+
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Post('multiple')
+  @HttpCode(201)
+  @UseInterceptors(FilesInterceptor('files', 10))
+  async createMultipleFiles(
+    @UploadedFiles() images: Express.Multer.File[],
+    @Body(ValidationPipe) createFileDto: CreateFileDto,
+    // @Body(new ParseArrayPipe({ items: CreateFileDto }))
+    // createFilesDto: CreateFileDto[],
+  ) {
+    console.log(images);
+
+    // const filesUploadedList = await this.filesService.createManyFiles(
+    //   images,
+    //   createFilesDto,
+    // );
+
+    // return filesUploadedList;
   }
 }

@@ -32,7 +32,7 @@ export class AuthController {
   async createUserAndStore(
     @Body(ValidationPipe) createStoreDto: CreateStoreDto,
   ) {
-    const user = await this.authService.signUpAsOwner(createStoreDto);
+    const user = await this.authService.signUp(createStoreDto, UserRole.OWNER);
     createStoreDto.user = user;
     const store = await this.storesService.create(createStoreDto);
 
@@ -43,7 +43,7 @@ export class AuthController {
   async signUp(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<{ message: string }> {
-    await this.authService.signUp(createUserDto);
+    await this.authService.signUp(createUserDto, UserRole.USER);
     return {
       message: 'Cadastro realizado com sucesso',
     };

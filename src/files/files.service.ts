@@ -26,6 +26,22 @@ export class FilesService {
     return this.fileRepository.createFile(fileToUpload);
   }
 
+  async createManyFiles(
+    files: Express.Multer.File[],
+    createFilesDto: CreateFileDto[],
+  ) {
+    console.log(createFilesDto);
+
+    // const fileToUpload = {
+    //   url: `http://localhost:3000/${file.path}`,
+    //   tags: tags,
+    //   filename: file.filename,
+    // };
+
+    // return this.fileRepository.createFile(fileToUpload);
+    return 'service ok';
+  }
+
   async createWithFile(file: Express.Multer.File): Promise<File> {
     fs.access('public/uploads', (error) => {
       if (error) {

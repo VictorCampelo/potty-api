@@ -24,34 +24,11 @@ export class AuthService {
     private emailsService: EmailsService,
   ) {}
 
-  async signUpAsOwner(createUserDto: CreateUserDto): Promise<User> {
+  async signUp(createUserDto: CreateUserDto, role: UserRole): Promise<User> {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
-      const user = await this.userRepository.createUser(
-        createUserDto,
-        UserRole.OWNER,
-      );
-      await this.emailsService.sendEmail(
-        user.email,
-        'Email de confirmação',
-        'email-confirmation',
-        {
-          token: user.confirmationToken,
-        },
-      );
-      return user;
-    }
-  }
-
-  async signUp(createUserDto: CreateUserDto): Promise<User> {
-    if (createUserDto.password != createUserDto.passwordConfirmation) {
-      throw new UnprocessableEntityException('As senhas não conferem');
-    } else {
-      const user = await this.userRepository.createUser(
-        createUserDto,
-        UserRole.USER,
-      );
+      const user = await this.userRepository.createUser(createUserDto, role);
       await this.emailsService.sendEmail(
         user.email,
         'Email de confirmação',

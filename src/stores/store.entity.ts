@@ -41,7 +41,7 @@ export class Store extends BaseEntity {
   @Column({ nullable: false, type: 'varchar', length: 45 })
   description: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: true })
   enabled: boolean;
 
   @Column({ nullable: true, type: 'varchar', length: 45 })
@@ -69,6 +69,10 @@ export class Store extends BaseEntity {
   @JoinTable({ name: 'store_category' })
   categories: Category[];
 
-  @ManyToOne(() => User, (user) => user.stores)
-  user: User;
+  // @ManyToOne(() => User, (user) => user.stores)
+  // user: User;
+
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'owners' })
+  users: User[];
 }

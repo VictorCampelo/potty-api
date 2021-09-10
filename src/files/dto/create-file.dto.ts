@@ -5,8 +5,5 @@ import { File } from '../file.entity';
 export class CreateFileDto {
   tags: string[];
 
-  @UniqueOnDatabase(File)
-  url: string;
-
   name: string;
 }

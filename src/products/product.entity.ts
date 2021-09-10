@@ -22,10 +22,10 @@ export class Product extends BaseEntity {
   @Column({ nullable: false, type: 'varchar', length: 255 })
   title: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 255 })
+  @Column({ nullable: true, type: 'varchar', length: 255 })
   description: string;
 
-  @Column('simple-array')
+  @Column({ nullable: true, type: 'simple-array' })
   tags: string[];
 
   @CreateDateColumn()
