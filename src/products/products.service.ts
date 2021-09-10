@@ -49,11 +49,31 @@ export class ProductsService {
     return `This action returns all products`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    return this.productRepository.findOne(id);
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
+    return `This action updates a #${id} product`;
+  }
+
+  async updateProductDetails(
+    product_id: string,
+    updateProductDto: UpdateProductDto,
+  ) {
+    let product = await this.findOne(product_id);
+
+    if (!product) {
+      throw new NotFoundException(
+        "The product_id sent doesn't matches any Product on the database.",
+      );
+    }
+    product = Object.assign(product, updateProductDto);
+
+    return await this.productRepository.save(product);
+  }
+
+  updateProductImages(id: number, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
   }
 

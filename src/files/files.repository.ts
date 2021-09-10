@@ -15,6 +15,7 @@ export class FileRepository extends Repository<File> {
     let fileToUpload = this.create();
     fileToUpload = Object.assign(fileToUpload, fileOnRequest);
     try {
+      await fileToUpload.save(); //se não tiver isso não vai pra tabela 'file'
       return fileToUpload;
     } catch (error) {
       throw new InternalServerErrorException(

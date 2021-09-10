@@ -55,11 +55,33 @@ export class ProductsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+    return this.productsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+    return this.productsService.update(+id, updateProductDto);
+  }
+
+  @Patch('details/:id')
+  @Role(UserRole.OWNER)
+  async updateProductDetails(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    const product = await this.productsService.updateProductDetails(
+      id,
+      updateProductDto,
+    );
+    return { product: product, message: 'Product successfully updated.' };
+  }
+
+  @Patch(':id')
+  @Role(UserRole.OWNER)
+  updateProductImages(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
     return this.productsService.update(+id, updateProductDto);
   }
 
