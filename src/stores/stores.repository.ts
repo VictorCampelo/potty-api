@@ -1,3 +1,4 @@
+import { User } from 'src/users/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { Store } from './store.entity';
@@ -37,5 +38,20 @@ export class StoreRepository extends Repository<Store> {
     await store.save();
 
     return store;
+  }
+
+  async addLike(user: User, store: Store): Promise<Store> {
+    const updateStore = this.create();
+    Object.assign(updateStore, store);
+
+    updateStore.usersWhoLiked = [user];
+    user.favoriteStores = [store];
+
+    updateStore.likes++;
+
+    await user.save();
+    await updateStore.save();
+
+    return updateStore;
   }
 }

@@ -79,4 +79,7 @@ export class Store extends BaseEntity {
   @ManyToMany(() => User, (user) => user.favoriteStores)
   @JoinTable({ name: 'favorites' })
   usersWhoLiked: User[];
+
+  @Column({ nullable: false, default: 0 })
+  likes: number;
 }

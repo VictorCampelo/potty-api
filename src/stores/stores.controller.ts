@@ -10,6 +10,12 @@ import {
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/users/user.entity';
+import { ApiTags } from '@nestjs/swagger';
+import { Role } from 'src/auth/role.decorator';
+import { UserRole } from 'src/users/user-roles.enum';
+import { AddLikeDto } from './dto/add-like.dto';
 
 @Controller('stores')
 export class StoresController {
@@ -38,5 +44,15 @@ export class StoresController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.storesService.remove(+id);
+  }
+
+  @Post('addLike')
+  @Role(UserRole.USER)
+  async addLikeToStore(@Body() addLikeDto: AddLikeDto) {
+    const store = await this.storesService.addLike(
+      addLikeDto.user_id,
+      addLikeDto.store_id,
+    );
+    return { store: store, message: 'Sucessfuly added one like to the Store.' };
   }
 }
