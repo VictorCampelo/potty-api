@@ -38,7 +38,6 @@ export class ProductsController {
     @Body(ValidationPipe) createProductDto: CreateProductDto,
   ) {
     try {
-      // TODO: PEGAR O ID DA LOJA AQUI, E RELACIONAR COM O PRODUTO
       const product = await this.productsService.create(
         createProductDto,
         images,
@@ -84,16 +83,18 @@ export class ProductsController {
       storage: memoryStorage(),
     }),
   )
-  updateProductImages(
+  async updateProductImages(
     @Param('id') id: string,
     @Body() updateProductImagesDto: UpdateProductImagesDto,
     @UploadedFiles() images: Express.Multer.File[],
   ) {
     updateProductImagesDto.product_id = id;
-    return this.productsService.updateProductImages(
+    const product = await this.productsService.updateProductImages(
       updateProductImagesDto,
       images,
     );
+
+    return { product: product, message: 'Product images sucessfully updated.' };
   }
 
   @Delete(':id')

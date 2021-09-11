@@ -89,31 +89,53 @@ export class ProductsService {
   }
 
   async updateProductImages(
-    { product_id, toBeDeleted, toBeReplaced }: UpdateProductImagesDto,
+    { product_id, toBeDeleted }: UpdateProductImagesDto,
     files: Express.Multer.File[],
-  ) {
-    const product = await this.findOne(product_id);
+  ): Promise<Product> {
+    let product = await this.findOne(product_id);
 
-    if (product && toBeReplaced) {
-      toBeReplaced.forEach(async (image) => {
+    if (product && toBeDeleted) {
+      const find_all_images = toBeDeleted.map(async (image) => {
         let img = null;
 
         img = await this.filesService.findOne(image);
 
         if (img) {
-          console.log(img[0]);
-          // TODO: Encontrar imagem pra excluir
-          await this.filesService.remove(img);
-          console.log('Exclui...?');
+          console.log(img.id + ' encontrada!');
+          await this.filesService.remove(img.id);
         }
       });
 
-      // toBeReplaced.forEach(async (image) => {
-      //   await this.filesService.remove(image.id);
-      // });
+      await Promise.all(find_all_images);
+      product = await this.findOne(product_id);
+
+      await product.save();
+      // return product;
     }
 
-    return `This action updates a # product`;
+    if (product && files) {
+      product = await this.findOne(product_id);
+      const fileUploaded = product.files;
+      const create_file_promises = await files.map(async (file) => {
+        const currentFile = await this.filesService.createWithFile(file);
+        fileUploaded.push(currentFile);
+      });
+
+      await Promise.all(create_file_promises);
+
+      if (fileUploaded) {
+        const save_file_promises = fileUploaded.map(async (file) => {
+          await this.filesService.saveFile(file);
+        });
+
+        await Promise.all(save_file_promises);
+      }
+
+      product.files = fileUploaded;
+      product = await this.productRepository.save(product);
+    }
+
+    return product;
   }
 
   remove(id: number) {
