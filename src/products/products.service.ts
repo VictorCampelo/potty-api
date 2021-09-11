@@ -6,6 +6,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { StoresService } from 'src/stores/stores.service';
 import { ProductRepository } from './products.repository';
+import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 
 @Injectable()
 export class ProductsService {
@@ -28,29 +29,43 @@ export class ProductsService {
       );
     }
 
-    const product = await this.productRepository.createProduct(
+    const fileUploaded = [];
+
+    if (files) {
+      const create_file_promises = await files.map(async (file) => {
+        const currentFile = await this.filesService.createWithFile(file);
+        fileUploaded.push(currentFile);
+      });
+
+      await Promise.all(create_file_promises);
+    }
+
+    if (fileUploaded) {
+      const save_file_promises = fileUploaded.map(async (file) => {
+        await this.filesService.saveFile(file);
+      });
+
+      await Promise.all(save_file_promises);
+    }
+
+    let product = await this.productRepository.createProduct(
       createProductDto,
       store,
     );
-    const fileUploaded = [];
-    if (files && product) {
-      files.forEach(async (file) => {
-        fileUploaded.push(await this.filesService.createWithFile(file));
-      });
-      product.files = fileUploaded;
-    }
-
-    await product.save();
+    product.files = fileUploaded;
+    product = await this.productRepository.save(product);
 
     return product;
   }
 
   findAll() {
-    return `This action returns all products`;
+    return this.productRepository.find({ loadRelationIds: true });
   }
 
   async findOne(id: string) {
-    return this.productRepository.findOne(id);
+    return this.productRepository.findOne(id, {
+      relations: ['store', 'files'],
+    });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
@@ -73,8 +88,32 @@ export class ProductsService {
     return await this.productRepository.save(product);
   }
 
-  updateProductImages(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async updateProductImages(
+    { product_id, toBeDeleted, toBeReplaced }: UpdateProductImagesDto,
+    files: Express.Multer.File[],
+  ) {
+    const product = await this.findOne(product_id);
+
+    if (product && toBeReplaced) {
+      toBeReplaced.forEach(async (image) => {
+        let img = null;
+
+        img = await this.filesService.findOne(image);
+
+        if (img) {
+          console.log(img[0]);
+          // TODO: Encontrar imagem pra excluir
+          await this.filesService.remove(img);
+          console.log('Exclui...?');
+        }
+      });
+
+      // toBeReplaced.forEach(async (image) => {
+      //   await this.filesService.remove(image.id);
+      // });
+    }
+
+    return `This action updates a # product`;
   }
 
   remove(id: number) {

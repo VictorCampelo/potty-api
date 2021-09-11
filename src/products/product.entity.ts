@@ -10,7 +10,7 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-import { File as Files } from 'src/files/file.entity';
+import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
 
 @Entity('product')
@@ -37,8 +37,8 @@ export class Product extends BaseEntity {
   @ManyToOne(() => Store, (store: Store) => store.products)
   store: Store;
 
-  @OneToMany(() => Files, (file) => file.user)
-  files: Files[];
+  @OneToMany(() => File, (file) => file.product)
+  files: File[];
 
   @OneToMany(() => Order, (order) => order.product)
   public order!: Order[];

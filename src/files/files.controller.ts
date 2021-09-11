@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   ParseArrayPipe,
   Post,
@@ -36,22 +37,8 @@ export class FilesController {
   }
 
   @UseGuards(AuthGuard(), RolesGuard)
-  @Post('multiple')
-  @HttpCode(201)
-  @UseInterceptors(FilesInterceptor('files', 10))
-  async createMultipleFiles(
-    @UploadedFiles() images: Express.Multer.File[],
-    @Body(ValidationPipe) createFileDto: CreateFileDto,
-    // @Body(new ParseArrayPipe({ items: CreateFileDto }))
-    // createFilesDto: CreateFileDto[],
-  ) {
-    console.log(images);
-
-    // const filesUploadedList = await this.filesService.createManyFiles(
-    //   images,
-    //   createFilesDto,
-    // );
-
-    // return filesUploadedList;
+  @Get(':id')
+  async findOneFile(@Body() file_id: string) {
+    return await this.filesService.findOne(file_id);
   }
 }

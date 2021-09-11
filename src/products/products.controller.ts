@@ -20,6 +20,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('products')
 export class ProductsController {
@@ -76,13 +77,23 @@ export class ProductsController {
     return { product: product, message: 'Product successfully updated.' };
   }
 
-  @Patch(':id')
+  @Patch('images/:id')
   @Role(UserRole.OWNER)
+  @UseInterceptors(
+    FilesInterceptor('files', 3, {
+      storage: memoryStorage(),
+    }),
+  )
   updateProductImages(
     @Param('id') id: string,
-    @Body() updateProductDto: UpdateProductDto,
+    @Body() updateProductImagesDto: UpdateProductImagesDto,
+    @UploadedFiles() images: Express.Multer.File[],
   ) {
-    return this.productsService.update(+id, updateProductDto);
+    updateProductImagesDto.product_id = id;
+    return this.productsService.updateProductImages(
+      updateProductImagesDto,
+      images,
+    );
   }
 
   @Delete(':id')

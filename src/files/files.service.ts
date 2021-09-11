@@ -61,6 +61,7 @@ export class FilesService {
       name: ref,
       url: link,
       filename: file.filename,
+      fieldname: null,
     };
 
     return await this.fileRepository.createFile(fileToUpload);
@@ -70,12 +71,12 @@ export class FilesService {
     await this.fileRepository.save(file);
   }
 
-  findAll() {
-    return `This action returns all files`;
+  async find() {
+    return await this.fileRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} file`;
+  findOne(id) {
+    return this.fileRepository.findOne(id, { relations: ['product'] });
   }
 
   update(id: number, _updateFileDto: UpdateFileDto) {

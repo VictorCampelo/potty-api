@@ -1,6 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { File } from './file.entity';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Product } from 'src/products/product.entity';
 
 interface IFile {
   filename: string;
@@ -15,7 +16,6 @@ export class FileRepository extends Repository<File> {
     let fileToUpload = this.create();
     fileToUpload = Object.assign(fileToUpload, fileOnRequest);
     try {
-      await fileToUpload.save(); //se não tiver isso não vai pra tabela 'file'
       return fileToUpload;
     } catch (error) {
       throw new InternalServerErrorException(

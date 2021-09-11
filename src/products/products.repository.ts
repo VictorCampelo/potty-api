@@ -13,6 +13,7 @@ export class ProductRepository extends Repository<Product> {
 
     const product = this.create();
     product.store = store;
+    // product.files = files;
     product.title = title;
     product.tags = tags;
     product.description = description;
