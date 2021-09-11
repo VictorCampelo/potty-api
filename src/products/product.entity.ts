@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
@@ -33,6 +34,9 @@ export class Product extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 
   @ManyToOne(() => Store, (store: Store) => store.products)
   store: Store;

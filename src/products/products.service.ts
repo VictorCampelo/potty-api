@@ -94,7 +94,13 @@ export class ProductsService {
   ): Promise<Product> {
     let product = await this.findOne(product_id);
 
-    if (product && toBeDeleted) {
+    if (!product) {
+      throw new NotFoundException(
+        "The product_id sent doesn't matches any product on the database.",
+      );
+    }
+
+    if (toBeDeleted) {
       const find_all_images = toBeDeleted.map(async (image) => {
         let img = null;
 
@@ -113,7 +119,7 @@ export class ProductsService {
       // return product;
     }
 
-    if (product && files) {
+    if (files) {
       product = await this.findOne(product_id);
       const fileUploaded = product.files;
       const create_file_promises = await files.map(async (file) => {
@@ -138,7 +144,7 @@ export class ProductsService {
     return product;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string) {
+    return await this.productRepository.softDelete(id);
   }
 }

@@ -98,7 +98,9 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  @Role(UserRole.OWNER)
+  async remove(@Param('id') id: string) {
+    await this.productsService.remove(id);
+    return { message: 'Product sucessfully removed.' };
   }
 }
