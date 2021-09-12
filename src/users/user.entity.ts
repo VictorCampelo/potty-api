@@ -67,8 +67,8 @@ export class User extends BaseEntity {
   @OneToMany(() => Order, (order) => order.user)
   public order!: Order[];
 
-  @ManyToMany(() => Store, (store) => store.usersWhoLiked)
-  favoriteStores: Store[];
+  // @ManyToMany(() => Store, (store) => store.usersWhoLiked)
+  // favoriteStores: Store[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

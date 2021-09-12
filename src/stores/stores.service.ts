@@ -23,7 +23,10 @@ export class StoresService {
   }
 
   async findOne(store_id: string) {
-    return await this.storeRepository.findOne({ id: store_id });
+    return await this.storeRepository.findOne(
+      { id: store_id },
+      { relations: ['usersWhoLiked'] },
+    );
   }
 
   update(id: number, updateStoreDto: UpdateStoreDto) {
@@ -43,6 +46,11 @@ export class StoresService {
     if (!user || !store) {
       throw new NotFoundException('User or Store not found.');
     }
+
+    // TODO: Dados sensíveis do usuário sendo passados pela request,
+    // apagá-los ou modificar o DTO da requisição
+    user.password = null;
+    user.salt = null;
 
     return await this.storeRepository.addLike(user, store);
   }

@@ -42,14 +42,13 @@ export class StoreRepository extends Repository<Store> {
 
   async addLike(user: User, store: Store): Promise<Store> {
     const updateStore = this.create();
+    console.log(store.usersWhoLiked);
     Object.assign(updateStore, store);
 
+    // TODO: Assim que insere o [user] ele sobreescreve o array. Logo, só guarda
+    // ele de usuário que deu like. Verificar tabela 'favorites'
     updateStore.usersWhoLiked = [user];
-    user.favoriteStores = [store];
-
     updateStore.likes++;
-
-    await user.save();
     await updateStore.save();
 
     return updateStore;

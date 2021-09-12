@@ -49,6 +49,7 @@ export class StoresController {
   @Post('addLike')
   @Role(UserRole.USER)
   async addLikeToStore(@Body() addLikeDto: AddLikeDto) {
+    // TODO: Pegar o ID do usuário logado
     const store = await this.storesService.addLike(
       addLikeDto.user_id,
       addLikeDto.store_id,
