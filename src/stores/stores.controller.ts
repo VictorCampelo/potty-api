@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
@@ -16,8 +17,11 @@ import { ApiTags } from '@nestjs/swagger';
 import { Role } from 'src/auth/role.decorator';
 import { UserRole } from 'src/users/user-roles.enum';
 import { AddLikeDto } from './dto/add-like.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('stores')
+@UseGuards(AuthGuard(), RolesGuard)
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 
@@ -47,11 +51,11 @@ export class StoresController {
   }
 
   @Post('addLike')
-  @Role(UserRole.USER)
-  async addLikeToStore(@Body() addLikeDto: AddLikeDto) {
+  // @Role(UserRole.USER)
+  async addLikeToStore(@Body() addLikeDto: AddLikeDto, @GetUser() user: User) {
     // TODO: Pegar o ID do usuário logado
     const store = await this.storesService.addLike(
-      addLikeDto.user_id,
+      user.id,
       addLikeDto.store_id,
     );
     return { store: store, message: 'Sucessfuly added one like to the Store.' };
