@@ -1,15 +1,51 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFiles,
+  ValidationPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-
+import { Role } from 'src/auth/role.decorator';
+import { UserRole } from 'src/users/user-roles.enum';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { UpdateProductImagesDto } from './dto/update-product-images.dto';
+@UseGuards(AuthGuard(), RolesGuard)
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  @Role(UserRole.OWNER)
+  @UseInterceptors(
+    FilesInterceptor('files', 3, {
+      storage: memoryStorage(),
+    }),
+  )
+  async create(
+    @UploadedFiles() images: Express.Multer.File[],
+    @Body(ValidationPipe) createProductDto: CreateProductDto,
+  ) {
+    try {
+      const product = await this.productsService.create(
+        createProductDto,
+        images,
+      );
+      return { product: product, message: 'Product created successfully' };
+    } catch (error) {
+      console.log('ERRO1:' + error);
+    }
   }
 
   @Get()
@@ -19,7 +55,7 @@ export class ProductsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+    return this.productsService.findOne(id);
   }
 
   @Patch(':id')
@@ -27,8 +63,44 @@ export class ProductsController {
     return this.productsService.update(+id, updateProductDto);
   }
 
+  @Patch('details/:id')
+  @Role(UserRole.OWNER)
+  async updateProductDetails(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    const product = await this.productsService.updateProductDetails(
+      id,
+      updateProductDto,
+    );
+    return { product: product, message: 'Product successfully updated.' };
+  }
+
+  @Patch('images/:id')
+  @Role(UserRole.OWNER)
+  @UseInterceptors(
+    FilesInterceptor('files', 3, {
+      storage: memoryStorage(),
+    }),
+  )
+  async updateProductImages(
+    @Param('id') id: string,
+    @Body() updateProductImagesDto: UpdateProductImagesDto,
+    @UploadedFiles() images: Express.Multer.File[],
+  ) {
+    updateProductImagesDto.product_id = id;
+    const product = await this.productsService.updateProductImages(
+      updateProductImagesDto,
+      images,
+    );
+
+    return { product: product, message: 'Product images sucessfully updated.' };
+  }
+
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  @Role(UserRole.OWNER)
+  async remove(@Param('id') id: string) {
+    await this.productsService.remove(id);
+    return { message: 'Product sucessfully removed.' };
   }
 }

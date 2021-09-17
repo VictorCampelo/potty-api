@@ -1,14 +1,17 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
+  ParseArrayPipe,
   Post,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CreateFileDto } from './dto/create-file.dto';
 import { File } from './file.entity';
 import { Express } from 'express';
@@ -31,5 +34,11 @@ export class FilesController {
   ): Promise<File> {
     const fileUploaded = await this.filesService.create(file, createFileDto);
     return fileUploaded;
+  }
+
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Get(':id')
+  async findOneFile(@Body() file_id: string) {
+    return await this.filesService.findOne(file_id);
   }
 }

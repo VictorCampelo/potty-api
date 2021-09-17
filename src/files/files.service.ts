@@ -26,6 +26,22 @@ export class FilesService {
     return this.fileRepository.createFile(fileToUpload);
   }
 
+  async createManyFiles(
+    files: Express.Multer.File[],
+    createFilesDto: CreateFileDto[],
+  ) {
+    console.log(createFilesDto);
+
+    // const fileToUpload = {
+    //   url: `http://localhost:3000/${file.path}`,
+    //   tags: tags,
+    //   filename: file.filename,
+    // };
+
+    // return this.fileRepository.createFile(fileToUpload);
+    return 'service ok';
+  }
+
   async createWithFile(file: Express.Multer.File): Promise<File> {
     fs.access('public/uploads', (error) => {
       if (error) {
@@ -45,6 +61,7 @@ export class FilesService {
       name: ref,
       url: link,
       filename: file.filename,
+      fieldname: null,
     };
 
     return await this.fileRepository.createFile(fileToUpload);
@@ -54,12 +71,12 @@ export class FilesService {
     await this.fileRepository.save(file);
   }
 
-  findAll() {
-    return `This action returns all files`;
+  async find() {
+    return await this.fileRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} file`;
+  findOne(id) {
+    return this.fileRepository.findOne(id, { relations: ['product'] });
   }
 
   update(id: number, _updateFileDto: UpdateFileDto) {
