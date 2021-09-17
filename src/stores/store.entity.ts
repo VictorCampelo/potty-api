@@ -1,9 +1,11 @@
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,9 +13,10 @@ import {
 import { Product } from 'src/products/product.entity';
 import { File as Files } from 'src/files/file.entity';
 import { Category } from 'src/categories/category.entity';
+import { User } from 'src/users/user.entity';
 
 @Entity('store')
-export class Store {
+export class Store extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -38,7 +41,7 @@ export class Store {
   @Column({ nullable: false, type: 'varchar', length: 45 })
   description: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: true })
   enabled: boolean;
 
   @Column({ nullable: true, type: 'varchar', length: 45 })
@@ -65,4 +68,18 @@ export class Store {
   @ManyToMany(() => Category, (category) => category.store)
   @JoinTable({ name: 'store_category' })
   categories: Category[];
+
+  // @ManyToOne(() => User, (user) => user.stores)
+  // user: User;
+
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'owners' })
+  users: User[];
+
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'favorites' })
+  usersWhoLiked: User[];
+
+  @Column({ nullable: false, default: 0 })
+  likes: number;
 }

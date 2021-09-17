@@ -9,8 +9,9 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
-import { File as Files } from 'src/files/file.entity';
+import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
 
 @Entity('product')
@@ -22,10 +23,10 @@ export class Product extends BaseEntity {
   @Column({ nullable: false, type: 'varchar', length: 255 })
   title: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 255 })
+  @Column({ nullable: true, type: 'varchar', length: 255 })
   description: string;
 
-  @Column('simple-array')
+  @Column({ nullable: true, type: 'simple-array' })
   tags: string[];
 
   @CreateDateColumn()
@@ -34,11 +35,14 @@ export class Product extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
   @ManyToOne(() => Store, (store: Store) => store.products)
   store: Store;
 
-  @OneToMany(() => Files, (file) => file.user)
-  files: Files[];
+  @OneToMany(() => File, (file) => file.product)
+  files: File[];
 
   @OneToMany(() => Order, (order) => order.product)
   public order!: Order[];

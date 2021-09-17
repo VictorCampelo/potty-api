@@ -1,6 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { File } from './file.entity';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Product } from 'src/products/product.entity';
 
 interface IFile {
   filename: string;

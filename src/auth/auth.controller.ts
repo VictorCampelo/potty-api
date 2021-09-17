@@ -18,15 +18,32 @@ import { GetUser } from './get-user.decorator';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserRole } from 'src/users/user-roles.enum';
 
+import { StoresService } from '../stores/stores.service';
+import { CreateStoreDto } from 'src/stores/dto/create-store.dto';
+
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private storesService: StoresService,
+  ) {}
+
+  @Post('createUserAndStore')
+  async createUserAndStore(
+    @Body(ValidationPipe) createStoreDto: CreateStoreDto,
+  ) {
+    const user = await this.authService.signUp(createStoreDto, UserRole.OWNER);
+    createStoreDto.user = user;
+    const store = await this.storesService.create(createStoreDto);
+
+    return { user: user, store: store, message: 'User and Store createds.' };
+  }
 
   @Post('/signup')
   async signUp(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<{ message: string }> {
-    await this.authService.signUp(createUserDto);
+    await this.authService.signUp(createUserDto, UserRole.USER);
     return {
       message: 'Cadastro realizado com sucesso',
     };

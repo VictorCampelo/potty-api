@@ -31,7 +31,6 @@ import * as fs from 'fs';
 import sharp from 'sharp';
 import gm from 'gm';
 // import { multerOptions } from 'src/configs/multer.config';
-
 @Controller('users')
 @UseGuards(AuthGuard(), RolesGuard) //protect all user endpoints
 export class UsersController {
