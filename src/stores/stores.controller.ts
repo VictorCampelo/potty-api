@@ -36,8 +36,8 @@ export class StoresController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.storesService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    return await this.storesService.findOne(id);
   }
 
   @Patch(':id')
