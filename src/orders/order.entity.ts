@@ -6,10 +6,11 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  BaseEntity,
 } from 'typeorm';
 
 @Entity('order')
-export class Order {
+export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   public orderid!: number;
 
