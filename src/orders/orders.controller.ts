@@ -17,6 +17,14 @@ import { Order } from './order.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/users/user.entity';
 
+// TODO: Unificar essa interface com a interface igual a ela no orders.service
+interface IProductSold {
+  id: string;
+  order_id: number;
+  name: string;
+  amount: number;
+}
+
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('orders')
 export class OrdersController {
@@ -40,14 +48,29 @@ export class OrdersController {
     return { orders: orders, message: 'Order sucessfuly created' };
   }
 
+  @Get('mostSoldProducts/:id')
+  async getMostSoldProducts(
+    @Param('id') store_id: string,
+  ): Promise<{ message: string; most_sold: IProductSold[] }> {
+    const mostWantedProducts = await this.ordersService.getMostSoldProducts(
+      store_id,
+    );
+    return {
+      message: 'These are the most sold products.',
+      most_sold: mostWantedProducts,
+    };
+  }
+
   @Get()
   findAll() {
     return this.ordersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+  async findOne(@Param('id') id: number): Promise<Order> {
+    const order = await this.ordersService.findOne(id);
+
+    return order;
   }
 
   @Patch(':id')

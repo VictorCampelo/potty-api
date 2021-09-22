@@ -6,6 +6,14 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './order.entity';
 
+// TODO: Unificar essa interface com a interface igual a ela no orders.controller
+interface IProductSold {
+  id: string;
+  order_id: number;
+  name: string;
+  amount: number;
+}
+
 @Injectable()
 export class OrdersService {
   constructor(
@@ -41,12 +49,51 @@ export class OrdersService {
     return orders;
   }
 
+  async getMostSoldProducts(store_id: string): Promise<IProductSold[]> {
+    // * Pega todos os pedidos cuja Loja corresponde a Loja passada por param
+    const allOrders = await this.orderRepository.find({
+      where: {
+        product: { store: store_id },
+      },
+      relations: ['product', 'product.store'],
+    });
+
+    console.log(allOrders);
+
+    const filteredProducts: IProductSold[] = [];
+
+    allOrders.forEach((order) => {
+      const productIndex = filteredProducts.findIndex(
+        (product) => product.id == order.product.id,
+      );
+
+      if (productIndex == -1) {
+        filteredProducts.push({
+          id: order.product.id,
+          order_id: order.orderid,
+          name: order.product.title,
+          amount: order.amount,
+        });
+      } else {
+        filteredProducts[productIndex].amount += order.amount;
+      }
+    });
+
+    const sorted = filteredProducts.sort((a, b) => {
+      return b.amount - a.amount;
+    });
+
+    return sorted;
+  }
+
   findAll() {
     return `This action returns all orders`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findOne(id: number): Promise<Order> {
+    return await this.orderRepository.findOne(id, {
+      relations: ['product', 'product.store'],
+    });
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {
