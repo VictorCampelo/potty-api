@@ -14,20 +14,31 @@ export class OrdersService {
     private productService: ProductsService,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const product = await this.productService.findOne(
-      createOrderDto.product_id,
-    );
+  async create(createOrderDto: CreateOrderDto): Promise<Order[]> {
+    const allProducts = await this.productService.findAll();
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+    const orders: Order[] = [];
 
-    const order = this.orderRepository.create();
-    order.user = createOrderDto.user;
-    order.product = product;
+    createOrderDto.orders.forEach((order) => {
+      let filteredProduct = allProducts.filter(
+        (product) => product.id === order.product_id,
+      );
 
-    return order;
+      if (filteredProduct.length == 0) {
+        throw new NotFoundException(
+          `Product ${order.product_id} not found while trying to create a Order`,
+        );
+      }
+
+      const currentOrder = this.orderRepository.create();
+      currentOrder.user = createOrderDto.user;
+      currentOrder.product = filteredProduct[0];
+      filteredProduct = null;
+      currentOrder.amount = order.amount;
+      orders.push(currentOrder);
+    });
+
+    return orders;
   }
 
   findAll() {

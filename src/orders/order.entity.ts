@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
+  Column,
 } from 'typeorm';
 
 @Entity('order')
@@ -19,6 +20,9 @@ export class Order extends BaseEntity {
 
   @ManyToOne(() => Product, (product) => product.order)
   public product!: Product;
+
+  @Column({ nullable: false, default: 0 })
+  amount: number;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -26,13 +26,18 @@ export class OrdersController {
   async create(
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
-  ): Promise<Order> {
+  ): Promise<{ orders: Order[]; message: string }> {
     createOrderDto.user = user;
 
-    const order = await this.ordersService.create(createOrderDto);
-    await order.save();
-
-    return order;
+    const orders = await this.ordersService.create(createOrderDto);
+    orders.map(async (currentOrder) => {
+      await currentOrder.save();
+    });
+    /*
+     ! Não está retornando o ID da ordem, pois acabou de ser registrada no DB
+     ! Sendo assim, apenas no próximo pedido do mesmo usuário, irá retornar
+     */
+    return { orders: orders, message: 'Order sucessfuly created' };
   }
 
   @Get()
