@@ -17,6 +17,7 @@ import { EmailsModule } from './emails/emails.module';
 import { FilesModule } from './files/files.module';
 import { CategoriesModule } from './categories/categories.module';
 import { OrdersModule } from './orders/orders.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ dotenv.config();
     FilesModule,
     CategoriesModule,
     OrdersModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [
