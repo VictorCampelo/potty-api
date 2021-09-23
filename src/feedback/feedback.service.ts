@@ -42,6 +42,21 @@ export class FeedbackService {
     return allFeedbacks;
   }
 
+  async fromProduct(product_id: string) {
+    const allFeedbacksFromProduct = await this.feedbackRepository.find({
+      where: {
+        product: product_id,
+      },
+      relations: ['product'],
+    });
+
+    if (allFeedbacksFromProduct.length == 0) {
+      throw new NotFoundException("The Store doesn't have any feedbacks yet.");
+    }
+
+    return allFeedbacksFromProduct;
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} feedback`;
   }

@@ -47,6 +47,15 @@ export class FeedbackController {
     }
   }
 
+  @Get('fromProduct/:id')
+  async fromProduct(@Param('id') product_id: string) {
+    try {
+      return await this.feedbackService.fromProduct(product_id);
+    } catch (error) {
+      new ErrorHandling(error);
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.feedbackService.findOne(+id);
