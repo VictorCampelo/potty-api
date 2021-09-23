@@ -64,7 +64,7 @@ export class ProductsService {
 
   async findOne(id: string) {
     return this.productRepository.findOne(id, {
-      relations: ['store', 'files'],
+      relations: ['store', 'files', 'feedbacks', 'feedbacks.user'],
     });
   }
 

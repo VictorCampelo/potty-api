@@ -1,3 +1,4 @@
+import { Feedback } from './../feedback/entities/feedback.entity';
 import { Store } from 'src/stores/store.entity';
 import {
   Entity,
@@ -24,10 +25,10 @@ export class Product extends BaseEntity {
   title: string;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
-  description: string;
+  description?: string;
 
   @Column({ nullable: true, type: 'simple-array' })
-  tags: string[];
+  tags?: string[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -43,6 +44,9 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => File, (file) => file.product)
   files: File[];
+
+  @OneToMany(() => Feedback, (feedback) => feedback.product)
+  feedbacks: Feedback[];
 
   @OneToMany(() => Order, (order) => order.product)
   public order!: Order[];
