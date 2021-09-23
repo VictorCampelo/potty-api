@@ -27,10 +27,16 @@ export class StoresService {
   }
 
   async findOne(store_id: string) {
-    return await this.storeRepository.findOne(
+    const store = await this.storeRepository.findOne(
       { id: store_id },
-      { relations: ['usersWhoLiked', 'users'] },
+      { loadRelationIds: true },
     );
+
+    if (!store) {
+      throw new NotFoundException('Store not found');
+    }
+
+    return store;
   }
 
   update(id: number, updateStoreDto: UpdateStoreDto) {

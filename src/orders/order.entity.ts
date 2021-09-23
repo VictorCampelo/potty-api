@@ -6,10 +6,12 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  BaseEntity,
+  Column,
 } from 'typeorm';
 
 @Entity('order')
-export class Order {
+export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   public orderid!: number;
 
@@ -18,6 +20,9 @@ export class Order {
 
   @ManyToOne(() => Product, (product) => product.order)
   public product!: Product;
+
+  @Column({ nullable: false, default: 0 })
+  amount: number;
 
   @CreateDateColumn()
   createdAt: Date;
