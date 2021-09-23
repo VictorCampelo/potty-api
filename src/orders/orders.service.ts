@@ -3,16 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { ProductSoldDto } from './dto/product-sold.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './order.entity';
-
-// TODO: Unificar essa interface com a interface igual a ela no orders.controller
-interface IProductSold {
-  id: string;
-  order_id: number;
-  name: string;
-  amount: number;
-}
 
 @Injectable()
 export class OrdersService {
@@ -49,7 +42,7 @@ export class OrdersService {
     return orders;
   }
 
-  async getMostSoldProducts(store_id: string): Promise<IProductSold[]> {
+  async getMostSoldProducts(store_id: string): Promise<ProductSoldDto[]> {
     // * Pega todos os pedidos cuja Loja corresponde a Loja passada por param
     const allOrders = await this.orderRepository.find({
       where: {
@@ -58,9 +51,11 @@ export class OrdersService {
       relations: ['product', 'product.store'],
     });
 
-    console.log(allOrders);
+    if (allOrders.length == 0) {
+      throw new NotFoundException("This Store didn't sell any product yet.");
+    }
 
-    const filteredProducts: IProductSold[] = [];
+    const filteredProducts: ProductSoldDto[] = [];
 
     allOrders.forEach((order) => {
       const productIndex = filteredProducts.findIndex(
