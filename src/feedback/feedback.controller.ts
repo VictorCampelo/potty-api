@@ -27,7 +27,10 @@ export class FeedbackController {
 
   @Post()
   @Role(UserRole.USER)
-  async create(@GetUser() user: User, @Body() createFeedbackDto: CreateFeedbackDto) {
+  async create(
+    @GetUser() user: User,
+    @Body() createFeedbackDto: CreateFeedbackDto,
+  ) {
     try {
       return await this.feedbackService.create(createFeedbackDto, user);
     } catch (error) {
@@ -35,9 +38,13 @@ export class FeedbackController {
     }
   }
 
-  @Get()
-  findAll() {
-    return this.feedbackService.findAll();
+  @Get('findAllFromStore/:id')
+  async findAllFeedbacksFromStore(@Param('id') store_id: string) {
+    try {
+      return await this.feedbackService.findAllFeedbacksFromStore(store_id);
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @Get(':id')

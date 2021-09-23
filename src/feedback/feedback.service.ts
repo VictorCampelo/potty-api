@@ -1,5 +1,10 @@
 import { Feedback } from './entities/feedback.entity';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { User } from 'src/users/user.entity';
@@ -14,16 +19,27 @@ export class FeedbackService {
   ) {}
   async create(createFeedbackDto: CreateFeedbackDto, user: User) {
     try {
-      let feedback = this.feedbackRepository.create(createFeedbackDto)
+      let feedback = this.feedbackRepository.create(createFeedbackDto);
       feedback.user = user;
-      return await feedback.save()
+      return await feedback.save();
     } catch (error) {
       throw error;
     }
   }
 
-  findAll() {
-    return `This action returns all feedback`;
+  async findAllFeedbacksFromStore(store_id: string) {
+    const allFeedbacks = await this.feedbackRepository.find({
+      where: {
+        product: { store: store_id },
+      },
+      relations: ['product', 'product.store'],
+    });
+
+    if (allFeedbacks.length == 0) {
+      throw new NotFoundException("The Store doesn't have any feedbacks yet.");
+    }
+
+    return allFeedbacks;
   }
 
   findOne(id: number) {
