@@ -54,6 +54,12 @@ export class OrdersController {
     };
   }
 
+  @Get('findLastSold/:id')
+  async findLastSold(@Param('id') store_id: string): Promise<Order[]> {
+    const lastSold = await this.ordersService.findLastSold(store_id);
+    return lastSold;
+  }
+
   @Get()
   findAll() {
     return this.ordersService.findAll();

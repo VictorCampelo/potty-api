@@ -81,6 +81,21 @@ export class OrdersService {
     return sorted;
   }
 
+  async findLastSold(store_id: string): Promise<Order[]> {
+    const allOrders = await this.orderRepository.find({
+      where: {
+        product: { store: store_id },
+      },
+      relations: ['product', 'product.store'],
+    });
+
+    const sorted = allOrders.sort((a, b) => {
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+
+    return sorted;
+  }
+
   findAll() {
     return `This action returns all orders`;
   }
