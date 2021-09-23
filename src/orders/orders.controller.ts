@@ -16,14 +16,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { Order } from './order.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/users/user.entity';
-
-// TODO: Unificar essa interface com a interface igual a ela no orders.service
-interface IProductSold {
-  id: string;
-  order_id: number;
-  name: string;
-  amount: number;
-}
+import { ProductSoldDto } from './dto/product-sold.dto';
 
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('orders')
@@ -51,7 +44,7 @@ export class OrdersController {
   @Get('mostSoldProducts/:id')
   async getMostSoldProducts(
     @Param('id') store_id: string,
-  ): Promise<{ message: string; most_sold: IProductSold[] }> {
+  ): Promise<{ message: string; most_sold: ProductSoldDto[] }> {
     const mostWantedProducts = await this.ordersService.getMostSoldProducts(
       store_id,
     );
