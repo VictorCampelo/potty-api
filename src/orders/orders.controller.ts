@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -27,37 +28,11 @@ export class OrdersController {
   async create(
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
-  ): Promise<{ orders: Order[]; message: string }> {
+  ): Promise<{ order: Order; message: string }> {
     createOrderDto.user = user;
 
-    const orders = await this.ordersService.create(createOrderDto);
-    orders.map(async (currentOrder) => {
-      await currentOrder.save();
-    });
-    /*
-     ! Não está retornando o ID da ordem, pois acabou de ser registrada no DB
-     ! Sendo assim, apenas no próximo pedido do mesmo usuário, irá retornar
-     */
-    return { orders: orders, message: 'Order sucessfuly created' };
-  }
-
-  @Get('mostSoldProducts/:id')
-  async getMostSoldProducts(
-    @Param('id') store_id: string,
-  ): Promise<{ message: string; most_sold: ProductSoldDto[] }> {
-    const mostWantedProducts = await this.ordersService.getMostSoldProducts(
-      store_id,
-    );
-    return {
-      message: 'These are the most sold products.',
-      most_sold: mostWantedProducts,
-    };
-  }
-
-  @Get('findLastSold/:id')
-  async findLastSold(@Param('id') store_id: string): Promise<Order[]> {
-    const lastSold = await this.ordersService.findLastSold(store_id);
-    return lastSold;
+    const order = await this.ordersService.create(createOrderDto);
+    return { order: order, message: 'Order sucessfuly created' };
   }
 
   @Get()

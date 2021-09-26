@@ -13,13 +13,15 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
-import { Order } from 'src/orders/order.entity';
 
 @Entity('feedback')
 @Unique(['id'])
 export class Feedback extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ nullable: false, default: 0 })
+  star: number;
 
   @Column({ nullable: false, type: 'varchar', length: 255 })
   comment: string;

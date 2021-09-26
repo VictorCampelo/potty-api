@@ -4,7 +4,6 @@ import { FilesService } from 'src/files/files.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
-import { StoresService } from 'src/stores/stores.service';
 import { ProductRepository } from './products.repository';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 
@@ -14,57 +13,53 @@ export class ProductsService {
     @InjectRepository(ProductRepository)
     private productRepository: ProductRepository,
     private filesService: FilesService,
-    private storeService: StoresService,
   ) {}
 
-  async create(
-    createProductDto: CreateProductDto,
-    files: Express.Multer.File[],
-  ): Promise<Product> {
-    const store = await this.storeService.findOne(createProductDto.store_id);
-
-    if (!store) {
-      throw new NotFoundException(
-        "The store_id sent doesn't matches any Store on the database.",
-      );
-    }
-
-    const fileUploaded = [];
-
-    if (files) {
-      const create_file_promises = await files.map(async (file) => {
-        const currentFile = await this.filesService.createWithFile(file);
-        fileUploaded.push(currentFile);
-      });
-
-      await Promise.all(create_file_promises);
-    }
-
-    if (fileUploaded) {
-      const save_file_promises = fileUploaded.map(async (file) => {
-        await this.filesService.saveFile(file);
-      });
-
-      await Promise.all(save_file_promises);
-    }
-
-    let product = await this.productRepository.createProduct(
-      createProductDto,
-      store,
+  async create(createProductDto: CreateProductDto): Promise<Product> {
+    const store = createProductDto.store;
+    const product = this.productRepository.create(
+      createProductDto.productFields,
     );
-    product.files = fileUploaded;
-    product = await this.productRepository.save(product);
 
-    return product;
+    product.store = store;
+
+    if (createProductDto.files) {
+      product.files = this.filesService.createFiles(createProductDto.files);
+    }
+
+    return await product.save();
   }
 
-  findAll() {
-    return this.productRepository.find({ loadRelationIds: true });
+  async findAll(
+    store_id: string,
+    limit?: number,
+    offset?: number,
+    loadRelations = true,
+    loadLastSolds = false,
+  ): Promise<Product[]> {
+    let orderingBy;
+    if (loadLastSolds) {
+      orderingBy = {
+        lastSold: 'DESC',
+      };
+    } else {
+      orderingBy = {
+        sumOrders: 'ASC',
+        avgStars: 'ASC',
+      };
+    }
+    return await this.productRepository.find({
+      where: { storeId: store_id },
+      relations: loadRelations ? ['files'] : [],
+      skip: offset ? offset : 0,
+      take: limit ? limit : 10,
+      order: orderingBy,
+    });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Product> {
     return this.productRepository.findOne(id, {
-      relations: ['store', 'files', 'feedbacks', 'feedbacks.user'],
+      relations: ['files'],
     });
   }
 
@@ -83,16 +78,18 @@ export class ProductsService {
         "The product_id sent doesn't matches any Product on the database.",
       );
     }
+
     product = Object.assign(product, updateProductDto);
 
     return await this.productRepository.save(product);
   }
 
-  async updateProductImages(
-    { product_id, toBeDeleted }: UpdateProductImagesDto,
-    files: Express.Multer.File[],
-  ): Promise<Product> {
-    let product = await this.findOne(product_id);
+  async updateProductImages({
+    product_id,
+    toBeDeleted,
+    files,
+  }: UpdateProductImagesDto): Promise<Product> {
+    const product = await this.findOne(product_id);
 
     if (!product) {
       throw new NotFoundException(
@@ -101,47 +98,15 @@ export class ProductsService {
     }
 
     if (toBeDeleted) {
-      const find_all_images = toBeDeleted.map(async (image) => {
-        let img = null;
-
-        img = await this.filesService.findOne(image);
-
-        if (img) {
-          console.log(img.id + ' encontrada!');
-          await this.filesService.remove(img.id);
-        }
-      });
-
-      await Promise.all(find_all_images);
-      product = await this.findOne(product_id);
-
-      await product.save();
-      // return product;
+      await this.filesService.remove(toBeDeleted);
     }
 
     if (files) {
-      product = await this.findOne(product_id);
-      const fileUploaded = product.files;
-      const create_file_promises = await files.map(async (file) => {
-        const currentFile = await this.filesService.createWithFile(file);
-        fileUploaded.push(currentFile);
-      });
-
-      await Promise.all(create_file_promises);
-
-      if (fileUploaded) {
-        const save_file_promises = fileUploaded.map(async (file) => {
-          await this.filesService.saveFile(file);
-        });
-
-        await Promise.all(save_file_promises);
-      }
-
-      product.files = fileUploaded;
-      product = await this.productRepository.save(product);
+      if (product.files) product.files = this.filesService.createFiles(files);
+      else product.files.push(...this.filesService.createFiles(files));
     }
 
-    return product;
+    return await product.save();
   }
 
   async remove(id: string) {

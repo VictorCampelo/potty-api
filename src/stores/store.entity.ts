@@ -44,6 +44,18 @@ export class Store extends BaseEntity {
   @Column({ nullable: false, default: true })
   enabled: boolean;
 
+  @Column({ nullable: true, default: 0 })
+  sumOrders?: number;
+
+  @Column({ nullable: true, default: 0 })
+  sumFeedbacks?: number;
+
+  @Column({ nullable: true, default: 0 })
+  sumStars?: number;
+
+  @Column({ nullable: true, default: 0 })
+  avgStars?: number;
+
   @Column({ nullable: true, type: 'varchar', length: 45 })
   facebook_link: string;
 

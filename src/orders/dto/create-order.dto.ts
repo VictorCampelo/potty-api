@@ -1,11 +1,12 @@
+import { Product } from 'src/products/product.entity';
 import { User } from 'src/users/user.entity';
 
 interface Order {
-  product_id: string;
+  product: Product;
   amount: number;
 }
 
 export class CreateOrderDto {
   user: User;
-  orders: Order[];
+  products: Order[];
 }

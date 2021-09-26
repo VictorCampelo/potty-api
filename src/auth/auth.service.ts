@@ -56,12 +56,13 @@ export class AuthService {
     return { jwtToken };
   }
 
-  async confirmEmail(confirmationToken: string): Promise<void> {
+  async confirmEmail(confirmationToken: string) {
     const result = await this.userRepository.update(
       { confirmationToken }, //busca o usuário pelo token
       { confirmationToken: null },
     );
     if (result.affected === 0) throw new NotFoundException('Token inválido');
+    return result;
   }
 
   async sendRecoverPasswordEmail(email: string): Promise<void> {

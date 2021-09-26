@@ -1,3 +1,5 @@
+import { FindStoreDto } from './dto/find-store.dto';
+import { ProductRepository } from './../products/products.repository';
 import {
   Injectable,
   NotFoundException,
@@ -9,12 +11,14 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Store } from './store.entity';
 import { StoreRepository } from './stores.repository';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class StoresService {
   constructor(
     @InjectRepository(StoreRepository)
     private storeRepository: StoreRepository,
+    private productsService: ProductsService,
     private usersService: UsersService,
   ) {}
 
@@ -23,23 +27,51 @@ export class StoresService {
   }
 
   findAll() {
-    return `This action returns all stores`;
+    return this.storeRepository.find();
   }
 
-  async findOne(store_id: string) {
-    const store = await this.storeRepository.findOne(
-      { id: store_id },
-      { loadRelationIds: true },
-    );
+  async findOne(findStoreDto: FindStoreDto) {
+    const store = await this.storeRepository.findOne(findStoreDto.store_id);
 
     if (!store) {
       throw new NotFoundException('Store not found');
     }
 
+    if (findStoreDto.loadProducts) {
+      const products = await this.productsService.findAll(
+        store.id,
+        findStoreDto.loadProducts.limit,
+        findStoreDto.loadProducts.offset,
+      );
+      return Object.assign(store, products);
+    }
+
     return store;
   }
 
-  update(id: number, updateStoreDto: UpdateStoreDto) {
+  async findMostSoldsProducts(findStoreDto: FindStoreDto) {
+    if (findStoreDto.loadProducts) {
+      const products = await this.productsService.findAll(
+        findStoreDto.store_id,
+        findStoreDto.loadProducts.limit,
+        findStoreDto.loadProducts.offset,
+      );
+      return products;
+    }
+  }
+
+  async findLastSoldProducts(findStoreDto: FindStoreDto) {
+    if (findStoreDto.loadProducts) {
+      const products = await this.productsService.findAll(
+        findStoreDto.store_id,
+        findStoreDto.loadProducts.limit,
+        findStoreDto.loadProducts.offset,
+      );
+      return products;
+    }
+  }
+
+  update(id: number, _updateStoreDto: UpdateStoreDto) {
     return `This action updates a #${id} store`;
   }
 

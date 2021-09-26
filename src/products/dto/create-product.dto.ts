@@ -1,16 +1,17 @@
 import { IsOptional } from 'class-validator';
-import { File } from 'src/files/file.entity';
+import { Store } from 'src/stores/store.entity';
 
-export class CreateProductDto {
-  store_id: string;
-
+interface ProductField {
   title: string;
 
-  @IsOptional()
-  description: string;
+  description?: string;
 
-  @IsOptional()
-  tags: string[];
+  tags?: string[];
+}
+export class CreateProductDto {
+  store: Store;
 
-  files: File[];
+  productFields: ProductField;
+
+  files?: Express.Multer.File[];
 }

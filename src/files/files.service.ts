@@ -26,10 +26,7 @@ export class FilesService {
     return this.fileRepository.createFile(fileToUpload);
   }
 
-  async createManyFiles(
-    files: Express.Multer.File[],
-    createFilesDto: CreateFileDto[],
-  ) {
+  async createManyFiles(createFilesDto: CreateFileDto[]) {
     console.log(createFilesDto);
 
     // const fileToUpload = {
@@ -42,29 +39,31 @@ export class FilesService {
     return 'service ok';
   }
 
-  async createWithFile(file: Express.Multer.File): Promise<File> {
+  createFiles(files: Express.Multer.File[]): File[] {
     fs.access('public/uploads', (error) => {
       if (error) {
         fs.mkdirSync('public/uploads', { recursive: true });
       }
     });
-    const { buffer } = file;
-    const timestamp = new Date().getTime();
-    const ref = `${timestamp}.png`;
+    const filesToUpload = files.map((file) => {
+      const { buffer } = file;
+      const timestamp = new Date().getTime();
+      const ref = `${timestamp}.png`;
 
-    await fs.writeFile('public/uploads/' + ref, buffer, (err) => {
-      if (err) throw err;
+      fs.writeFile('public/uploads/' + ref, buffer, (err) => {
+        if (err) throw err;
+      });
+      const link = `http://localhost:3000/${ref}`;
+
+      return {
+        name: ref,
+        url: link,
+        filename: file.filename,
+        fieldname: null,
+      };
     });
-    const link = `http://localhost:3000/${ref}`;
 
-    const fileToUpload = {
-      name: ref,
-      url: link,
-      filename: file.filename,
-      fieldname: null,
-    };
-
-    return await this.fileRepository.createFile(fileToUpload);
+    return this.fileRepository.create(filesToUpload);
   }
 
   async saveFile(file: File) {
@@ -83,7 +82,7 @@ export class FilesService {
     return `This action updates a #${id} file`;
   }
 
-  async remove(id: string) {
+  async remove(id: string[]) {
     return await this.fileRepository.delete(id);
   }
 }

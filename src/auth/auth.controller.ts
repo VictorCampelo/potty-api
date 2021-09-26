@@ -58,9 +58,13 @@ export class AuthController {
 
   @Patch(':token')
   async confirmEmail(@Param('token') token: string) {
-    const user = await this.authService.confirmEmail(token);
+    if (await this.authService.confirmEmail(token)) {
+      return {
+        message: 'Email confirmado',
+      };
+    }
     return {
-      message: 'Email confirmado',
+      message: 'Erro ao confirmar o seu E-mail',
     };
   }
 

@@ -27,9 +27,6 @@ import { SentryInterceptor } from '../interceptors/sentry.interceptor';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import * as fs from 'fs';
-import sharp from 'sharp';
-import gm from 'gm';
 // import { multerOptions } from 'src/configs/multer.config';
 @Controller('users')
 @UseGuards(AuthGuard(), RolesGuard) //protect all user endpoints

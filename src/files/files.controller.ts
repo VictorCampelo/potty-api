@@ -3,15 +3,13 @@ import {
   Controller,
   Get,
   HttpCode,
-  ParseArrayPipe,
   Post,
   UploadedFile,
-  UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateFileDto } from './dto/create-file.dto';
 import { File } from './file.entity';
 import { Express } from 'express';

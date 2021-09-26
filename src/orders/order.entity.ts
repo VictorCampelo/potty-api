@@ -7,22 +7,19 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  Column,
+  ManyToMany,
 } from 'typeorm';
 
 @Entity('order')
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
-  public orderid!: number;
+  orderid: number;
 
   @ManyToOne(() => User, (user) => user.order)
-  public user!: User;
+  user: User;
 
-  @ManyToOne(() => Product, (product) => product.order)
-  public product!: Product;
-
-  @Column({ nullable: false, default: 0 })
-  amount: number;
+  @ManyToMany(() => Product)
+  products: Product[];
 
   @CreateDateColumn()
   createdAt: Date;

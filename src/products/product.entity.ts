@@ -13,8 +13,6 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
-import { Order } from 'src/orders/order.entity';
-
 @Entity('product')
 @Unique(['id', 'title'])
 export class Product extends BaseEntity {
@@ -29,6 +27,21 @@ export class Product extends BaseEntity {
 
   @Column({ nullable: true, type: 'simple-array' })
   tags?: string[];
+
+  @Column({ nullable: true, default: 0 })
+  sumOrders?: number;
+
+  @Column({ nullable: true, default: 0 })
+  sumFeedbacks?: number;
+
+  @Column({ nullable: true, default: 0 })
+  sumStars?: number;
+
+  @Column({ nullable: true, default: 0 })
+  avgStars?: number;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  lastSold?: Date;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -47,7 +60,4 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => Feedback, (feedback) => feedback.product)
   feedbacks: Feedback[];
-
-  @OneToMany(() => Order, (order) => order.product)
-  public order!: Order[];
 }

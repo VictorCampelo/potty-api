@@ -11,6 +11,6 @@ import { FeedbackService } from './feedback.service';
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [FeedbackController],
-  providers: [FeedbackService]
+  providers: [FeedbackService],
 })
 export class FeedbackModule {}

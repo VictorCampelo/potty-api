@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
@@ -38,6 +37,7 @@ export class FeedbackController {
     }
   }
 
+  //DASHBOARD
   @Get('findAllFromStore/:id')
   async findAllFeedbacksFromStore(@Param('id') store_id: string) {
     try {

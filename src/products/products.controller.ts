@@ -21,12 +21,19 @@ import { memoryStorage } from 'multer';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
-@UseGuards(AuthGuard(), RolesGuard)
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/users/user.entity';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.productsService.findOne(id);
+  }
+
   @Post()
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   @UseInterceptors(
     FilesInterceptor('files', 3, {
@@ -36,34 +43,27 @@ export class ProductsController {
   async create(
     @UploadedFiles() images: Express.Multer.File[],
     @Body(ValidationPipe) createProductDto: CreateProductDto,
+    @GetUser() user: User,
   ) {
     try {
-      const product = await this.productsService.create(
-        createProductDto,
-        images,
-      );
+      createProductDto.files = images;
+      createProductDto.store = user.store;
+      const product = await this.productsService.create(createProductDto);
       return { product: product, message: 'Product created successfully' };
     } catch (error) {
       console.log('ERRO1:' + error);
     }
   }
 
-  @Get()
-  findAll() {
-    return this.productsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
-  }
-
   @Patch(':id')
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Role(UserRole.OWNER)
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(+id, updateProductDto);
   }
 
   @Patch('details/:id')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async updateProductDetails(
     @Param('id') id: string,
@@ -77,6 +77,7 @@ export class ProductsController {
   }
 
   @Patch('images/:id')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   @UseInterceptors(
     FilesInterceptor('files', 3, {
@@ -89,15 +90,16 @@ export class ProductsController {
     @UploadedFiles() images: Express.Multer.File[],
   ) {
     updateProductImagesDto.product_id = id;
+    updateProductImagesDto.files = images;
     const product = await this.productsService.updateProductImages(
       updateProductImagesDto,
-      images,
     );
 
     return { product: product, message: 'Product images sucessfully updated.' };
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async remove(@Param('id') id: string) {
     await this.productsService.remove(id);
