@@ -83,6 +83,60 @@ export class OrdersService {
     return orders;
   }
 
+  async amountSolds(
+    store_id: string,
+    startDate: Date,
+    endDate: Date,
+    limit?: number,
+    offset?: number,
+  ): Promise<Order[]> {
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoin('order.product', 'product')
+      .leftJoin('product.store', 'store')
+      .select("date_trunc('week', created_at::date)", 'weekly')
+      .addSelect('COUNT(product.id)', 'qtd')
+      .groupBy('weekly')
+      .orderBy('weekly')
+      .where('store.id = :id', { id: store_id })
+      .andWhere('createdAt is between(:start, :end)', {
+        start: startDate,
+        end: endDate,
+      })
+      .offset(offset)
+      .limit(limit)
+      .getRawMany();
+
+    return orders;
+  }
+
+  async income(
+    store_id: string,
+    startDate: Date,
+    endDate: Date,
+    limit?: number,
+    offset?: number,
+  ): Promise<Order[]> {
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoin('order.product', 'product')
+      .leftJoin('product.store', 'store')
+      .select("date_trunc('week', created_at::date)", 'weekly')
+      .addSelect('SUM(product.price)', 'income')
+      .groupBy('weekly')
+      .orderBy('weekly')
+      .where('store.id = :id', { id: store_id })
+      .andWhere('createdAt is between(:start, :end)', {
+        start: startDate,
+        end: endDate,
+      })
+      .offset(offset)
+      .limit(limit)
+      .getRawMany();
+
+    return orders;
+  }
+
   async findOne(id: number): Promise<Order> {
     return await this.orderRepository.findOne(id, {
       relations: ['product', 'product.store'],

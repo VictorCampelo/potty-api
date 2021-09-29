@@ -1,13 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { FindMostSolds } from './dto/find-most-solds.dto';
+import { Controller, Get, UseGuards, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
@@ -15,8 +7,6 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { UserRole } from 'src/users/user-roles.enum';
 import { User } from 'src/users/user.entity';
 import { DashboardService } from './dashboard.service';
-import { CreateDashboardDto } from './dto/create-dashboard.dto';
-import { UpdateDashboardDto } from './dto/update-dashboard.dto';
 
 @Controller('dashboard')
 @UseGuards(AuthGuard(), RolesGuard)
@@ -24,8 +14,8 @@ import { UpdateDashboardDto } from './dto/update-dashboard.dto';
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
   @Get('mostSolds')
-  findMostSoldsProducts(@GetUser() user: User) {
-    return this.dashboardService.mostSolds();
+  findMostSoldsProducts(@Query() query: FindMostSolds, @GetUser() user: User) {
+    return this.dashboardService.mostSolds(user.store.id, query);
   }
   @Get('lastSolds')
   findLastSoldsProducts(@GetUser() user: User) {
@@ -33,14 +23,14 @@ export class DashboardController {
   }
   @Get('lastFeedbacks')
   findFeedbacks(@GetUser() user: User) {
-    return this.dashboardService.lastFeedbacks();
+    return this.dashboardService.lastFeedbacks(user.store.id);
   }
   @Get('amountSoldProducts')
-  findAmountSoldProducts(@GetUser() user: User) {
-    return this.dashboardService.amountSoldProducts();
+  findAmountSoldProducts(@Query() query: FindMostSolds, @GetUser() user: User) {
+    return this.dashboardService.amountSoldProducts(user.store.id, query);
   }
   @Get('income')
-  findIncome(@GetUser() user: User) {
-    return this.dashboardService.income();
+  findIncome(@Query() query: FindMostSolds, @GetUser() user: User) {
+    return this.dashboardService.income(user.store.id, query);
   }
 }

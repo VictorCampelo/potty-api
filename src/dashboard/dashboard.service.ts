@@ -2,6 +2,7 @@ import { FeedbackService } from './../feedback/feedback.service';
 import { OrdersService } from './../orders/orders.service';
 import { Injectable } from '@nestjs/common';
 import { Order } from 'src/orders/order.entity';
+import { FindMostSolds } from './dto/find-most-solds.dto';
 
 @Injectable()
 export class DashboardService {
@@ -10,8 +11,14 @@ export class DashboardService {
     private feedbackService: FeedbackService,
   ) {}
 
-  mostSolds() {
-    return `This action returns all dashboard`;
+  async mostSolds(store_id: string, findMostSolds: FindMostSolds) {
+    return await this.ordersService.findMostSolds(
+      store_id,
+      findMostSolds.start,
+      findMostSolds.end,
+      findMostSolds.limit,
+      findMostSolds.offset,
+    );
   }
   async lastSolds(
     store_id: string,
@@ -25,10 +32,22 @@ export class DashboardService {
     return this.feedbackService.findAllFeedbacksFromStore(store_id);
   }
 
-  amountSoldProducts() {
-    return `This action returns all dashboard`;
+  async amountSoldProducts(store_id: string, findMostSolds: FindMostSolds) {
+    return await this.ordersService.amountSolds(
+      store_id,
+      findMostSolds.start,
+      findMostSolds.end,
+      findMostSolds.limit,
+      findMostSolds.offset,
+    );
   }
-  income() {
-    return `This action returns all dashboard`;
+  async income(store_id: string, findMostSolds: FindMostSolds) {
+    return await this.ordersService.income(
+      store_id,
+      findMostSolds.start,
+      findMostSolds.end,
+      findMostSolds.limit,
+      findMostSolds.offset,
+    );
   }
 }

@@ -28,6 +28,9 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, type: 'simple-array' })
   tags?: string[];
 
+  @Column({ nullable: false, default: 0 })
+  price: number;
+
   @Column({ nullable: true, default: 0 })
   sumOrders?: number;
 
