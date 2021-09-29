@@ -3,9 +3,14 @@ import { OrdersModule } from './../orders/orders.module';
 import { Module } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { DashboardController } from './dashboard.controller';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
-  imports: [OrdersModule, FeedbackModule],
+  imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    OrdersModule,
+    FeedbackModule,
+  ],
   controllers: [DashboardController],
   providers: [DashboardService],
 })
