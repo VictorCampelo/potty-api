@@ -29,14 +29,14 @@ export class AuthService {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
       const user = await this.userRepository.createUser(createUserDto, role);
-      await this.emailsService.sendEmail(
-        user.email,
-        'Email de confirmação',
-        'email-confirmation',
-        {
-          token: user.confirmationToken,
-        },
-      );
+      // await this.emailsService.sendEmail(
+      //   user.email,
+      //   'Email de confirmação',
+      //   'email-confirmation',
+      //   {
+      //     token: user.confirmationToken,
+      //   },
+      // );
       return user;
     }
   }
