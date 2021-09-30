@@ -1,8 +1,4 @@
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { User } from 'src/users/user.entity';
-
-export class CreateStoreDto extends CreateUserDto {
-  user: User;
+export class CreateStoreDto {
   business_name: string;
   CNPJ: string;
   phone: string;

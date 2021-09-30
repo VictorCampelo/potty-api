@@ -1,19 +1,23 @@
+import { UsersService } from './../users/users.service';
 import {
   Injectable,
-  UnprocessableEntityException,
-  UnauthorizedException,
   NotFoundException,
+  UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
-import { UserRepository } from '../users/users.repository';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { User } from '../users/user.entity';
-import { UserRole } from '../users/user-roles.enum';
-import { CredentialsDto } from './dto/credentials.dto';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes } from 'crypto';
-import { ChangePasswordDto } from './dto/change-password.dto';
 import { EmailsService } from 'src/emails/emails.service';
+import { Store } from 'src/stores/store.entity';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UserRole } from '../users/user-roles.enum';
+import { User } from '../users/user.entity';
+import { UserRepository } from '../users/users.repository';
+import { StoresService } from './../stores/stores.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateUserStore } from './dto/create-user-store.dto';
+import { CredentialsDto } from './dto/credentials.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +26,8 @@ export class AuthService {
     private userRepository: UserRepository,
     private jwtService: JwtService,
     private emailsService: EmailsService,
+    private storesService: StoresService,
+    private usersService: UsersService,
   ) {}
 
   async signUp(createUserDto: CreateUserDto, role: UserRole): Promise<User> {
@@ -37,6 +43,20 @@ export class AuthService {
       //     token: user.confirmationToken,
       //   },
       // );
+      return user;
+    }
+  }
+
+  async signUpOwner(createUserAndStore: CreateUserStore): Promise<User> {
+    const { userDto, storeDto } = createUserAndStore;
+    if (userDto.password != userDto.passwordConfirmation) {
+      throw new UnprocessableEntityException('As senhas não conferem');
+    } else {
+      const store = await this.storesService.create(storeDto);
+      const user = await this.usersService.createOwnerUser(userDto);
+      user.store = store;
+      user.storeId = store.id;
+      await user.save();
       return user;
     }
   }

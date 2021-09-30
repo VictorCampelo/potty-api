@@ -70,6 +70,9 @@ export class User extends BaseEntity {
   feedbacks: Feedback[];
   static feedbacks: any;
 
+  @Column({ nullable: true, type: 'varchar' })
+  storeId: string;
+
   @ManyToOne(() => Store, (store) => store.users)
   store: Store;
 

@@ -15,22 +15,22 @@ export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
   @Get('mostSolds')
   findMostSoldsProducts(@Query() query: FindMostSolds, @GetUser() user: User) {
-    return this.dashboardService.mostSolds(user.store.id, query);
+    return this.dashboardService.mostSolds(user.storeId, query);
   }
   @Get('lastSolds')
   findLastSoldsProducts(@GetUser() user: User) {
-    return this.dashboardService.lastSolds(user.store.id);
+    return this.dashboardService.lastSolds(user.storeId);
   }
   @Get('lastFeedbacks')
   findFeedbacks(@GetUser() user: User) {
-    return this.dashboardService.lastFeedbacks(user.store.id);
+    return this.dashboardService.lastFeedbacks(user.storeId);
   }
   @Get('amountSoldProducts')
   findAmountSoldProducts(@Query() query: FindMostSolds, @GetUser() user: User) {
-    return this.dashboardService.amountSoldProducts(user.store.id, query);
+    return this.dashboardService.amountSoldProducts(user.storeId, query);
   }
   @Get('income')
   findIncome(@Query() query: FindMostSolds, @GetUser() user: User) {
-    return this.dashboardService.income(user.store.id, query);
+    return this.dashboardService.income(user.storeId, query);
   }
 }

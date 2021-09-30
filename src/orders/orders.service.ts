@@ -46,11 +46,11 @@ export class OrdersService {
   ): Promise<Order[]> {
     const orders = await this.orderRepository
       .createQueryBuilder('order')
-      .leftJoin('order.product', 'product')
-      .leftJoin('product.store', 'store')
-      .select(['product'])
-      .addSelect('COUNT(product.id)', 'qtd')
-      .groupBy('product.id')
+      .leftJoin('order.products', 'products')
+      .leftJoin('products.store', 'store')
+      .select(['products'])
+      .addSelect('COUNT(products.id)', 'qtd')
+      .groupBy('products.id')
       .where('store.id = :id', { id: store_id })
       .andWhere('createdAt is between(:start, :end)', {
         start: startDate,

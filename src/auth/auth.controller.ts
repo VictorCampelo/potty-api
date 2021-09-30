@@ -1,3 +1,4 @@
+import { CreateUserStore } from './dto/create-user-store.dto';
 import {
   Controller,
   Post,
@@ -19,7 +20,6 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserRole } from 'src/users/user-roles.enum';
 
 import { StoresService } from '../stores/stores.service';
-import { CreateStoreDto } from 'src/stores/dto/create-store.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -30,13 +30,11 @@ export class AuthController {
 
   @Post('createUserAndStore')
   async createUserAndStore(
-    @Body(ValidationPipe) createStoreDto: CreateStoreDto,
+    @Body(ValidationPipe) createUserAndStore: CreateUserStore,
   ) {
-    const user = await this.authService.signUp(createStoreDto, UserRole.OWNER);
-    createStoreDto.user = user;
-    const store = await this.storesService.create(createStoreDto);
+    const user = await this.authService.signUpOwner(createUserAndStore);
 
-    return { user: user, store: store, message: 'User and Store createds.' };
+    return { user: user, message: 'User and Store createds.' };
   }
 
   @Post('/signup')

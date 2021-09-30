@@ -22,8 +22,8 @@ export class StoresService {
     private usersService: UsersService,
   ) {}
 
-  create(createStoreDto: CreateStoreDto): Promise<Store> {
-    return this.storeRepository.createStoreAfterUser(createStoreDto);
+  async create(createStoreDto: CreateStoreDto): Promise<Store> {
+    return await this.storeRepository.saveStore(createStoreDto);
   }
 
   findAll() {

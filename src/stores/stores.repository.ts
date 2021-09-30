@@ -8,39 +8,9 @@ export class StoreRepository extends Repository<Store> {
   constructor() {
     super();
   }
-  async createStoreAfterUser(createStoreDto: CreateStoreDto): Promise<Store> {
-    const {
-      user,
-      business_name,
-      CNPJ,
-      phone,
-      address,
-      city,
-      state,
-      description,
-      facebook_link,
-      instagram_link,
-      whatsapp_link,
-    } = createStoreDto;
-
-    const store = this.create();
-
-    store.users = [user];
-
-    store.name = business_name;
-    store.CNPJ = CNPJ;
-    store.phone = phone;
-    store.address = address;
-    store.city = city;
-    store.state = state;
-    store.description = description;
-    store.facebook_link = facebook_link;
-    store.instagram_link = instagram_link;
-    store.whatsapp_link = whatsapp_link;
-
-    await store.save();
-
-    return store;
+  async saveStore(createStoreDto: CreateStoreDto): Promise<Store> {
+    const store = this.create(createStoreDto);
+    return await store.save();
   }
 
   async addLike(user: User, store: Store): Promise<Store> {
