@@ -1,4 +1,4 @@
-import { Feedback } from './../feedback/entities/feedback.entity';
+import { Feedback } from '../feedback/feedback.entity';
 import {
   BaseEntity,
   Entity,
@@ -11,6 +11,7 @@ import {
   OneToOne,
   JoinColumn,
   ManyToOne,
+  ManyToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { File } from 'src/files/file.entity';
@@ -73,8 +74,11 @@ export class User extends BaseEntity {
   @Column({ nullable: true, type: 'varchar' })
   storeId: string;
 
-  @ManyToOne(() => Store, (store) => store.users)
+  @ManyToOne(() => Store, (store) => store.owners)
   store: Store;
+
+  @ManyToMany(() => Store, (stores) => stores.usersWhoLiked)
+  likedstores: Store[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

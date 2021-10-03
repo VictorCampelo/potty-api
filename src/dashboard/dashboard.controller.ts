@@ -1,5 +1,13 @@
 import { FindMostSolds } from './dto/find-most-solds.dto';
-import { Controller, Get, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Query,
+  Param,
+  Body,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
@@ -13,24 +21,40 @@ import { DashboardService } from './dashboard.service';
 @Role(UserRole.OWNER)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
-  @Get('mostSolds')
-  findMostSoldsProducts(@Query() query: FindMostSolds, @GetUser() user: User) {
-    return this.dashboardService.mostSolds(user.storeId, query);
+  @Get('mostSolds/:id')
+  findMostSoldsProducts(
+    @Param('id') storeId: string,
+    @Body(ValidationPipe) query: FindMostSolds,
+  ) {
+    return this.dashboardService.mostSolds(storeId, query);
   }
-  @Get('lastSolds')
-  findLastSoldsProducts(@GetUser() user: User) {
-    return this.dashboardService.lastSolds(user.storeId);
+
+  @Get('lastSolds/:id')
+  findLastSoldsProducts(
+    @Param('id') storeId: string,
+    @Body(ValidationPipe) query: FindMostSolds,
+  ) {
+    return this.dashboardService.lastSolds(storeId, query);
   }
-  @Get('lastFeedbacks')
-  findFeedbacks(@GetUser() user: User) {
-    return this.dashboardService.lastFeedbacks(user.storeId);
+
+  @Get('lastFeedbacks/:id')
+  findFeedbacks(@Param('id') storeId: string) {
+    return this.dashboardService.lastFeedbacks(storeId);
   }
-  @Get('amountSoldProducts')
-  findAmountSoldProducts(@Query() query: FindMostSolds, @GetUser() user: User) {
-    return this.dashboardService.amountSoldProducts(user.storeId, query);
+
+  @Get('amountSoldProducts/:id')
+  findAmountSoldProducts(
+    @Param('id') storeId: string,
+    @Body(ValidationPipe) query: FindMostSolds,
+  ) {
+    return this.dashboardService.amountSoldProducts(storeId, query);
   }
-  @Get('income')
-  findIncome(@Query() query: FindMostSolds, @GetUser() user: User) {
-    return this.dashboardService.income(user.storeId, query);
+
+  @Get('income/:id')
+  findIncome(
+    @Param('id') storeId: string,
+    @Body(ValidationPipe) query: FindMostSolds,
+  ) {
+    return this.dashboardService.income(storeId, query);
   }
 }

@@ -28,7 +28,7 @@ export class AuthController {
     private storesService: StoresService,
   ) {}
 
-  @Post('createUserAndStore')
+  @Post('/signup-store')
   async createUserAndStore(
     @Body(ValidationPipe) createUserAndStore: CreateUserStore,
   ) {

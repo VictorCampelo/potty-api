@@ -39,13 +39,14 @@ export class FilesService {
     return 'service ok';
   }
 
-  createFiles(files: Express.Multer.File[]): File[] {
+  async createFiles(files: Express.Multer.File[]): Promise<File[]> {
     fs.access('public/uploads', (error) => {
       if (error) {
         fs.mkdirSync('public/uploads', { recursive: true });
       }
     });
-    const filesToUpload = files.map((file) => {
+    const filesToUpload = [];
+    files.map((file) => {
       const { buffer } = file;
       const timestamp = new Date().getTime();
       const ref = `${timestamp}.png`;
@@ -55,15 +56,15 @@ export class FilesService {
       });
       const link = `http://localhost:3000/${ref}`;
 
-      return {
+      filesToUpload.push({
         name: ref,
         url: link,
         filename: file.filename,
         fieldname: null,
-      };
+      });
     });
 
-    return this.fileRepository.create(filesToUpload);
+    return await this.fileRepository.save(filesToUpload);
   }
 
   async saveFile(file: File) {

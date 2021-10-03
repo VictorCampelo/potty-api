@@ -81,11 +81,8 @@ export class Store extends BaseEntity {
   @JoinTable({ name: 'store_category' })
   categories: Category[];
 
-  // @ManyToOne(() => User, (user) => user.stores)
-  // user: User;
-
   @OneToMany(() => User, (user: User) => user.store)
-  users: User[];
+  owners: User[];
 
   @ManyToMany(() => User)
   @JoinTable({ name: 'favorites' })

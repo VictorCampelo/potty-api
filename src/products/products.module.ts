@@ -1,3 +1,4 @@
+import { StoresModule } from './../stores/stores.module';
 import { Module } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
@@ -10,6 +11,7 @@ import { PassportModule } from '@nestjs/passport';
     TypeOrmModule.forFeature([ProductRepository]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     FilesModule,
+    StoresModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService],

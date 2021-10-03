@@ -1,5 +1,4 @@
 import { Product } from 'src/products/product.entity';
-import { User } from 'src/users/user.entity';
 
 interface Order {
   product: Product;
@@ -7,6 +6,5 @@ interface Order {
 }
 
 export class CreateOrderDto {
-  user: User;
   products: Order[];
 }

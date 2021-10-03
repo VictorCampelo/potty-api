@@ -1,3 +1,4 @@
+import { ProductsService } from 'src/products/products.service';
 import {
   Controller,
   Get,
@@ -18,20 +19,33 @@ import { UserRole } from 'src/users/user-roles.enum';
 import { User } from 'src/users/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { ErrorHandling } from 'src/configs/error-handling';
+import { StoresService } from 'src/stores/stores.service';
 
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('feedback')
 export class FeedbackController {
-  constructor(private readonly feedbackService: FeedbackService) {}
+  constructor(
+    private readonly feedbackService: FeedbackService,
+    private readonly storesService: StoresService,
+    private readonly productsService: ProductsService,
+  ) {}
 
-  @Post()
+  @Post(':id')
   @Role(UserRole.USER)
   async create(
     @GetUser() user: User,
     @Body() createFeedbackDto: CreateFeedbackDto,
+    @Param('id') productId: string,
   ) {
     try {
-      return await this.feedbackService.create(createFeedbackDto, user);
+      const store = await this.storesService.findOne(user.storeId);
+      const product = await this.productsService.findOne(productId);
+      return await this.feedbackService.create(
+        createFeedbackDto,
+        product,
+        user,
+        store,
+      );
     } catch (error) {
       new ErrorHandling(error);
     }
@@ -66,7 +80,7 @@ export class FeedbackController {
     @Param('id') id: string,
     @Body() updateFeedbackDto: UpdateFeedbackDto,
   ) {
-    return this.feedbackService.update(+id, updateFeedbackDto);
+    return this.feedbackService.update(id, updateFeedbackDto);
   }
 
   @Delete(':id')

@@ -17,7 +17,7 @@ import { StoresModule } from 'src/stores/stores.module';
     JwtModule.register({
       secret: 'super-secret',
       signOptions: {
-        expiresIn: 18000,
+        expiresIn: 180000000000000000000000,
       },
     }),
     EmailsModule,
@@ -26,7 +26,6 @@ import { StoresModule } from 'src/stores/stores.module';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  //PassportModule: responsável por adicionar a funcionalidade de proteger um endpoint de usuários não autenticados.
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

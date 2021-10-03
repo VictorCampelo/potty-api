@@ -1,30 +1,48 @@
-import { Feedback } from './entities/feedback.entity';
+import { Store } from 'src/stores/store.entity';
+import { Feedback } from './feedback.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { User } from 'src/users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ProductsService } from 'src/products/products.service';
+import { StoresService } from 'src/stores/stores.service';
+import { Product } from 'src/products/product.entity';
 
 @Injectable()
 export class FeedbackService {
   constructor(
     @InjectRepository(Feedback)
     private feedbackRepository: Repository<Feedback>,
+    private productService: ProductsService,
+    private storesService: StoresService,
   ) {}
-  async create(createFeedbackDto: CreateFeedbackDto, user: User) {
+  async create(
+    createFeedbackDto: CreateFeedbackDto,
+    product: Product,
+    user: User,
+    store: Store,
+  ) {
     try {
-      const feedback = this.feedbackRepository.create(createFeedbackDto);
-      feedback.user = user;
-      feedback.product.sumStars += createFeedbackDto.start;
-      feedback.product.sumFeedbacks += 1;
-      feedback.product.avgStars =
-        feedback.product.sumStars / feedback.product.sumFeedbacks;
+      const feedback = this.feedbackRepository.create();
 
-      feedback.product.store.sumStars += createFeedbackDto.start;
-      feedback.product.store.sumFeedbacks += 1;
-      feedback.product.store.avgStars =
-        feedback.product.store.sumStars / feedback.product.store.sumFeedbacks;
+      feedback.comment = createFeedbackDto.comment;
+      feedback.star = createFeedbackDto.star;
+
+      product.sumStars += createFeedbackDto.star;
+      product.sumFeedbacks += 1;
+      product.avgStars = product.sumStars / product.sumFeedbacks;
+
+      store.sumStars += createFeedbackDto.star;
+      store.sumFeedbacks += 1;
+      store.avgStars = store.sumStars / store.sumFeedbacks;
+
+      feedback.user = user;
+      feedback.product = product;
+
+      await this.storesService.save(store);
+      await this.productService.saveAll([product]);
 
       return await feedback.save();
     } catch (error) {
@@ -39,8 +57,9 @@ export class FeedbackService {
       .leftJoinAndSelect('feedback.product', 'product')
       .leftJoinAndSelect('product.store', 'store')
       .where('store.id = :id', { id: store_id })
-      .select(['feedback', 'user.firstName', 'user.lastName'])
-      .orderBy('createdAt', 'DESC')
+      .select(['feedback', 'user', 'product'])
+      .select()
+      .orderBy('feedback.createdAt', 'DESC')
       .execute();
 
     if (allFeedbacks.length == 0) {
@@ -51,27 +70,22 @@ export class FeedbackService {
   }
 
   async fromProduct(product_id: string) {
-    const allFeedbacksFromProduct = await this.feedbackRepository
-      .createQueryBuilder('feedback')
-      .leftJoinAndSelect('feedback.user', 'user')
-      .leftJoinAndSelect('feedback.product', 'product')
-      .where('product.id = :id', { id: product_id })
-      .select(['feedback', 'user.firstName', 'user.lastName'])
-      .execute();
-
-    if (allFeedbacksFromProduct.length == 0) {
-      throw new NotFoundException("The Store doesn't have any feedbacks yet.");
-    }
-
-    return allFeedbacksFromProduct;
+    return await this.productService.findOne(product_id, {
+      relations: {
+        files: false,
+        store: false,
+        feedbacks: true,
+        feedbacksUser: true,
+      },
+    });
   }
 
   findOne(id: number) {
     return `This action returns a #${id} feedback`;
   }
 
-  update(id: number, _updateFeedbackDto: UpdateFeedbackDto) {
-    return `This action updates a #${id} feedback`;
+  async update(id: string, updateFeedbackDto: UpdateFeedbackDto) {
+    return await this.feedbackRepository.update(id, updateFeedbackDto);
   }
 
   remove(id: number) {

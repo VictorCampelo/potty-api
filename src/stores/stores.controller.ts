@@ -1,24 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
-  Query,
 } from '@nestjs/common';
-import { StoresService } from './stores.service';
-import { CreateStoreDto } from './dto/create-store.dto';
-import { UpdateStoreDto } from './dto/update-store.dto';
+import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
+import { Role } from 'src/auth/role.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { UserRole } from 'src/users/user-roles.enum';
 import { User } from 'src/users/user.entity';
 import { AddLikeDto } from './dto/add-like.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from 'src/auth/roles.guard';
-import { Role } from 'src/auth/role.decorator';
-import { UserRole } from 'src/users/user-roles.enum';
+import { UpdateStoreDto } from './dto/update-store.dto';
+import { StoresService } from './stores.service';
 
 @Controller('stores')
 export class StoresController {
@@ -30,23 +28,15 @@ export class StoresController {
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id') id: string,
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
-  ) {
-    const findStoreDto = { store_id: id };
-    if (limit && offset) {
-      findStoreDto['loadProducts'] = { limit, offset };
-    }
-    return await this.storesService.findOne(findStoreDto);
+  async findOne(@Param('id') id: string) {
+    return await this.storesService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   update(@Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto) {
-    return this.storesService.update(+id, updateStoreDto);
+    return this.storesService.update(id, updateStoreDto);
   }
 
   @Delete(':id')
@@ -56,15 +46,11 @@ export class StoresController {
     return this.storesService.remove(+id);
   }
 
-  @Post('addLike')
+  @Post('addLike/:id')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.USER)
-  async addLikeToStore(@Body() addLikeDto: AddLikeDto, @GetUser() user: User) {
-    // TODO: Pegar o ID do usuário logado
-    const store = await this.storesService.addLike(
-      user.id,
-      addLikeDto.store_id,
-    );
+  async addLikeToStore(@Param('id') storeId: string, @GetUser() user: User) {
+    const store = await this.storesService.addLike(user, storeId);
     return { store: store, message: 'Sucessfuly added one like to the Store.' };
   }
 }

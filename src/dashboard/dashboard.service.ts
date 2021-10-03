@@ -1,3 +1,4 @@
+import { ProductsService } from 'src/products/products.service';
 import { FeedbackService } from './../feedback/feedback.service';
 import { OrdersService } from './../orders/orders.service';
 import { Injectable } from '@nestjs/common';
@@ -9,41 +10,46 @@ export class DashboardService {
   constructor(
     private ordersService: OrdersService,
     private feedbackService: FeedbackService,
+    private productsService: ProductsService,
   ) {}
 
-  async mostSolds(store_id: string, findMostSolds: FindMostSolds) {
-    return await this.ordersService.findMostSolds(
-      store_id,
+  async mostSolds(storeId: string, findMostSolds: FindMostSolds) {
+    return await this.productsService.findMostSolds(
+      storeId,
       findMostSolds.start,
       findMostSolds.end,
       findMostSolds.limit,
       findMostSolds.offset,
     );
   }
+
   async lastSolds(
-    store_id: string,
-    limit?: number,
-    offset?: number,
+    storeId: string,
+    findMostSolds: FindMostSolds,
   ): Promise<Order[]> {
-    return await this.ordersService.findLastSold(store_id, limit, offset);
+    return await this.ordersService.findLastSold(
+      storeId,
+      findMostSolds.limit,
+      findMostSolds.offset,
+    );
   }
 
-  async lastFeedbacks(store_id: string) {
-    return this.feedbackService.findAllFeedbacksFromStore(store_id);
+  async lastFeedbacks(storeId: string) {
+    return this.feedbackService.findAllFeedbacksFromStore(storeId);
   }
 
-  async amountSoldProducts(store_id: string, findMostSolds: FindMostSolds) {
-    return await this.ordersService.amountSolds(
-      store_id,
+  async amountSoldProducts(storeId: string, findMostSolds: FindMostSolds) {
+    return await this.productsService.amountSolds(
+      storeId,
       findMostSolds.start,
       findMostSolds.end,
       findMostSolds.limit,
       findMostSolds.offset,
     );
   }
-  async income(store_id: string, findMostSolds: FindMostSolds) {
+  async income(storeId: string, findMostSolds: FindMostSolds) {
     return await this.ordersService.income(
-      store_id,
+      storeId,
       findMostSolds.start,
       findMostSolds.end,
       findMostSolds.limit,

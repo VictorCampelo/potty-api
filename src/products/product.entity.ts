@@ -1,4 +1,4 @@
-import { Feedback } from './../feedback/entities/feedback.entity';
+import { Feedback } from '../feedback/feedback.entity';
 import { Store } from 'src/stores/store.entity';
 import {
   Entity,
@@ -11,8 +11,10 @@ import {
   ManyToOne,
   OneToMany,
   DeleteDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
+import { Order } from 'src/orders/order.entity';
 @Entity('product')
 @Unique(['id', 'title'])
 export class Product extends BaseEntity {
@@ -56,6 +58,7 @@ export class Product extends BaseEntity {
   deletedAt?: Date;
 
   @ManyToOne(() => Store, (store: Store) => store.products)
+  @JoinColumn({ name: 'store_id' })
   store: Store;
 
   @OneToMany(() => File, (file) => file.product)
@@ -63,4 +66,7 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => Feedback, (feedback) => feedback.product)
   feedbacks: Feedback[];
+
+  @OneToMany(() => Order, (orders) => orders.product)
+  orders: Order[];
 }

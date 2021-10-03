@@ -1,4 +1,5 @@
 import { Product } from 'src/products/product.entity';
+import { Store } from 'src/stores/store.entity';
 import { User } from 'src/users/user.entity';
 import {
   Entity,
@@ -7,19 +8,27 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  ManyToMany,
+  Column,
 } from 'typeorm';
 
 @Entity('order')
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
-  orderid: number;
+  id: number;
 
   @ManyToOne(() => User, (user) => user.order)
   user: User;
 
-  @ManyToMany(() => Product)
-  products: Product[];
+  @ManyToOne(() => Product)
+  product: Product;
+  productId: string;
+
+  @ManyToOne(() => Store)
+  store: Store;
+  storeId: string;
+
+  @Column({ nullable: false })
+  amount: number;
 
   @CreateDateColumn()
   createdAt: Date;

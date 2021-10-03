@@ -1,11 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { StoresService } from 'src/stores/stores.service';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
-import { Between, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ProductSoldDto } from './dto/product-sold.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './order.entity';
+import { User } from 'src/users/user.entity';
+import { Store } from 'src/stores/store.entity';
+import { Product } from 'src/products/product.entity';
 
 @Injectable()
 export class OrdersService {
@@ -13,54 +15,31 @@ export class OrdersService {
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     private productService: ProductsService,
+    private storesService: StoresService,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(
+    createOrderDto: CreateOrderDto,
+    user: User,
+    store: Store,
+  ): Promise<Order[]> {
+    const orders = [];
     const products = [];
     createOrderDto.products.map((order) => {
-      const MappedProducts = [];
       order.product.sumOrders += order.amount;
       order.product.lastSold = new Date();
-      Array(order.amount).forEach(() => {
-        MappedProducts.push(order.product);
-      });
-      products.push(MappedProducts);
+      products.push(order.product);
+
+      store.sumOrders += order.amount;
+
+      const orderToCreate = this.orderRepository.create(order);
+      orderToCreate.user = user;
+      orders.push(orderToCreate);
     });
 
-    const order = this.orderRepository.create({ products: products });
-    order.user = createOrderDto.user;
-
-    return await order.save();
-  }
-
-  findAll() {
-    return `This action returns all orders`;
-  }
-
-  async findMostSolds(
-    store_id: string,
-    startDate: Date,
-    endDate: Date,
-    limit?: number,
-    offset?: number,
-  ): Promise<Order[]> {
-    const orders = await this.orderRepository
-      .createQueryBuilder('order')
-      .leftJoin('order.products', 'products')
-      .leftJoin('products.store', 'store')
-      .select(['products'])
-      .addSelect('COUNT(products.id)', 'qtd')
-      .groupBy('products.id')
-      .where('store.id = :id', { id: store_id })
-      .andWhere('createdAt is between(:start, :end)', {
-        start: startDate,
-        end: endDate,
-      })
-      .offset(offset)
-      .limit(limit)
-      .getRawMany();
-
-    return orders;
+    await this.storesService.save(store);
+    await this.productService.saveAll(products);
+    return await this.orderRepository.save(orders);
   }
 
   async findLastSold(
@@ -68,43 +47,19 @@ export class OrdersService {
     limit?: number,
     offset?: number,
   ): Promise<Order[]> {
-    const orders = await this.orderRepository.find({
-      where: {
-        product: { store: store_id },
-      },
-      relations: ['product', 'product.store'],
-      order: {
-        createdAt: 'ASC',
-      },
-      skip: offset ? offset : 0,
-      take: limit ? limit : 10,
-    });
-
-    return orders;
-  }
-
-  async amountSolds(
-    store_id: string,
-    startDate: Date,
-    endDate: Date,
-    limit?: number,
-    offset?: number,
-  ): Promise<Order[]> {
+    console.log(limit);
     const orders = await this.orderRepository
       .createQueryBuilder('order')
-      .leftJoin('order.product', 'product')
-      .leftJoin('product.store', 'store')
-      .select("date_trunc('week', created_at::date)", 'weekly')
-      .addSelect('COUNT(product.id)', 'qtd')
-      .groupBy('weekly')
-      .orderBy('weekly')
-      .where('store.id = :id', { id: store_id })
-      .andWhere('createdAt is between(:start, :end)', {
-        start: startDate,
-        end: endDate,
-      })
-      .offset(offset)
+      .leftJoinAndSelect(
+        (qb) => qb.select().from(Product, 'product'),
+        'product',
+        'product.id = order.productId',
+      )
+      .select(['order', 'product'])
+      .where('product.store_id = :id', { id: store_id })
       .limit(limit)
+      .offset(offset)
+      .orderBy('order.createdAt', 'DESC')
       .getRawMany();
 
     return orders;
@@ -117,37 +72,49 @@ export class OrdersService {
     limit?: number,
     offset?: number,
   ): Promise<Order[]> {
-    const orders = await this.orderRepository
-      .createQueryBuilder('order')
-      .leftJoin('order.product', 'product')
-      .leftJoin('product.store', 'store')
-      .select("date_trunc('week', created_at::date)", 'weekly')
-      .addSelect('SUM(product.price)', 'income')
-      .groupBy('weekly')
-      .orderBy('weekly')
-      .where('store.id = :id', { id: store_id })
-      .andWhere('createdAt is between(:start, :end)', {
-        start: startDate,
-        end: endDate,
-      })
-      .offset(offset)
-      .limit(limit)
-      .getRawMany();
+    try {
+      const orders = await this.orderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect(
+          (qb) =>
+            qb
+              .addSelect('*')
+              .addSelect((subQuery) => {
+                return subQuery
+                  .select('SUM(order.amount)')
+                  .from(Order, 'order')
+                  .where('order.productId = product.id')
+                  .groupBy('order.productId');
+              }, 'qtd')
+              .from(Product, 'product'),
+          'product',
+          'product.id = order.productId',
+        )
+        .select(`date_trunc('week', "order"."createdAt"::date) as weekly`)
+        .addSelect('product.price * product.qtd', 'income')
+        .groupBy('weekly')
+        .addGroupBy('product.id')
+        .addGroupBy('product.price')
+        .addGroupBy('product.qtd')
+        .orderBy('weekly')
+        .where('product.store_id = :id', { id: store_id })
+        .andWhere('order.createdAt between :start and :end', {
+          start: startDate,
+          end: endDate,
+        })
+        .offset(offset)
+        .limit(limit)
+        .getRawMany();
 
-    return orders;
+      return orders;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async findOne(id: number): Promise<Order> {
     return await this.orderRepository.findOne(id, {
       relations: ['product', 'product.store'],
     });
-  }
-
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} order`;
   }
 }
