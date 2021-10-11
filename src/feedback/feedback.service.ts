@@ -58,7 +58,6 @@ export class FeedbackService {
       .leftJoinAndSelect('product.store', 'store')
       .where('store.id = :id', { id: store_id })
       .select(['feedback', 'user', 'product'])
-      .select()
       .orderBy('feedback.createdAt', 'DESC')
       .execute();
 
