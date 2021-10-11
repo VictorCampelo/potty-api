@@ -13,7 +13,13 @@ import { ProductRepository } from './products.repository';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { StoresService } from 'src/stores/stores.service';
-import { getManager, Not } from 'typeorm';
+import {
+  Equal,
+  getManager,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Not,
+} from 'typeorm';
 import { Order } from 'src/orders/order.entity';
 
 @Injectable()
@@ -137,16 +143,16 @@ export class ProductsService {
     return await product.save();
   }
 
-  async findProducstByIds(ids: string[]) {
+  async findProductstByIds(ids: string[]) {
     return await this.productRepository.findByIds(ids);
   }
 
   async findAll(
     storeId: string,
-    findProducs: FindProductsDto,
+    findProducts: FindProductsDto,
   ): Promise<Product[]> {
     let orderingBy;
-    if (findProducs.options.loadLastSolds) {
+    if (findProducts.options.loadLastSolds) {
       orderingBy = {
         lastSold: 'DESC',
       };
@@ -156,39 +162,52 @@ export class ProductsService {
         avgStars: 'ASC',
       };
     }
+    const whereOpt = {
+      store: storeId,
+    };
+    if (findProducts.starsEq) {
+      whereOpt['avgStars'] = Equal(findProducts.starsEq);
+    } else if (findProducts.starsNeq) {
+      whereOpt['avgStars'] = Not(findProducts.starsNeq);
+    } else {
+      if (findProducts.starsMax) {
+        whereOpt['avgStars'] = LessThanOrEqual(findProducts.starsMax);
+      }
+
+      if (findProducts.starsMin) {
+        whereOpt['avgStars'] = MoreThanOrEqual(findProducts.starsMin);
+      }
+    }
 
     return await this.productRepository.find({
-      relations: findProducs.options.loadRelations ? ['files'] : [],
-      where: {
-        store: storeId,
-        // lastSold: findProducs.options.loadLastSolds ? Not(null) : undefined,
-      },
-      skip: findProducs.options.offset ? findProducs.options.offset : 0,
-      take: findProducs.options.limit ? findProducs.options.limit : 10,
+      relations: findProducts.options.loadRelations ? ['files'] : [],
+      where: whereOpt,
+      skip: findProducts.options.offset ? findProducts.options.offset : 0,
+      take: findProducts.options.limit ? findProducts.options.limit : 10,
       order: orderingBy,
     });
   }
 
   //TODO: ADICIONAR DTO PARA SELECIONAR QUAIS RELATIONS ESSE FIND TERÁ
-  async findOne(id: string, findProducs?: FindProductsDto): Promise<Product> {
-    const relations = [];
-    if (findProducs.relations) {
-      if (findProducs.relations.files) {
-        relations.push('files');
+  async findOne(id: string, findProducts?: FindProductsDto): Promise<Product> {
+    const tables = [];
+    const options = {};
+    if (findProducts && findProducts.relations) {
+      if (findProducts.relations.files) {
+        tables.push('files');
       }
-      if (findProducs.relations.store) {
-        relations.push('store');
+      if (findProducts.relations.store) {
+        tables.push('store');
       }
-      if (findProducs.relations.feedbacks) {
-        relations.push('feedbacks');
+      if (findProducts.relations.feedbacks) {
+        tables.push('feedbacks');
       }
-      if (findProducs.relations.feedbacksUser) {
-        relations.push('feedbacks.user');
+      if (findProducts.relations.feedbacksUser) {
+        tables.push('feedbacks.user');
       }
+      options['relations'] = tables;
     }
-    return this.productRepository.findOne(id, {
-      relations: relations,
-    });
+    return this.productRepository.findOne(id, options);
   }
 
   async updateProductDetails(

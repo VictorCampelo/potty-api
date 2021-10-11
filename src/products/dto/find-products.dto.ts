@@ -15,4 +15,8 @@ interface Relations {
 export class FindProductsDto {
   options?: Options;
   relations?: Relations;
+  starsMax?: number;
+  starsMin?: number;
+  starsEq?: number;
+  starsNeq?: number;
 }

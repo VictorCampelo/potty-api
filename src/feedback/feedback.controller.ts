@@ -30,16 +30,19 @@ export class FeedbackController {
     private readonly productsService: ProductsService,
   ) {}
 
-  @Post(':id')
+  @Post(':storeId/:productId')
   @Role(UserRole.USER)
   async create(
     @GetUser() user: User,
     @Body() createFeedbackDto: CreateFeedbackDto,
-    @Param('id') productId: string,
+    @Param('storeId') storeId: string,
+    @Param('productId') productId: string,
   ) {
     try {
-      const store = await this.storesService.findOne(user.storeId);
+      const store = await this.storesService.findOne(storeId);
+      console.log(store);
       const product = await this.productsService.findOne(productId);
+      console.log(product);
       return await this.feedbackService.create(
         createFeedbackDto,
         product,

@@ -24,21 +24,28 @@ export class OrdersService {
     store: Store,
   ): Promise<Order[]> {
     const orders = [];
-    const products = [];
-    createOrderDto.products.map((order) => {
-      order.product.sumOrders += order.amount;
-      order.product.lastSold = new Date();
-      products.push(order.product);
+    const productsToSave = [];
+    const productIds = createOrderDto.products.map((prod) => prod.productId);
+    const products = await this.productService.findProductstByIds(productIds);
+
+    createOrderDto.products.forEach((order) => {
+      const product = products.find((obj) => obj.id === order.productId);
+      product.sumOrders += order.amount;
+      product.lastSold = new Date();
+      productsToSave.push(product);
 
       store.sumOrders += order.amount;
 
-      const orderToCreate = this.orderRepository.create(order);
+      const orderToCreate = this.orderRepository.create({
+        amount: order.amount,
+        product: product,
+      });
       orderToCreate.user = user;
       orders.push(orderToCreate);
     });
 
     await this.storesService.save(store);
-    await this.productService.saveAll(products);
+    await this.productService.saveAll(productsToSave);
     return await this.orderRepository.save(orders);
   }
 

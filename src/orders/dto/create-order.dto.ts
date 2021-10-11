@@ -1,7 +1,5 @@
-import { Product } from 'src/products/product.entity';
-
 interface Order {
-  product: Product;
+  productId: string;
   amount: number;
 }
 

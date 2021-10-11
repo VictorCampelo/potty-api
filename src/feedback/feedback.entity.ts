@@ -2,20 +2,16 @@ import { Product } from 'src/products/product.entity';
 import { User } from 'src/users/user.entity';
 import {
   Entity,
-  Unique,
   BaseEntity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany,
   DeleteDateColumn,
 } from 'typeorm';
-import { File } from 'src/files/file.entity';
 
 @Entity('feedback')
-@Unique(['id'])
 export class Feedback extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -41,6 +37,6 @@ export class Feedback extends BaseEntity {
   @ManyToOne(() => Product, (product) => product.feedbacks)
   product: Product;
 
-  @OneToMany(() => File, (file) => file.product)
-  files: File[];
+  // @OneToMany(() => File, (file) => file.product)
+  // files: File[];
 }

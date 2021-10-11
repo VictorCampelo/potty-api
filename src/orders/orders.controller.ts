@@ -18,13 +18,14 @@ export class OrdersController {
     private readonly storesService: StoresService,
   ) {}
 
-  @Post()
+  @Post(':id')
   @Role(UserRole.USER)
   async create(
+    @Param('id') storeId: string,
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
   ): Promise<{ orders: Order[]; message: string }> {
-    const store = await this.storesService.findOne(user.storeId);
+    const store = await this.storesService.findOne(storeId);
 
     const orders = await this.ordersService.create(createOrderDto, user, store);
     return { orders: orders, message: 'Order sucessfuly created' };

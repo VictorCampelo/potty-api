@@ -69,7 +69,6 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Feedback, (feedback) => feedback.user)
   feedbacks: Feedback[];
-  static feedbacks: any;
 
   @Column({ nullable: true, type: 'varchar' })
   storeId: string;
