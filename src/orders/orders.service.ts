@@ -18,7 +18,12 @@ export class OrdersService {
     private storesService: StoresService,
   ) {}
 
-  async findAllPending(storeId: string, limit?: number, offset?: number) {
+  async findAllPending(
+    storeId: string,
+    confirmed: boolean,
+    limit?: number,
+    offset?: number,
+  ) {
     const orders = await this.orderRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect(
@@ -28,7 +33,7 @@ export class OrdersService {
       )
       .select(['order', 'product'])
       .where('product.store_id = :id', { id: storeId })
-      .andWhere('order.status = :status', { status: false })
+      .andWhere('order.status = :status', { status: confirmed })
       .limit(limit)
       .offset(offset)
       .orderBy('order.createdAt', 'DESC')
@@ -155,8 +160,10 @@ export class OrdersService {
     limit?: number,
     offset?: number,
   ) {
+    console.log('aqui');
     return await this.orderRepository
       .createQueryBuilder('order')
+      .leftJoinAndSelect('order.product', 'product')
       .select(['order', 'product'])
       .where('order.userId = :id', { id: userId })
       .andWhere('order.status = :status', { status: true })
@@ -169,6 +176,7 @@ export class OrdersService {
   async findAllOrderByUser(userId: string, limit?: number, offset?: number) {
     return await this.orderRepository
       .createQueryBuilder('order')
+      .leftJoinAndSelect('order.product', 'product')
       .select(['order', 'product'])
       .where('order.userId = :id', { id: userId })
       .limit(limit)

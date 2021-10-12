@@ -198,7 +198,7 @@ export class ProductsService {
         tables.push('store');
       }
       if (findProducts.relations.order) {
-        tables.push('order');
+        tables.push('orders');
       }
       if (findProducts.relations.feedbacks) {
         tables.push('feedbacks');

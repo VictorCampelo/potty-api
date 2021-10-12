@@ -27,13 +27,12 @@ export class FeedbackService {
     store: Store,
   ) {
     try {
-      // se product tem uma order feita pelo usuário e essa ordem esta com status finalizado
-
       const userOrders = await this.ordersService.findAllFinishedOrderByUser(
         user.id,
       );
+      console.log(userOrders);
 
-      const hit = userOrders.find((order) => order.product.id === product.id);
+      const hit = userOrders.find((order) => order.product_id === product.id);
 
       if (hit) {
         const feedback = this.feedbackRepository.create();

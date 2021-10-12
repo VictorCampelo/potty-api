@@ -50,7 +50,7 @@ export class FeedbackController {
         store,
       );
     } catch (error) {
-      new ErrorHandling(error);
+      return new ErrorHandling(error);
     }
   }
 

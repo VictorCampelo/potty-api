@@ -49,7 +49,7 @@ export class OrdersController {
     return { orders: orders, message: 'Order sucessfuly confirmed' };
   }
 
-  @Get('pending/:storeId')
+  @Get('store/:storeId')
   @Role(UserRole.OWNER)
   async findAll(
     @Param('storeId') storeId: string,
@@ -57,6 +57,7 @@ export class OrdersController {
   ): Promise<Order[]> {
     const order = await this.ordersService.findAllPending(
       storeId,
+      query.confirmed,
       query.limit,
       query.offset,
     );
