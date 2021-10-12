@@ -45,6 +45,9 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, default: 0 })
   avgStars?: number;
 
+  @Column({ nullable: false, default: 0 })
+  inventory: number;
+
   @Column({ nullable: true, type: 'timestamptz' })
   lastSold?: Date;
 

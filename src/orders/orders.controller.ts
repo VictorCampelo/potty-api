@@ -33,11 +33,15 @@ export class OrdersController {
     @Param('id') storeId: string,
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
-  ): Promise<{ orders: Order[]; message: string }> {
+  ): Promise<{ orders: Order[]; whatsapp: string; message: string }> {
     const store = await this.storesService.findOne(storeId);
 
-    const orders = await this.ordersService.create(createOrderDto, user, store);
-    return { orders: orders, message: 'Order sucessfuly created' };
+    const result = await this.ordersService.create(createOrderDto, user, store);
+    return {
+      orders: result.orders2,
+      whatsapp: result.msg,
+      message: 'Order sucessfuly created',
+    };
   }
 
   @Post('confirm/:id')

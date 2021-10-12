@@ -1,4 +1,4 @@
-import { IsOptional } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class UpdateProductDto {
   title: string;
@@ -8,4 +8,9 @@ export class UpdateProductDto {
 
   @IsOptional()
   tags: string[];
+
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  inventory: number;
 }
