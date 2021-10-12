@@ -1,3 +1,4 @@
+import { OrdersModule } from './../orders/orders.module';
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,6 +14,7 @@ import { StoresModule } from 'src/stores/stores.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     ProductsModule,
     StoresModule,
+    OrdersModule,
   ],
   controllers: [FeedbackController],
   providers: [FeedbackService],

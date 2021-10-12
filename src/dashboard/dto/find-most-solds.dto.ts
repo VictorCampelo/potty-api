@@ -3,4 +3,5 @@ export class FindMostSolds {
   end?: Date;
   limit?: number;
   offset?: number;
+  confirmed?: boolean;
 }

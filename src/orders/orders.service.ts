@@ -18,6 +18,31 @@ export class OrdersService {
     private storesService: StoresService,
   ) {}
 
+  async findAllPending(storeId: string, limit?: number, offset?: number) {
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect(
+        (qb) => qb.select().from(Product, 'product'),
+        'product',
+        'product.id = order.productId',
+      )
+      .select(['order', 'product'])
+      .where('product.store_id = :id', { id: storeId })
+      .andWhere('order.status = :status', { status: false })
+      .limit(limit)
+      .offset(offset)
+      .orderBy('order.createdAt', 'DESC')
+      .getRawMany();
+
+    return orders;
+  }
+
+  async confirmOrder(id: string) {
+    const order = await this.orderRepository.findOne(id);
+    order.status = true;
+    return await order.save();
+  }
+
   async create(
     createOrderDto: CreateOrderDto,
     user: User,
@@ -50,7 +75,7 @@ export class OrdersService {
   }
 
   async findLastSold(
-    store_id: string,
+    storeId: string,
     limit?: number,
     offset?: number,
   ): Promise<Order[]> {
@@ -63,7 +88,7 @@ export class OrdersService {
         'product.id = order.productId',
       )
       .select(['order', 'product'])
-      .where('product.store_id = :id', { id: store_id })
+      .where('product.store_id = :id', { id: storeId })
       .limit(limit)
       .offset(offset)
       .orderBy('order.createdAt', 'DESC')
@@ -119,9 +144,36 @@ export class OrdersService {
     }
   }
 
-  async findOne(id: number): Promise<Order> {
+  async findOne(id: string): Promise<Order> {
     return await this.orderRepository.findOne(id, {
       relations: ['product', 'product.store'],
     });
+  }
+
+  async findAllFinishedOrderByUser(
+    userId: string,
+    limit?: number,
+    offset?: number,
+  ) {
+    return await this.orderRepository
+      .createQueryBuilder('order')
+      .select(['order', 'product'])
+      .where('order.userId = :id', { id: userId })
+      .andWhere('order.status = :status', { status: true })
+      .limit(limit)
+      .offset(offset)
+      .orderBy('order.createdAt', 'DESC')
+      .getRawMany();
+  }
+
+  async findAllOrderByUser(userId: string, limit?: number, offset?: number) {
+    return await this.orderRepository
+      .createQueryBuilder('order')
+      .select(['order', 'product'])
+      .where('order.userId = :id', { id: userId })
+      .limit(limit)
+      .offset(offset)
+      .orderBy('order.createdAt', 'DESC')
+      .getRawMany();
   }
 }

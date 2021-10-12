@@ -173,7 +173,6 @@ export class ProductsService {
       if (findProducts.starsMax) {
         whereOpt['avgStars'] = LessThanOrEqual(findProducts.starsMax);
       }
-
       if (findProducts.starsMin) {
         whereOpt['avgStars'] = MoreThanOrEqual(findProducts.starsMin);
       }
@@ -188,7 +187,6 @@ export class ProductsService {
     });
   }
 
-  //TODO: ADICIONAR DTO PARA SELECIONAR QUAIS RELATIONS ESSE FIND TERÁ
   async findOne(id: string, findProducts?: FindProductsDto): Promise<Product> {
     const tables = [];
     const options = {};
@@ -198,6 +196,9 @@ export class ProductsService {
       }
       if (findProducts.relations.store) {
         tables.push('store');
+      }
+      if (findProducts.relations.order) {
+        tables.push('order');
       }
       if (findProducts.relations.feedbacks) {
         tables.push('feedbacks');
