@@ -1,4 +1,3 @@
-import { UsersService } from './../users/users.service';
 import {
   Injectable,
   NotFoundException,
@@ -9,12 +8,12 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes } from 'crypto';
 import { EmailsService } from 'src/emails/emails.service';
-import { Store } from 'src/stores/store.entity';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserRole } from '../users/user-roles.enum';
 import { User } from '../users/user.entity';
 import { UserRepository } from '../users/users.repository';
 import { StoresService } from './../stores/stores.service';
+import { UsersService } from './../users/users.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserStore } from './dto/create-user-store.dto';
 import { CredentialsDto } from './dto/credentials.dto';

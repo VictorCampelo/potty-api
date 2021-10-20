@@ -1,3 +1,4 @@
+import { FilesService } from './../files/files.service';
 import {
   Injectable,
   NotFoundException,
@@ -10,6 +11,8 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Store } from './store.entity';
 import { StoreRepository } from './stores.repository';
+import * as _ from 'lodash';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class StoresService {
@@ -17,6 +20,8 @@ export class StoresService {
     @InjectRepository(StoreRepository)
     private storeRepository: StoreRepository,
     private usersService: UsersService,
+    private filesService: FilesService,
+    private categoriesService: CategoriesService,
   ) {}
 
   async save(store: Store) {
@@ -24,7 +29,9 @@ export class StoresService {
   }
 
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
-    return await this.storeRepository.saveStore(createStoreDto);
+    const store = this.storeRepository.createStore(createStoreDto);
+
+    return await store.save();
   }
 
   findAll() {
@@ -40,8 +47,22 @@ export class StoresService {
     return store;
   }
 
-  async update(id: string, updateStoreDto: UpdateStoreDto) {
-    return await this.storeRepository.update(id, updateStoreDto);
+  async update(id: string, updateStoreDto: UpdateStoreDto, files) {
+    const updateStore = _.omit(updateStoreDto, 'files');
+    if (files && files[0]) {
+      updateStoreDto.avatar = await this.filesService.create(files[0]);
+    }
+    if (files && files[1]) {
+      updateStoreDto.background = await this.filesService.create(files[1]);
+    }
+    if (updateStoreDto.categoryId) {
+      const category = await this.categoriesService.findOne(
+        updateStoreDto.categoryId,
+      );
+      updateStoreDto = _.omit(updateStoreDto, 'categoryId');
+      updateStoreDto['category'] = category;
+    }
+    return await this.storeRepository.update(id, updateStore);
   }
 
   remove(id: number) {

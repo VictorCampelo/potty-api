@@ -9,17 +9,22 @@ import {
   Param,
   Patch,
   UnauthorizedException,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { CredentialsDto } from './dto/credentials.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { memoryStorage } from 'multer';
 import { User } from '../users/user.entity';
 import { GetUser } from './get-user.decorator';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserRole } from 'src/users/user-roles.enum';
 
 import { StoresService } from '../stores/stores.service';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +34,8 @@ export class AuthController {
   ) {}
 
   @Post('/signup-store')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateUserStore })
   async createUserAndStore(
     @Body(ValidationPipe) createUserAndStore: CreateUserStore,
   ) {

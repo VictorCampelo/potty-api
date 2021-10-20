@@ -1,20 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Category } from './category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+  ) {}
+  async create(createCategoryDto: CreateCategoryDto) {
+    return await this.categoryRepository.create(createCategoryDto);
   }
 
   findAll() {
     return `This action returns all categories`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: string) {
+    return await this.categoryRepository.findOne(id);
   }
 
   update(id: number, updateCategoryDto: UpdateCategoryDto) {

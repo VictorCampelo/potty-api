@@ -11,7 +11,7 @@ interface IFile {
 
 @EntityRepository(File)
 export class FileRepository extends Repository<File> {
-  async createFile(fileOnRequest: IFile): Promise<File> {
+  createFile(fileOnRequest: IFile): File {
     let fileToUpload = this.create();
     fileToUpload = Object.assign(fileToUpload, fileOnRequest);
     try {

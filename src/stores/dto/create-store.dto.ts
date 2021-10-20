@@ -1,3 +1,4 @@
+import { ScheduleProperties } from './../types/scheduleProperties.interface';
 export class CreateStoreDto {
   business_name: string;
   CNPJ: string;
@@ -9,4 +10,5 @@ export class CreateStoreDto {
   facebook_link?: string;
   instagram_link?: string;
   whatsapp_link?: string;
+  shedules?: ScheduleProperties;
 }

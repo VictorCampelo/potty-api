@@ -6,9 +6,16 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  FileFieldsInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -33,10 +40,19 @@ export class StoresController {
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    FilesInterceptor('files', 2, {
+      storage: memoryStorage(),
+    }),
+  )
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
-  update(@Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto) {
-    return this.storesService.update(id, updateStoreDto);
+  async update(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Param('id') id: string,
+    @Body() updateStoreDto: UpdateStoreDto,
+  ) {
+    return await this.storesService.update(id, updateStoreDto, files);
   }
 
   @Delete(':id')

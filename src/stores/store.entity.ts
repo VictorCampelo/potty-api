@@ -1,3 +1,4 @@
+import { ScheduleProperties } from './types/scheduleProperties.interface';
 import {
   BaseEntity,
   Column,
@@ -7,6 +8,7 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -65,6 +67,9 @@ export class Store extends BaseEntity {
   @Column({ nullable: true, type: 'varchar', length: 45 })
   whatsapp_link: string;
 
+  @Column({ nullable: true, type: 'jsonb' })
+  schedules: ScheduleProperties;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -73,6 +78,12 @@ export class Store extends BaseEntity {
 
   @OneToMany(() => Product, (product: Product) => product.store)
   products: Product[];
+
+  @OneToOne(() => Files, (file) => file.user)
+  avatar: Files;
+
+  @OneToOne(() => Files, (file) => file.user)
+  background: Files;
 
   @OneToMany(() => Files, (file) => file.user)
   files: Files[];
