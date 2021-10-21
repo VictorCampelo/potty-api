@@ -1,3 +1,4 @@
+import { Feedback } from '../feedback/feedback.entity';
 import { Store } from 'src/stores/store.entity';
 import {
   Entity,
@@ -10,10 +11,11 @@ import {
   ManyToOne,
   OneToMany,
   DeleteDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
-
+import { Category } from 'src/categories/category.entity';
 @Entity('product')
 @Unique(['id', 'title'])
 export class Product extends BaseEntity {
@@ -24,10 +26,31 @@ export class Product extends BaseEntity {
   title: string;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
-  description: string;
+  description?: string;
 
   @Column({ nullable: true, type: 'simple-array' })
-  tags: string[];
+  tags?: string[];
+
+  @Column({ nullable: false, default: 0 })
+  price: number;
+
+  @Column({ nullable: true, default: 0 })
+  sumOrders?: number;
+
+  @Column({ nullable: true, default: 0 })
+  sumFeedbacks?: number;
+
+  @Column({ nullable: true, default: 0 })
+  sumStars?: number;
+
+  @Column({ nullable: true, default: 0 })
+  avgStars?: number;
+
+  @Column({ nullable: false, default: 0 })
+  inventory: number;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  lastSold?: Date;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -39,11 +62,18 @@ export class Product extends BaseEntity {
   deletedAt?: Date;
 
   @ManyToOne(() => Store, (store: Store) => store.products)
+  @JoinColumn({ name: 'store_id' })
   store: Store;
 
   @OneToMany(() => File, (file) => file.product)
   files: File[];
 
-  @OneToMany(() => Order, (order) => order.product)
-  public order!: Order[];
+  @OneToMany(() => Category, (category) => category.product)
+  categories: Category[];
+
+  @OneToMany(() => Feedback, (feedback) => feedback.product)
+  feedbacks: Feedback[];
+
+  @OneToMany(() => Order, (orders) => orders.product)
+  orders: Order[];
 }

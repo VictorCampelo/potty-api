@@ -11,48 +11,12 @@ export class FilesService {
     @InjectRepository(FileRepository)
     private fileRepository: FileRepository,
   ) {}
-  async create(
-    file: Express.Multer.File,
-    createFileDto: CreateFileDto,
-  ): Promise<File> {
-    const { tags } = createFileDto;
-
-    const fileToUpload = {
-      url: `http://localhost:3000/${file.path}`,
-      tags: tags,
-      filename: file.filename,
-    };
-
-    return this.fileRepository.createFile(fileToUpload);
-  }
-
-  async createManyFiles(
-    files: Express.Multer.File[],
-    createFilesDto: CreateFileDto[],
-  ) {
-    console.log(createFilesDto);
-
-    // const fileToUpload = {
-    //   url: `http://localhost:3000/${file.path}`,
-    //   tags: tags,
-    //   filename: file.filename,
-    // };
-
-    // return this.fileRepository.createFile(fileToUpload);
-    return 'service ok';
-  }
-
-  async createWithFile(file: Express.Multer.File): Promise<File> {
-    fs.access('public/uploads', (error) => {
-      if (error) {
-        fs.mkdirSync('public/uploads', { recursive: true });
-      }
-    });
+  async create(file: Express.Multer.File): Promise<File> {
     const { buffer } = file;
     const timestamp = new Date().getTime();
     const ref = `${timestamp}.png`;
 
-    await fs.writeFile('public/uploads/' + ref, buffer, (err) => {
+    fs.writeFile('public/uploads/' + ref, buffer, (err) => {
       if (err) throw err;
     });
     const link = `http://localhost:3000/${ref}`;
@@ -60,11 +24,41 @@ export class FilesService {
     const fileToUpload = {
       name: ref,
       url: link,
-      filename: file.filename,
+      filename: file.originalname,
       fieldname: null,
     };
 
-    return await this.fileRepository.createFile(fileToUpload);
+    const fileToSave = this.fileRepository.createFile(fileToUpload);
+
+    return await fileToSave.save();
+  }
+
+  async createFiles(files: Express.Multer.File[]): Promise<File[]> {
+    fs.access('public/uploads', (error) => {
+      if (error) {
+        fs.mkdirSync('public/uploads', { recursive: true });
+      }
+    });
+    const filesToUpload = [];
+    files.map((file) => {
+      const { buffer } = file;
+      const timestamp = new Date().getTime();
+      const ref = `${timestamp}.png`;
+
+      fs.writeFile('public/uploads/' + ref, buffer, (err) => {
+        if (err) throw err;
+      });
+      const link = `http://localhost:3000/${ref}`;
+
+      filesToUpload.push({
+        name: ref,
+        url: link,
+        filename: file.originalname,
+        fieldname: null,
+      });
+    });
+
+    return await this.fileRepository.save(filesToUpload);
   }
 
   async saveFile(file: File) {
@@ -83,7 +77,7 @@ export class FilesService {
     return `This action updates a #${id} file`;
   }
 
-  async remove(id: string) {
+  async remove(id: string[]) {
     return await this.fileRepository.delete(id);
   }
 }

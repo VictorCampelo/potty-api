@@ -1,19 +1,22 @@
 import {
   Injectable,
-  UnprocessableEntityException,
-  UnauthorizedException,
   NotFoundException,
+  UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
-import { UserRepository } from '../users/users.repository';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { User } from '../users/user.entity';
-import { UserRole } from '../users/user-roles.enum';
-import { CredentialsDto } from './dto/credentials.dto';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes } from 'crypto';
-import { ChangePasswordDto } from './dto/change-password.dto';
 import { EmailsService } from 'src/emails/emails.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UserRole } from '../users/user-roles.enum';
+import { User } from '../users/user.entity';
+import { UserRepository } from '../users/users.repository';
+import { StoresService } from './../stores/stores.service';
+import { UsersService } from './../users/users.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateUserStore } from './dto/create-user-store.dto';
+import { CredentialsDto } from './dto/credentials.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +25,8 @@ export class AuthService {
     private userRepository: UserRepository,
     private jwtService: JwtService,
     private emailsService: EmailsService,
+    private storesService: StoresService,
+    private usersService: UsersService,
   ) {}
 
   async signUp(createUserDto: CreateUserDto, role: UserRole): Promise<User> {
@@ -29,14 +34,29 @@ export class AuthService {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
       const user = await this.userRepository.createUser(createUserDto, role);
-      await this.emailsService.sendEmail(
-        user.email,
-        'Email de confirmação',
-        'email-confirmation',
-        {
-          token: user.confirmationToken,
-        },
-      );
+      // await this.emailsService.sendEmail(
+      //   user.email,
+      //   'Email de confirmação',
+      //   'email-confirmation',
+      //   {
+      //     token: user.confirmationToken,
+      //   },
+      // );
+      return user;
+    }
+  }
+
+  async signUpOwner(createUserAndStore: CreateUserStore): Promise<User> {
+    const { userDto, storeDto } = createUserAndStore;
+    if (userDto.password != userDto.passwordConfirmation) {
+      throw new UnprocessableEntityException('As senhas não conferem');
+    } else {
+      storeDto['formatedName'] = storeDto.name.replace(/ /g, '-');
+      const store = await this.storesService.create(storeDto);
+      const user = await this.usersService.createOwnerUser(userDto);
+      user.store = store;
+      user.storeId = store.id;
+      await user.save();
       return user;
     }
   }
@@ -56,12 +76,13 @@ export class AuthService {
     return { jwtToken };
   }
 
-  async confirmEmail(confirmationToken: string): Promise<void> {
+  async confirmEmail(confirmationToken: string) {
     const result = await this.userRepository.update(
       { confirmationToken }, //busca o usuário pelo token
       { confirmationToken: null },
     );
     if (result.affected === 0) throw new NotFoundException('Token inválido');
+    return result;
   }
 
   async sendRecoverPasswordEmail(email: string): Promise<void> {

@@ -1,18 +1,18 @@
+import { FindProductsDto } from './dto/find-products.dto';
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
   Delete,
   UseInterceptors,
   UploadedFiles,
-  ValidationPipe,
   UseGuards,
+  Post,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Role } from 'src/auth/role.decorator';
 import { UserRole } from 'src/users/user-roles.enum';
@@ -21,12 +21,32 @@ import { memoryStorage } from 'multer';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
-@UseGuards(AuthGuard(), RolesGuard)
+import { CreateProductDto } from './dto/create-product.dto';
+import { User } from 'src/users/user.entity';
+import { GetUser } from 'src/auth/get-user.decorator';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.productsService.findOne(id);
+  }
+
+  @Get('store/:id')
+  findAllProduct(
+    @Param('id') storeId: string,
+    @Body(ValidationPipe) findProductsDto: FindProductsDto,
+  ) {
+    try {
+      return this.productsService.findAll(storeId, findProductsDto);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   @Post()
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   @UseInterceptors(
     FilesInterceptor('files', 3, {
@@ -36,34 +56,22 @@ export class ProductsController {
   async create(
     @UploadedFiles() images: Express.Multer.File[],
     @Body(ValidationPipe) createProductDto: CreateProductDto,
+    @GetUser() user: User,
   ) {
     try {
-      const product = await this.productsService.create(
+      createProductDto.files = images;
+      const product = await this.productsService.createProduct(
         createProductDto,
-        images,
+        user.storeId,
       );
       return { product: product, message: 'Product created successfully' };
     } catch (error) {
-      console.log('ERRO1:' + error);
+      console.log('ERRO1: ' + error);
     }
   }
 
-  @Get()
-  findAll() {
-    return this.productsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
-  }
-
   @Patch('details/:id')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async updateProductDetails(
     @Param('id') id: string,
@@ -77,6 +85,7 @@ export class ProductsController {
   }
 
   @Patch('images/:id')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   @UseInterceptors(
     FilesInterceptor('files', 3, {
@@ -89,15 +98,16 @@ export class ProductsController {
     @UploadedFiles() images: Express.Multer.File[],
   ) {
     updateProductImagesDto.product_id = id;
+    updateProductImagesDto.files = images;
     const product = await this.productsService.updateProductImages(
       updateProductImagesDto,
-      images,
     );
 
     return { product: product, message: 'Product images sucessfully updated.' };
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async remove(@Param('id') id: string) {
     await this.productsService.remove(id);

@@ -1,3 +1,4 @@
+import { Feedback } from '../feedback/feedback.entity';
 import {
   BaseEntity,
   Entity,
@@ -6,14 +7,13 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToMany,
-  JoinTable,
   OneToMany,
   OneToOne,
   JoinColumn,
+  ManyToOne,
+  ManyToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Product } from 'src/products/product.entity';
 import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
 import { Store } from 'src/stores/store.entity';
@@ -67,8 +67,17 @@ export class User extends BaseEntity {
   @OneToMany(() => Order, (order) => order.user)
   public order!: Order[];
 
-  // @ManyToMany(() => Store, (store) => store.usersWhoLiked)
-  // favoriteStores: Store[];
+  @OneToMany(() => Feedback, (feedback) => feedback.user)
+  feedbacks: Feedback[];
+
+  @Column({ nullable: true, type: 'varchar' })
+  storeId: string;
+
+  @ManyToOne(() => Store, (store) => store.owners)
+  store: Store;
+
+  @ManyToMany(() => Store, (stores) => stores.usersWhoLiked)
+  likedstores: Store[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

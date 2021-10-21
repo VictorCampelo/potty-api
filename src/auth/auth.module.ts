@@ -1,3 +1,4 @@
+import { UsersModule } from './../users/users.module';
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -16,15 +17,15 @@ import { StoresModule } from 'src/stores/stores.module';
     JwtModule.register({
       secret: 'super-secret',
       signOptions: {
-        expiresIn: 18000,
+        expiresIn: 180000000000000000000000,
       },
     }),
     EmailsModule,
     StoresModule,
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  //PassportModule: responsável por adicionar a funcionalidade de proteger um endpoint de usuários não autenticados.
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

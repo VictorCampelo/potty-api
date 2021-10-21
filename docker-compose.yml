@@ -1,10 +1,10 @@
 version: '3.7'
 
 services:
-  vuttr_api:
+  ult_api:
     build: .
-    image: vuttr_nest
-    container_name: vuttr_api
+    image: ult_nest
+    container_name: ult_api
     restart: always
     ports:
       - '3000:3000'
@@ -14,10 +14,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
     depends_on:
-      - vuttr_pgsql
-  vuttr_pgsql:
+      - ult_pgsql
+  ult_pgsql:
     image: postgres
-    container_name: 'vuttr_pgsql'
+    container_name: 'ult_pgsql'
     restart: always
     volumes:
       - ./db:/docker-entrypoint-initdb.d/
@@ -32,7 +32,7 @@ services:
     ports:
       - '5432:5432'
 
-  vuttr_adminer:
+  ult_adminer:
     image: adminer
     restart: always
     ports:

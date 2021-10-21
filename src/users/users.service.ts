@@ -54,11 +54,8 @@ export class UsersService {
       let user = await this.findUserById(updateUserRequestDto.id);
       user = Object.assign(user, updateUserRequestDto.updateUserDto);
       if (updateUserRequestDto.file && user) {
-        file = await this.filesService.createWithFile(
-          updateUserRequestDto.file,
-        );
+        file = await this.filesService.createFiles([updateUserRequestDto.file]);
         user.profileImage = file;
-        // user.files.push(file);
       }
       user = await this.userRepository.save(user);
       await this.filesService.saveFile(file);
@@ -70,8 +67,8 @@ export class UsersService {
 
   async addUserPic(user: User, newProfileImage: Express.Multer.File) {
     try {
-      const file = await this.filesService.createWithFile(newProfileImage);
-      user.profileImage = file;
+      const file = await this.filesService.createFiles([newProfileImage]);
+      user.profileImage = file[0];
       return await this.userRepository.save(user);
     } catch (err) {
       throw new NotFoundException('error: ' + err);
@@ -80,7 +77,7 @@ export class UsersService {
 
   async deleteUserPic(userFileId: string) {
     try {
-      await this.filesService.remove(userFileId);
+      await this.filesService.remove([userFileId]);
       return 'User image file was successfully removed';
     } catch (err) {
       throw new NotFoundException('error: ' + err);
@@ -89,9 +86,9 @@ export class UsersService {
 
   async updateUserPic(user: User, newProfileImage: Express.Multer.File) {
     try {
-      await this.filesService.remove(user.profileImage.id);
-      const file = await this.filesService.createWithFile(newProfileImage);
-      user.profileImage = file;
+      await this.filesService.remove([user.profileImage.id]);
+      const file = await this.filesService.createFiles([newProfileImage]);
+      user.profileImage = file[0];
       return await this.userRepository.save(user);
     } catch (err) {
       throw new NotFoundException('error: ' + err);

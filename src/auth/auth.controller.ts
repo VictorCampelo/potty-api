@@ -1,3 +1,4 @@
+import { CreateUserStore } from './dto/create-user-store.dto';
 import {
   Controller,
   Post,
@@ -8,18 +9,22 @@ import {
   Param,
   Patch,
   UnauthorizedException,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { CredentialsDto } from './dto/credentials.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { memoryStorage } from 'multer';
 import { User } from '../users/user.entity';
 import { GetUser } from './get-user.decorator';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UserRole } from 'src/users/user-roles.enum';
 
 import { StoresService } from '../stores/stores.service';
-import { CreateStoreDto } from 'src/stores/dto/create-store.dto';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -28,15 +33,15 @@ export class AuthController {
     private storesService: StoresService,
   ) {}
 
-  @Post('createUserAndStore')
+  @Post('/signup-store')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateUserStore })
   async createUserAndStore(
-    @Body(ValidationPipe) createStoreDto: CreateStoreDto,
+    @Body(ValidationPipe) createUserAndStore: CreateUserStore,
   ) {
-    const user = await this.authService.signUp(createStoreDto, UserRole.OWNER);
-    createStoreDto.user = user;
-    const store = await this.storesService.create(createStoreDto);
+    const user = await this.authService.signUpOwner(createUserAndStore);
 
-    return { user: user, store: store, message: 'User and Store createds.' };
+    return { user: user, message: 'User and Store createds.' };
   }
 
   @Post('/signup')
@@ -58,9 +63,13 @@ export class AuthController {
 
   @Patch(':token')
   async confirmEmail(@Param('token') token: string) {
-    const user = await this.authService.confirmEmail(token);
+    if (await this.authService.confirmEmail(token)) {
+      return {
+        message: 'Email confirmado',
+      };
+    }
     return {
-      message: 'Email confirmado',
+      message: 'Erro ao confirmar o seu E-mail',
     };
   }
 

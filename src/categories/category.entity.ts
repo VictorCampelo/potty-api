@@ -1,3 +1,4 @@
+import { Product } from 'src/products/product.entity';
 import { Store } from 'src/stores/store.entity';
 import {
   Entity,
@@ -6,12 +7,13 @@ import {
   ManyToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity()
 export class Category {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
@@ -19,8 +21,18 @@ export class Category {
   @Column({ nullable: false, default: true })
   enabled: boolean;
 
+  //store or product
+  @Column({ nullable: false, type: 'varchar', length: 20, default: 'product' })
+  type: string;
+
   @ManyToMany(() => Store, (store) => store.categories)
   store: Store[];
+
+  @ManyToOne(() => Store, (store) => store.productCategories)
+  storeProducts: Store;
+
+  @ManyToOne(() => Product, (product) => product.categories)
+  product: Product;
 
   @CreateDateColumn()
   createdAt: Date;

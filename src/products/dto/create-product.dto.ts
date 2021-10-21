@@ -1,16 +1,13 @@
-import { IsOptional } from 'class-validator';
-import { File } from 'src/files/file.entity';
-
 export class CreateProductDto {
-  store_id: string;
-
   title: string;
 
-  @IsOptional()
-  description: string;
+  price: number;
 
-  @IsOptional()
-  tags: string[];
+  description?: string;
 
-  files: File[];
+  tags?: string[];
+
+  files?: Express.Multer.File[];
+
+  categoriesIds?: string[];
 }

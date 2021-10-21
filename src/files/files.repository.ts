@@ -1,7 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { File } from './file.entity';
 import { InternalServerErrorException } from '@nestjs/common';
-import { Product } from 'src/products/product.entity';
 
 interface IFile {
   filename: string;
@@ -12,7 +11,7 @@ interface IFile {
 
 @EntityRepository(File)
 export class FileRepository extends Repository<File> {
-  async createFile(fileOnRequest: IFile): Promise<File> {
+  createFile(fileOnRequest: IFile): File {
     let fileToUpload = this.create();
     fileToUpload = Object.assign(fileToUpload, fileOnRequest);
     try {
