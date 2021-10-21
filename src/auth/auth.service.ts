@@ -51,6 +51,7 @@ export class AuthService {
     if (userDto.password != userDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
+      storeDto['formatedName'] = storeDto.name.replace(/ /g, '-');
       const store = await this.storesService.create(storeDto);
       const user = await this.usersService.createOwnerUser(userDto);
       user.store = store;

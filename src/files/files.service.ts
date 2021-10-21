@@ -24,7 +24,7 @@ export class FilesService {
     const fileToUpload = {
       name: ref,
       url: link,
-      filename: file.filename,
+      filename: file.originalname,
       fieldname: null,
     };
 
@@ -53,7 +53,7 @@ export class FilesService {
       filesToUpload.push({
         name: ref,
         url: link,
-        filename: file.filename,
+        filename: file.originalname,
         fieldname: null,
       });
     });

@@ -47,34 +47,50 @@ export class StoresService {
     return store;
   }
 
+  async findOneByName(formatedName: string) {
+    const store = await this.storeRepository.findOne({
+      where: { formatedName: formatedName },
+    });
+    if (!store) {
+      throw new NotFoundException('Store not found');
+    }
+
+    return store;
+  }
+
   async update(id: string, updateStoreDto: UpdateStoreDto, files) {
-    const updateStore = _.omit(updateStoreDto, 'files');
+    const store = await this.findOne(id);
     if (files && files[0]) {
-      updateStoreDto.avatar = await this.filesService.create(files[0]);
+      store.avatar = await this.filesService.create(files[0]);
     }
     if (files && files[1]) {
-      updateStoreDto.background = await this.filesService.create(files[1]);
+      store.background = await this.filesService.create(files[1]);
     }
-    if (updateStoreDto.categoryId) {
-      const category = await this.categoriesService.findOne(
-        updateStoreDto.categoryId,
+    if (updateStoreDto.categoriesIds) {
+      store.categories = await this.categoriesService.findAllByIdsTypeStore(
+        updateStoreDto.categoriesIds,
       );
-      updateStoreDto = _.omit(updateStoreDto, 'categoryId');
-      updateStoreDto['category'] = category;
     }
-    return await this.storeRepository.update(id, updateStore);
+    updateStoreDto = _.omit(updateStoreDto, 'categoriesIds');
+
+    for (const props in updateStoreDto) {
+      store[props] = updateStoreDto[props];
+    }
+
+    return await store.save();
   }
 
   remove(id: number) {
     return `This action removes a #${id} store`;
   }
 
-  async addLike(user: User, storeId: string): Promise<Store> {
-    const store = await this.storeRepository.findOne(storeId, {
-      relations: ['usersWhoLiked', 'users'],
+  async addLike(user: User, name: string): Promise<Store> {
+    const store = await this.storeRepository.findOne({
+      where: {
+        formatedName: name,
+      },
+      relations: ['usersWhoLiked'],
     });
-
-    console.log(store);
 
     if (!user || !store) {
       throw new NotFoundException('User or Store not found.');

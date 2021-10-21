@@ -4,18 +4,18 @@ import { ScheduleProperties } from '../types/scheduleProperties.interface';
 import { CreateStoreDto } from './create-store.dto';
 
 export class UpdateStoreDto extends PartialType(CreateStoreDto) {
-  business_name?: string;
+  name?: string;
   CNPJ?: string;
   phone?: string;
   address?: string;
   city?: string;
   state?: string;
   description?: string;
-  facebook_link?: string;
-  instagram_link?: string;
-  whatsapp_link?: string;
+  facebookLink?: string;
+  instagramLink?: string;
+  whatsappLink?: string;
   shedules?: ScheduleProperties;
   avatar?: File;
   background?: File;
-  categoryId?: string;
+  categoriesIds?: string[];
 }

@@ -12,8 +12,8 @@ import {
 
 @Entity()
 export class Category {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
@@ -27,6 +27,9 @@ export class Category {
 
   @ManyToMany(() => Store, (store) => store.categories)
   store: Store[];
+
+  @ManyToOne(() => Store, (store) => store.productCategories)
+  storeProducts: Store;
 
   @ManyToOne(() => Product, (product) => product.categories)
   product: Product;
