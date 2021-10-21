@@ -11,32 +11,26 @@ export class FilesService {
     @InjectRepository(FileRepository)
     private fileRepository: FileRepository,
   ) {}
-  async create(
-    file: Express.Multer.File,
-    createFileDto: CreateFileDto,
-  ): Promise<File> {
-    const { tags } = createFileDto;
+  async create(file: Express.Multer.File): Promise<File> {
+    const { buffer } = file;
+    const timestamp = new Date().getTime();
+    const ref = `${timestamp}.png`;
+
+    fs.writeFile('public/uploads/' + ref, buffer, (err) => {
+      if (err) throw err;
+    });
+    const link = `http://localhost:3000/${ref}`;
 
     const fileToUpload = {
-      url: `http://localhost:3000/${file.path}`,
-      tags: tags,
-      filename: file.filename,
+      name: ref,
+      url: link,
+      filename: file.originalname,
+      fieldname: null,
     };
 
-    return this.fileRepository.createFile(fileToUpload);
-  }
+    const fileToSave = this.fileRepository.createFile(fileToUpload);
 
-  async createManyFiles(createFilesDto: CreateFileDto[]) {
-    console.log(createFilesDto);
-
-    // const fileToUpload = {
-    //   url: `http://localhost:3000/${file.path}`,
-    //   tags: tags,
-    //   filename: file.filename,
-    // };
-
-    // return this.fileRepository.createFile(fileToUpload);
-    return 'service ok';
+    return await fileToSave.save();
   }
 
   async createFiles(files: Express.Multer.File[]): Promise<File[]> {
@@ -59,7 +53,7 @@ export class FilesService {
       filesToUpload.push({
         name: ref,
         url: link,
-        filename: file.filename,
+        filename: file.originalname,
         fieldname: null,
       });
     });

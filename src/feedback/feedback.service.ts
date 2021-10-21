@@ -1,3 +1,4 @@
+import { OrdersService } from './../orders/orders.service';
 import { Store } from 'src/stores/store.entity';
 import { Feedback } from './feedback.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -17,6 +18,7 @@ export class FeedbackService {
     private feedbackRepository: Repository<Feedback>,
     private productService: ProductsService,
     private storesService: StoresService,
+    private ordersService: OrdersService,
   ) {}
   async create(
     createFeedbackDto: CreateFeedbackDto,
@@ -25,26 +27,37 @@ export class FeedbackService {
     store: Store,
   ) {
     try {
-      const feedback = this.feedbackRepository.create();
+      const userOrders = await this.ordersService.findAllFinishedOrderByUser(
+        user.id,
+      );
+      console.log(userOrders);
 
-      feedback.comment = createFeedbackDto.comment;
-      feedback.star = createFeedbackDto.star;
+      const hit = userOrders.find((order) => order.product_id === product.id);
 
-      product.sumStars += createFeedbackDto.star;
-      product.sumFeedbacks += 1;
-      product.avgStars = product.sumStars / product.sumFeedbacks;
+      if (hit) {
+        const feedback = this.feedbackRepository.create();
 
-      store.sumStars += createFeedbackDto.star;
-      store.sumFeedbacks += 1;
-      store.avgStars = store.sumStars / store.sumFeedbacks;
+        feedback.comment = createFeedbackDto.comment;
+        feedback.star = createFeedbackDto.star;
 
-      feedback.user = user;
-      feedback.product = product;
+        product.sumStars += createFeedbackDto.star;
+        product.sumFeedbacks += 1;
+        product.avgStars = product.sumStars / product.sumFeedbacks;
 
-      await this.storesService.save(store);
-      await this.productService.saveAll([product]);
+        store.sumStars += createFeedbackDto.star;
+        store.sumFeedbacks += 1;
+        store.avgStars = store.sumStars / store.sumFeedbacks;
 
-      return await feedback.save();
+        feedback.user = user;
+        feedback.product = product;
+
+        await this.storesService.save(store);
+        await this.productService.saveAll([product]);
+
+        return await feedback.save();
+      } else {
+        throw new Error('Product not found in shopping');
+      }
     } catch (error) {
       throw error;
     }

@@ -6,10 +6,11 @@ interface Options {
 }
 
 interface Relations {
-  files: boolean;
-  store: boolean;
-  feedbacks: boolean;
-  feedbacksUser: boolean;
+  files?: boolean;
+  store?: boolean;
+  order?: boolean;
+  feedbacks?: boolean;
+  feedbacksUser?: boolean;
 }
 
 export class FindProductsDto {

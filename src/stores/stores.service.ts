@@ -1,3 +1,4 @@
+import { FilesService } from './../files/files.service';
 import {
   Injectable,
   NotFoundException,
@@ -10,6 +11,8 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Store } from './store.entity';
 import { StoreRepository } from './stores.repository';
+import * as _ from 'lodash';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class StoresService {
@@ -17,6 +20,8 @@ export class StoresService {
     @InjectRepository(StoreRepository)
     private storeRepository: StoreRepository,
     private usersService: UsersService,
+    private filesService: FilesService,
+    private categoriesService: CategoriesService,
   ) {}
 
   async save(store: Store) {
@@ -24,7 +29,9 @@ export class StoresService {
   }
 
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
-    return await this.storeRepository.saveStore(createStoreDto);
+    const store = this.storeRepository.createStore(createStoreDto);
+
+    return await store.save();
   }
 
   findAll() {
@@ -40,20 +47,50 @@ export class StoresService {
     return store;
   }
 
-  async update(id: string, updateStoreDto: UpdateStoreDto) {
-    return await this.storeRepository.update(id, updateStoreDto);
+  async findOneByName(formatedName: string) {
+    const store = await this.storeRepository.findOne({
+      where: { formatedName: formatedName },
+    });
+    if (!store) {
+      throw new NotFoundException('Store not found');
+    }
+
+    return store;
+  }
+
+  async update(id: string, updateStoreDto: UpdateStoreDto, files) {
+    const store = await this.findOne(id);
+    if (files && files[0]) {
+      store.avatar = await this.filesService.create(files[0]);
+    }
+    if (files && files[1]) {
+      store.background = await this.filesService.create(files[1]);
+    }
+    if (updateStoreDto.categoriesIds) {
+      store.categories = await this.categoriesService.findAllByIdsTypeStore(
+        updateStoreDto.categoriesIds,
+      );
+    }
+    updateStoreDto = _.omit(updateStoreDto, 'categoriesIds');
+
+    for (const props in updateStoreDto) {
+      store[props] = updateStoreDto[props];
+    }
+
+    return await store.save();
   }
 
   remove(id: number) {
     return `This action removes a #${id} store`;
   }
 
-  async addLike(user: User, storeId: string): Promise<Store> {
-    const store = await this.storeRepository.findOne(storeId, {
-      relations: ['usersWhoLiked', 'users'],
+  async addLike(user: User, name: string): Promise<Store> {
+    const store = await this.storeRepository.findOne({
+      where: {
+        formatedName: name,
+      },
+      relations: ['usersWhoLiked'],
     });
-
-    console.log(store);
 
     if (!user || !store) {
       throw new NotFoundException('User or Store not found.');

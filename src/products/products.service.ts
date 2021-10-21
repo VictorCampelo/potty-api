@@ -13,14 +13,9 @@ import { ProductRepository } from './products.repository';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { StoresService } from 'src/stores/stores.service';
-import {
-  Equal,
-  getManager,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  Not,
-} from 'typeorm';
+import { Equal, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm';
 import { Order } from 'src/orders/order.entity';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class ProductsService {
@@ -30,10 +25,8 @@ export class ProductsService {
     private filesService: FilesService,
     @Inject(forwardRef(() => StoresService))
     private storesService: StoresService,
+    private categoriesService: CategoriesService,
   ) {}
-
-  //   SELECT "product"."id" AS "product_id", "product"."title" AS "product_title", "product"."description" AS "product_description", "product"."tags" AS "product_tags", "product"."price" AS "product_price", "product"."sumOrders" AS "product_sumOrders", "product"."sumFeedbacks" AS "product_sumFeedbacks", "product"."sumStars"
-  // AS "product_sumStars", "product"."avgStars" AS "product_avgStars", "product"."lastSold" AS "product_lastSold", "product"."createdAt" AS "product_createdAt", "product"."updatedAt" AS "product_updatedAt", "product"."deletedAt" AS "product_deletedAt", "product"."store_id" AS "product_store_id", "orders"."orderid" AS "orders_orderid", "orders"."amount" AS "orders_amount", "orders"."createdAt" AS "orders_createdAt", "orders"."updatedAt" AS "orders_updatedAt", "orders"."userId" AS "orders_userId", "orders"."productId" AS "orders_productId", "store"."id" AS "store_id", "store"."name" AS "store_name", "store"."CNPJ" AS "store_CNPJ", "store"."phone" AS "store_phone", "store"."address" AS "store_address", "store"."city" AS "store_city", "store"."state" AS "store_state", "store"."description" AS "store_description", "store"."enabled" AS "store_enabled", "store"."sumOrders" AS "store_sumOrders", "store"."sumFeedbacks" AS "store_sumFeedbacks", "store"."sumStars" AS "store_sumStars", "store"."avgStars" AS "store_avgStars", "store"."facebook_link" AS "store_facebook_link", "store"."instagram_link" AS "store_instagram_link", "store"."whatsapp_link" AS "store_whatsapp_link", "store"."createdAt" AS "store_createdAt", "store"."updatedAt" AS "store_updatedAt", "store"."likes" AS "store_likes", COUNT("orders"."orderid") AS "qtd" FROM "product" "product" LEFT JOIN "order" "orders" ON "orders"."productId"="product"."id"  LEFT JOIN "store" "store" ON "store"."id"="product"."store_id" WHERE "product"."deletedAt" IS NULL GROUP BY "orders"."productId"
 
   async findMostSolds(
     storeId: string,
@@ -140,6 +133,12 @@ export class ProductsService {
       );
     }
 
+    if (createProductDto.categoriesIds) {
+      product.categories = await this.categoriesService.findAllByIds(
+        createProductDto.categoriesIds,
+      );
+    }
+
     return await product.save();
   }
 
@@ -173,7 +172,6 @@ export class ProductsService {
       if (findProducts.starsMax) {
         whereOpt['avgStars'] = LessThanOrEqual(findProducts.starsMax);
       }
-
       if (findProducts.starsMin) {
         whereOpt['avgStars'] = MoreThanOrEqual(findProducts.starsMin);
       }
@@ -188,7 +186,6 @@ export class ProductsService {
     });
   }
 
-  //TODO: ADICIONAR DTO PARA SELECIONAR QUAIS RELATIONS ESSE FIND TERÁ
   async findOne(id: string, findProducts?: FindProductsDto): Promise<Product> {
     const tables = [];
     const options = {};
@@ -198,6 +195,9 @@ export class ProductsService {
       }
       if (findProducts.relations.store) {
         tables.push('store');
+      }
+      if (findProducts.relations.order) {
+        tables.push('orders');
       }
       if (findProducts.relations.feedbacks) {
         tables.push('feedbacks');

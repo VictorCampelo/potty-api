@@ -1,12 +1,15 @@
+import { ScheduleProperties } from './types/scheduleProperties.interface';
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -22,6 +25,14 @@ export class Store extends BaseEntity {
 
   @Column({ nullable: false, type: 'varchar', length: 45 })
   name: string;
+
+  @Column({
+    nullable: false,
+    type: 'varchar',
+    length: 45,
+    name: 'formated_name',
+  })
+  formatedName: string;
 
   @Column({ nullable: true, type: 'varchar', length: 45 })
   CNPJ: string;
@@ -44,26 +55,38 @@ export class Store extends BaseEntity {
   @Column({ nullable: false, default: true })
   enabled: boolean;
 
-  @Column({ nullable: true, default: 0 })
+  @Column({ nullable: true, default: 0, name: 'sum_orders' })
   sumOrders?: number;
 
-  @Column({ nullable: true, default: 0 })
+  @Column({ nullable: true, default: 0, name: 'sum_feedbacks' })
   sumFeedbacks?: number;
 
-  @Column({ nullable: true, default: 0 })
+  @Column({ nullable: true, default: 0, name: 'sum_stars' })
   sumStars?: number;
 
-  @Column({ nullable: true, default: 0 })
+  @Column({ nullable: true, default: 0, name: 'avg_stars' })
   avgStars?: number;
 
-  @Column({ nullable: true, type: 'varchar', length: 45 })
-  facebook_link: string;
+  @Column({
+    nullable: true,
+    type: 'varchar',
+    length: 45,
+    name: 'facebook_link',
+  })
+  facebookLink: string;
 
-  @Column({ nullable: true, type: 'varchar', length: 45 })
   instagram_link: string;
 
-  @Column({ nullable: true, type: 'varchar', length: 45 })
-  whatsapp_link: string;
+  @Column({
+    nullable: true,
+    type: 'varchar',
+    length: 45,
+    name: 'whatsapp_link',
+  })
+  whatsappLink: string;
+
+  @Column({ nullable: true, type: 'jsonb' })
+  schedules: ScheduleProperties;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -74,12 +97,23 @@ export class Store extends BaseEntity {
   @OneToMany(() => Product, (product: Product) => product.store)
   products: Product[];
 
+  @OneToOne(() => Files)
+  @JoinColumn()
+  avatar: Files;
+
+  @OneToOne(() => Files)
+  @JoinColumn()
+  background: Files;
+
   @OneToMany(() => Files, (file) => file.user)
   files: Files[];
 
   @ManyToMany(() => Category, (category) => category.store)
   @JoinTable({ name: 'store_category' })
   categories: Category[];
+
+  @OneToMany(() => Category, (category) => category.storeProducts)
+  productCategories: Category[];
 
   @OneToMany(() => User, (user: User) => user.store)
   owners: User[];

@@ -13,8 +13,8 @@ import {
 
 @Entity('order')
 export class Order extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => User, (user) => user.order)
   user: User;
@@ -29,6 +29,9 @@ export class Order extends BaseEntity {
 
   @Column({ nullable: false })
   amount: number;
+
+  @Column({ nullable: false, default: false })
+  status: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

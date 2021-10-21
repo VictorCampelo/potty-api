@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { StoreRepository } from './stores.repository';
 import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
+import { CategoriesModule } from 'src/categories/categories.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PassportModule } from '@nestjs/passport';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     UsersModule,
     FilesModule,
+    CategoriesModule,
   ],
   controllers: [StoresController],
   providers: [StoresService],

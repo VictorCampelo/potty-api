@@ -15,13 +15,16 @@ import {
 } from 'typeorm';
 
 @Entity('file')
-@Unique(['id', 'url', 'hash'])
+@Unique(['url', 'hash', 'filename'])
 export class File extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ nullable: false, type: 'varchar', length: 255 })
   name: string;
+
+  @Column({ nullable: false, type: 'varchar', length: 500 })
+  filename: string;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
   alternativeText: string;

@@ -1,5 +1,5 @@
 import { StoresService } from 'src/stores/stores.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
 import { Repository } from 'typeorm';
@@ -18,11 +18,42 @@ export class OrdersService {
     private storesService: StoresService,
   ) {}
 
+  async findAllPending(
+    storeId: string,
+    confirmed: boolean,
+    limit?: number,
+    offset?: number,
+  ) {
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect(
+        (qb) => qb.select().from(Product, 'product'),
+        'product',
+        'product.id = order.productId',
+      )
+      .select(['order', 'product'])
+      .where('product.store_id = :id', { id: storeId })
+      .andWhere('order.status = :status', { status: confirmed })
+      .limit(limit)
+      .offset(offset)
+      .orderBy('order.createdAt', 'DESC')
+      .getRawMany();
+
+    return orders;
+  }
+
+  async confirmOrder(id: string) {
+    const order = await this.orderRepository.findOne(id);
+    order.status = true;
+    return await order.save();
+  }
+
   async create(
     createOrderDto: CreateOrderDto,
     user: User,
     store: Store,
-  ): Promise<Order[]> {
+  ): Promise<{ orders2: Order[]; msg: string }> {
+    let values = 0;
     const orders = [];
     const productsToSave = [];
     const productIds = createOrderDto.products.map((prod) => prod.productId);
@@ -30,7 +61,13 @@ export class OrdersService {
 
     createOrderDto.products.forEach((order) => {
       const product = products.find((obj) => obj.id === order.productId);
+
+      if (order.amount > product.inventory) {
+        throw new UnauthorizedException(`There aren't enough ${product.title}`);
+      }
+
       product.sumOrders += order.amount;
+      product.inventory -= order.amount;
       product.lastSold = new Date();
       productsToSave.push(product);
 
@@ -42,15 +79,28 @@ export class OrdersService {
       });
       orderToCreate.user = user;
       orders.push(orderToCreate);
+      values += order.amount * product.price;
     });
+
+    const text = `Novo pedido! Nome do Cliente: ${
+      user.firstName + ' ' + user.lastName
+    } Itens do Pedido: ${createOrderDto.products.map((order) => {
+      return `${
+        order.amount +
+        ' ' +
+        products.find((obj) => obj.id === order.productId).title
+      }`;
+    })} Total do Pedido: R$ ${values} Forma de Envio: Entrega Custo do Envio: 5,00 Endereço do Cliente Rua Isaac Irineu - 5415 - Universidade Federal do Piauí Teresina - PI Referência: fffd Meio de Pagamento: À vista Precisa de troco para R$ 100,00`;
+    const msg = `https://api.whatsapp.com/send?phone=55${store.phone}1&text=${text}`;
 
     await this.storesService.save(store);
     await this.productService.saveAll(productsToSave);
-    return await this.orderRepository.save(orders);
+    const orders2 = await this.orderRepository.save(orders);
+    return { orders2, msg };
   }
 
   async findLastSold(
-    store_id: string,
+    storeId: string,
     limit?: number,
     offset?: number,
   ): Promise<Order[]> {
@@ -63,7 +113,7 @@ export class OrdersService {
         'product.id = order.productId',
       )
       .select(['order', 'product'])
-      .where('product.store_id = :id', { id: store_id })
+      .where('product.store_id = :id', { id: storeId })
       .limit(limit)
       .offset(offset)
       .orderBy('order.createdAt', 'DESC')
@@ -119,9 +169,39 @@ export class OrdersService {
     }
   }
 
-  async findOne(id: number): Promise<Order> {
+  async findOne(id: string): Promise<Order> {
     return await this.orderRepository.findOne(id, {
       relations: ['product', 'product.store'],
     });
+  }
+
+  async findAllFinishedOrderByUser(
+    userId: string,
+    limit?: number,
+    offset?: number,
+  ) {
+    console.log('aqui');
+    return await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.product', 'product')
+      .select(['order', 'product'])
+      .where('order.userId = :id', { id: userId })
+      .andWhere('order.status = :status', { status: true })
+      .limit(limit)
+      .offset(offset)
+      .orderBy('order.createdAt', 'DESC')
+      .getRawMany();
+  }
+
+  async findAllOrderByUser(userId: string, limit?: number, offset?: number) {
+    return await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.product', 'product')
+      .select(['order', 'product'])
+      .where('order.userId = :id', { id: userId })
+      .limit(limit)
+      .offset(offset)
+      .orderBy('order.createdAt', 'DESC')
+      .getRawMany();
   }
 }

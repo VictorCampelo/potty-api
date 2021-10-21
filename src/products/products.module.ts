@@ -6,12 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductRepository } from './products.repository';
 import { FilesModule } from 'src/files/files.module';
 import { PassportModule } from '@nestjs/passport';
+import { CategoriesModule } from 'src/categories/categories.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProductRepository]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     FilesModule,
     StoresModule,
+    CategoriesModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService],

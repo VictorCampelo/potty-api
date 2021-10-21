@@ -15,6 +15,7 @@ import {
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
+import { Category } from 'src/categories/category.entity';
 @Entity('product')
 @Unique(['id', 'title'])
 export class Product extends BaseEntity {
@@ -45,6 +46,9 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, default: 0 })
   avgStars?: number;
 
+  @Column({ nullable: false, default: 0 })
+  inventory: number;
+
   @Column({ nullable: true, type: 'timestamptz' })
   lastSold?: Date;
 
@@ -63,6 +67,9 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => File, (file) => file.product)
   files: File[];
+
+  @OneToMany(() => Category, (category) => category.product)
+  categories: Category[];
 
   @OneToMany(() => Feedback, (feedback) => feedback.product)
   feedbacks: Feedback[];

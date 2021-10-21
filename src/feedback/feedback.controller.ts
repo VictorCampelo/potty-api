@@ -40,9 +40,9 @@ export class FeedbackController {
   ) {
     try {
       const store = await this.storesService.findOne(storeId);
-      console.log(store);
-      const product = await this.productsService.findOne(productId);
-      console.log(product);
+      const product = await this.productsService.findOne(productId, {
+        relations: { order: true },
+      });
       return await this.feedbackService.create(
         createFeedbackDto,
         product,
@@ -50,7 +50,7 @@ export class FeedbackController {
         store,
       );
     } catch (error) {
-      new ErrorHandling(error);
+      return new ErrorHandling(error);
     }
   }
 
