@@ -2,15 +2,17 @@ import { User } from 'src/users/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { Store } from './store.entity';
+import * as _ from 'lodash';
 
 @EntityRepository(Store)
 export class StoreRepository extends Repository<Store> {
   constructor() {
     super();
   }
-  async saveStore(createStoreDto: CreateStoreDto): Promise<Store> {
-    const store = this.create(createStoreDto);
-    return await store.save();
+  createStore(createStoreDto: CreateStoreDto): Store {
+    const createStore = _.omit(createStoreDto, 'files');
+    const store = this.create(createStore);
+    return store;
   }
 
   async addLike(user: User, store: Store): Promise<Store> {

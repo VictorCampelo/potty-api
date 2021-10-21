@@ -8,4 +8,6 @@ export class CreateProductDto {
   tags?: string[];
 
   files?: Express.Multer.File[];
+
+  categoriesIds?: string[];
 }
