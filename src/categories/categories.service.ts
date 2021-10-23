@@ -1,12 +1,14 @@
 import { StoresService } from './../stores/stores.service';
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Category } from './category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
+import { FindCategoriesDto } from './dto/find-categories-dto';
+import { FindCategoriesProductsDto } from './dto/find-categories-products-dto';
 
 @Injectable()
 export class CategoriesService {
@@ -45,6 +47,38 @@ export class CategoriesService {
         id: In(ids),
         type: 'store',
       },
+    });
+  }
+
+  async findStoresCategories(
+    findCategoriesDto: FindCategoriesDto,
+  ): Promise<Category[]> {
+    const whereFind = {
+      type: 'store',
+    };
+    if (findCategoriesDto.categoryId) {
+      whereFind['id'] = findCategoriesDto.categoryId;
+    }
+
+    return await this.categoryRepository.find({
+      where: whereFind,
+    });
+  }
+
+  async findProductsCategories(
+    findCategoriesProductsDto: FindCategoriesProductsDto,
+  ): Promise<Category[]> {
+    const whereFind = {
+      storeProducts: findCategoriesProductsDto.storeId,
+      type: 'product',
+    };
+    if (findCategoriesProductsDto.categoryId) {
+      whereFind['id'] = findCategoriesProductsDto.categoryId;
+    }
+    console.log(whereFind);
+
+    return await this.categoryRepository.find({
+      where: whereFind,
     });
   }
 
