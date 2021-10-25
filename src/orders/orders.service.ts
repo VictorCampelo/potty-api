@@ -67,6 +67,7 @@ export class OrdersService {
       }
 
       product.sumOrders += order.amount;
+      //TODO: ACHO MELHOR DIMINUIR O INVENTORY SOMENTE APÓS A CONFIRMAÇÃO DO PEDIDO
       product.inventory -= order.amount;
       product.lastSold = new Date();
       productsToSave.push(product);

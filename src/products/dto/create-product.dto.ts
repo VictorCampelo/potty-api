@@ -1,3 +1,5 @@
+import { IsInt, Min } from 'class-validator';
+
 export class CreateProductDto {
   title: string;
 
@@ -6,6 +8,10 @@ export class CreateProductDto {
   description?: string;
 
   tags?: string[];
+
+  @IsInt()
+  @Min(0)
+  inventory: number;
 
   files?: Express.Multer.File[];
 

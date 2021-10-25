@@ -120,6 +120,7 @@ export class ProductsService {
 
     product.title = createProductDto.title;
     product.price = createProductDto.price;
+    product.inventory = createProductDto.inventory;
     product.tags = createProductDto.tags ? createProductDto.tags : null;
     product.description = createProductDto.description
       ? createProductDto.description
