@@ -75,7 +75,6 @@ export class CategoriesService {
     if (findCategoriesProductsDto.categoryId) {
       whereFind['id'] = findCategoriesProductsDto.categoryId;
     }
-    console.log(whereFind);
 
     return await this.categoryRepository.find({
       where: whereFind,

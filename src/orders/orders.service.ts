@@ -80,7 +80,12 @@ export class OrdersService {
       });
       orderToCreate.user = user;
       orders.push(orderToCreate);
-      values += order.amount * product.price;
+
+      if (product?.discount) {
+        values += order.amount * ((1 - product.discount) * product.price);
+      } else {
+        values += order.amount * product.price;
+      }
     });
 
     const text = `Novo pedido! Nome do Cliente: ${

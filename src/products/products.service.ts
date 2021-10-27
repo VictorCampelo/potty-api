@@ -140,6 +140,10 @@ export class ProductsService {
       );
     }
 
+    if (createProductDto.discount) {
+      product.discount = createProductDto.discount / 100;
+    }
+
     return await product.save();
   }
 
