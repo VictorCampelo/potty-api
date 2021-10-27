@@ -34,6 +34,9 @@ export class Product extends BaseEntity {
   @Column({ nullable: false, default: 0 })
   price: number;
 
+  @Column({ nullable: true, type: 'float' })
+  discount: number;
+
   @Column({ nullable: true, default: 0 })
   sumOrders?: number;
 
