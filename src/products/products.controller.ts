@@ -11,6 +11,7 @@ import {
   UseGuards,
   Post,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -36,7 +37,7 @@ export class ProductsController {
   @Get('store/:id')
   findAllProduct(
     @Param('id') storeId: string,
-    @Body(ValidationPipe) findProductsDto: FindProductsDto,
+    @Query(ValidationPipe) findProductsDto: FindProductsDto,
   ) {
     try {
       return this.productsService.findAll(storeId, findProductsDto);

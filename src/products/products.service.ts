@@ -156,7 +156,7 @@ export class ProductsService {
     findProducts: FindProductsDto,
   ): Promise<Product[]> {
     let orderingBy;
-    if (findProducts.options.loadLastSolds) {
+    if (findProducts.loadLastSolds) {
       orderingBy = {
         lastSold: 'DESC',
       };
@@ -183,10 +183,10 @@ export class ProductsService {
     }
 
     return await this.productRepository.find({
-      relations: findProducts.options.loadRelations ? ['files'] : [],
+      relations: findProducts.loadRelations ? ['files'] : [],
       where: whereOpt,
-      skip: findProducts.options.offset ? findProducts.options.offset : 0,
-      take: findProducts.options.limit ? findProducts.options.limit : 10,
+      skip: findProducts.offset ? findProducts.offset : 0,
+      take: findProducts.limit ? findProducts.limit : 10,
       order: orderingBy,
     });
   }
@@ -194,20 +194,20 @@ export class ProductsService {
   async findOne(id: string, findProducts?: FindProductsDto): Promise<Product> {
     const tables = [];
     const options = {};
-    if (findProducts && findProducts.relations) {
-      if (findProducts.relations.files) {
+    if (findProducts) {
+      if (findProducts.files) {
         tables.push('files');
       }
-      if (findProducts.relations.store) {
+      if (findProducts.store) {
         tables.push('store');
       }
-      if (findProducts.relations.order) {
+      if (findProducts.order) {
         tables.push('orders');
       }
-      if (findProducts.relations.feedbacks) {
+      if (findProducts.feedbacks) {
         tables.push('feedbacks');
       }
-      if (findProducts.relations.feedbacksUser) {
+      if (findProducts.feedbacksUser) {
         tables.push('feedbacks.user');
       }
       options['relations'] = tables;
