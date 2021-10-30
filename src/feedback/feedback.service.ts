@@ -83,12 +83,10 @@ export class FeedbackService {
 
   async fromProduct(product_id: string) {
     return await this.productService.findOne(product_id, {
-      relations: {
-        files: false,
-        store: false,
-        feedbacks: true,
-        feedbacksUser: true,
-      },
+      files: false,
+      store: false,
+      feedbacks: true,
+      feedbacksUser: true,
     });
   }
 

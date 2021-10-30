@@ -1,6 +1,6 @@
 export class FindProductsDto {
-  limit: number;
-  offset: number;
+  limit?: number;
+  offset?: number;
   loadRelations?: boolean;
   loadLastSolds?: boolean;
   files?: boolean;

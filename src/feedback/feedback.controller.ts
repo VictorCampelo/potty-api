@@ -41,7 +41,7 @@ export class FeedbackController {
     try {
       const store = await this.storesService.findOne(storeId);
       const product = await this.productsService.findOne(productId, {
-        relations: { order: true },
+        order: true ,
       });
       return await this.feedbackService.create(
         createFeedbackDto,
