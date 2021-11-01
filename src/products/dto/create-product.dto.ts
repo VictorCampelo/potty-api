@@ -9,8 +9,6 @@ export class CreateProductDto {
 
   tags?: string[];
 
-  @IsInt()
-  @Min(0)
   inventory: number;
 
   files?: Express.Multer.File[];
