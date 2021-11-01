@@ -65,7 +65,7 @@ export class User extends BaseEntity {
   profileImage: File;
 
   @OneToMany(() => Order, (order) => order.user)
-  public order!: Order[];
+  order: Order[];
 
   @OneToMany(() => Feedback, (feedback) => feedback.user)
   feedbacks: Feedback[];

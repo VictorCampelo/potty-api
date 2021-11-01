@@ -35,33 +35,31 @@ export class ProductsService {
     limit?: number,
     offset?: number,
   ): Promise<Product[]> {
-    try {
-      const orders = await this.productRepository
-        .createQueryBuilder('product')
-        .select('product')
-        .addSelect((subQuery) => {
-          return subQuery
-            .select('SUM(order.amount)')
-            .from(Order, 'order')
-            .where('order.productId = product.id')
-            .andWhere('order.createdAt between :start and :end')
-            .groupBy('order.productId');
-        }, 'qtd')
-        .setParameter('start', startDate)
-        .setParameter('end', endDate)
-        .where('product.store_id = :id')
-        .andWhere('product.sumOrders > 0')
-        .setParameter('start', startDate)
-        .setParameter('end', endDate)
-        .setParameter('id', storeId)
-        .skip(offset)
-        .take(limit)
-        .groupBy('product.id')
-        .getRawMany();
-      return orders;
-    } catch (error) {
-      console.log(error);
-    }
+    return this.productRepository
+      .createQueryBuilder('product')
+      .select('product')
+      .addSelect(this.sumOrderAmount(), 'qtd')
+      .setParameter('start', startDate)
+      .setParameter('end', endDate)
+      .where('product.store_id = :id')
+      .andWhere('product.sumOrders > 0')
+      .setParameter('start', startDate)
+      .setParameter('end', endDate)
+      .setParameter('id', storeId)
+      .skip(offset)
+      .take(limit)
+      .groupBy('product.id')
+      .getRawMany();
+  }
+
+  private sumOrderAmount() {
+    return (subQuery) =>
+      subQuery
+        .select('SUM(order.amount)')
+        .from(Order, 'order')
+        .where('order.productId = product.id')
+        .andWhere('order.createdAt between :start and :end')
+        .groupBy('order.productId');
   }
 
   async amountSolds(
@@ -71,36 +69,24 @@ export class ProductsService {
     limit?: number,
     offset?: number,
   ): Promise<number> {
-    try {
-      const orders = await this.productRepository
-        .createQueryBuilder('product')
-        .select('product.store_id')
-        .addSelect((subQuery) => {
-          return subQuery
-            .select('SUM(order.amount)')
-            .from(Order, 'order')
-            .where('order.productId = product.id')
-            .andWhere('order.createdAt between :start and :end')
-            .groupBy('order.productId');
-        }, 'qtd')
-        .setParameter('start', startDate)
-        .setParameter('end', endDate)
-        .where('product.store_id = :id')
-        .andWhere('product.sumOrders > 0')
-        .setParameter('start', startDate)
-        .setParameter('end', endDate)
-        .setParameter('id', storeId)
-        .skip(offset)
-        .take(limit)
-        .groupBy('product.id')
-        .getRawMany();
-      const result = orders
-        .map((order) => order.qtd)
-        .reduce((prev, next) => +prev + +next);
-      return result;
-    } catch (error) {
-      console.log(error);
-    }
+    const orders = await this.productRepository
+      .createQueryBuilder('product')
+      .select('product.store_id')
+      .addSelect(this.sumOrderAmount(), 'qtd')
+      .setParameter('start', startDate)
+      .setParameter('end', endDate)
+      .where('product.store_id = :id')
+      .andWhere('product.sumOrders > 0')
+      .setParameter('start', startDate)
+      .setParameter('end', endDate)
+      .setParameter('id', storeId)
+      .skip(offset)
+      .take(limit)
+      .groupBy('product.id')
+      .getRawMany();
+    return orders
+      .map((order) => order.qtd)
+      .reduce((prev, next) => +prev + +next);
   }
 
   create() {
@@ -108,7 +94,7 @@ export class ProductsService {
   }
 
   async saveAll(products: Product[]) {
-    return await this.productRepository.save(products);
+    return this.productRepository.save(products);
   }
 
   async createProduct(
@@ -144,11 +130,11 @@ export class ProductsService {
       product.discount = createProductDto.discount / 100;
     }
 
-    return await product.save();
+    return product.save();
   }
 
   async findProductstByIds(ids: string[]) {
-    return await this.productRepository.findByIds(ids);
+    return this.productRepository.findByIds(ids);
   }
 
   async findAll(
@@ -182,7 +168,7 @@ export class ProductsService {
       }
     }
 
-    return await this.productRepository.find({
+    return this.productRepository.find({
       relations: findProducts.loadRelations ? ['files'] : [],
       where: whereOpt,
       skip: findProducts.offset ? findProducts.offset : 0,
@@ -229,7 +215,7 @@ export class ProductsService {
 
     product = Object.assign(product, updateProductDto);
 
-    return await this.productRepository.save(product);
+    return this.productRepository.save(product);
   }
 
   async updateProductImages({
@@ -250,15 +236,17 @@ export class ProductsService {
     }
 
     if (files) {
-      if (product.files)
+      if (product.files.length === 0) {
         product.files = await this.filesService.createFiles(files);
-      else product.files.push(...(await this.filesService.createFiles(files)));
+      } else {
+        product.files.push(...(await this.filesService.createFiles(files)));
+      }
     }
 
-    return await product.save();
+    return product.save();
   }
 
   async remove(id: string) {
-    return await this.productRepository.softDelete(id);
+    return this.productRepository.softDelete(id);
   }
 }

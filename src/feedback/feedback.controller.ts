@@ -30,22 +30,19 @@ export class FeedbackController {
     private readonly productsService: ProductsService,
   ) {}
 
-  @Post(':storeId/:productId')
+  @Post(':storeId/:orderHash')
   @Role(UserRole.USER)
   async create(
     @GetUser() user: User,
     @Body() createFeedbackDto: CreateFeedbackDto,
     @Param('storeId') storeId: string,
-    @Param('productId') productId: string,
+    @Param('orderHash') orderHash: string,
   ) {
     try {
       const store = await this.storesService.findOne(storeId);
-      const product = await this.productsService.findOne(productId, {
-        order: true ,
-      });
       return await this.feedbackService.create(
         createFeedbackDto,
-        product,
+        orderHash,
         user,
         store,
       );
@@ -60,7 +57,7 @@ export class FeedbackController {
     try {
       return await this.feedbackService.findAllFeedbacksFromStore(store_id);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -69,7 +66,7 @@ export class FeedbackController {
     try {
       return await this.feedbackService.fromProduct(product_id);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -79,11 +76,15 @@ export class FeedbackController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateFeedbackDto: UpdateFeedbackDto,
   ) {
-    return this.feedbackService.update(id, updateFeedbackDto);
+    try {
+      return await this.feedbackService.update(id, updateFeedbackDto);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 
   @Delete(':id')

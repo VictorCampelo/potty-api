@@ -11,8 +11,9 @@ import { winstonConfig } from './configs/winston.config';
 dotenv.config();
 
 async function bootstrap() {
-  const logger = WinstonModule.createLogger(winstonConfig);
-  const app = await NestFactory.create(AppModule, { logger });
+  // const logger = WinstonModule.createLogger(winstonConfig);
+  // const app = await NestFactory.create(AppModule, { logger });
+  const app = await NestFactory.create(AppModule);
 
   Sentry.init({
     dsn: process.env.SENTRY_DNS,

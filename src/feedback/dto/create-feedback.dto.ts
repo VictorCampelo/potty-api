@@ -1,5 +1,9 @@
-export class CreateFeedbackDto {
+interface IFeedback {
   star: number;
-  comment: string;
-  orderId: string;
+  comment?: string;
+  productId: string;
+}
+export class CreateFeedbackDto {
+  feedbacks: IFeedback[];
+  orderhashId: string;
 }

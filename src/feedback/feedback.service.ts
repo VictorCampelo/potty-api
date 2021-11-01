@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductsService } from 'src/products/products.service';
 import { StoresService } from 'src/stores/stores.service';
-import { Product } from 'src/products/product.entity';
 
 @Injectable()
 export class FeedbackService {
@@ -22,44 +21,52 @@ export class FeedbackService {
   ) {}
   async create(
     createFeedbackDto: CreateFeedbackDto,
-    product: Product,
+    hash: string,
     user: User,
     store: Store,
   ) {
-    try {
-      const userOrders = await this.ordersService.findAllFinishedOrderByUser(
-        user.id,
-      );
-      console.log(userOrders);
+    const orders = await this.ordersService.findOneFinishedOrderByUser(
+      user.id,
+      hash,
+    );
 
-      const hit = userOrders.find((order) => order.product_id === product.id);
+    if (orders) {
+      const feedbacks = createFeedbackDto.feedbacks;
+      const feedbacksToSave = [];
+      const productsToSave = [];
 
-      if (hit) {
-        const feedback = this.feedbackRepository.create();
+      feedbacks.forEach((feedback) => {
+        const product = orders.find(
+          (o) => o.productId === feedback.productId,
+        ).product;
+        if (product) {
+          const feedbackToCreate = this.feedbackRepository.create({
+            comment: feedback.comment,
+            star: feedback.star,
+          });
 
-        feedback.comment = createFeedbackDto.comment;
-        feedback.star = createFeedbackDto.star;
+          product.sumStars += feedback.star;
+          product.sumFeedbacks += 1;
+          product.avgStars = product.sumStars / product.sumFeedbacks;
 
-        product.sumStars += createFeedbackDto.star;
-        product.sumFeedbacks += 1;
-        product.avgStars = product.sumStars / product.sumFeedbacks;
+          productsToSave.push(product);
 
-        store.sumStars += createFeedbackDto.star;
-        store.sumFeedbacks += 1;
-        store.avgStars = store.sumStars / store.sumFeedbacks;
+          store.sumStars += feedback.star;
+          store.sumFeedbacks += 1;
+          store.avgStars = store.sumStars / store.sumFeedbacks;
 
-        feedback.user = user;
-        feedback.product = product;
+          feedbackToCreate.user = user;
+          feedbackToCreate.product = product;
 
-        await this.storesService.save(store);
-        await this.productService.saveAll([product]);
+          feedbacksToSave.push(feedbackToCreate);
+        }
+      });
+      await this.productService.saveAll(productsToSave);
+      await this.storesService.save(store);
 
-        return await feedback.save();
-      } else {
-        throw new Error('Product not found in shopping');
-      }
-    } catch (error) {
-      throw error;
+      return this.feedbackRepository.save(feedbacksToSave);
+    } else {
+      throw new Error('Product not found in shopping');
     }
   }
 
@@ -82,7 +89,7 @@ export class FeedbackService {
   }
 
   async fromProduct(product_id: string) {
-    return await this.productService.findOne(product_id, {
+    return this.productService.findOne(product_id, {
       files: false,
       store: false,
       feedbacks: true,
@@ -95,7 +102,7 @@ export class FeedbackService {
   }
 
   async update(id: string, updateFeedbackDto: UpdateFeedbackDto) {
-    return await this.feedbackRepository.update(id, updateFeedbackDto);
+    return this.feedbackRepository.update(id, updateFeedbackDto);
   }
 
   remove(id: number) {

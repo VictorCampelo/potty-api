@@ -16,8 +16,12 @@ export class Order extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ nullable: false })
+  orderHash: string;
+
   @ManyToOne(() => User, (user) => user.order)
   user: User;
+  userId: string;
 
   @ManyToOne(() => Product)
   product: Product;
