@@ -4,6 +4,7 @@ export class FindProductsDto {
   loadRelations?: boolean;
   loadLastSolds?: boolean;
   files?: boolean;
+  categories?: boolean;
   store?: boolean;
   order?: boolean;
   feedbacks?: boolean;
