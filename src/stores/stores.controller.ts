@@ -25,10 +25,7 @@ import { StoresService } from './stores.service';
 
 @Controller('stores')
 export class StoresController {
-  constructor(
-    private readonly storesService: StoresService,
-    private readonly categoriesService: CategoriesService,
-  ) {}
+  constructor(private readonly storesService: StoresService) {}
 
   @Get()
   findAll() {
@@ -74,20 +71,5 @@ export class StoresController {
   async addLikeToStore(@Param('name') name: string, @GetUser() user: User) {
     const store = await this.storesService.addLike(user, name);
     return { store: store, message: 'Sucessfuly added one like to the Store.' };
-  }
-
-  @Post('createCategoryToProduct')
-  @UseGuards(AuthGuard(), RolesGuard)
-  @Role(UserRole.OWNER)
-  async addProductCategories(@Body() createCategoryDto: CreateCategoryDto) {
-    const store = await this.storesService.findOne(createCategoryDto.storeId);
-    const category = await this.categoriesService.createProductCategory({
-      name: createCategoryDto.name,
-      store: store,
-    });
-    return {
-      category: category,
-      message: 'Sucessfuly added category to productin the Store.',
-    };
   }
 }

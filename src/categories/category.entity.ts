@@ -30,6 +30,7 @@ export class Category {
 
   @ManyToOne(() => Store, (store) => store.productCategories)
   storeProducts: Store;
+  storeProductsId: string;
 
   @ManyToOne(() => Product, (product) => product.categories)
   product: Product;
