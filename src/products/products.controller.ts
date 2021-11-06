@@ -25,24 +25,29 @@ import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { User } from 'src/users/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
+import { ErrorHandling } from 'src/configs/error-handling';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.productsService.findOne(id);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 
   @Get('store/:id')
-  findAllProduct(
+  async findAllProduct(
     @Param('id') storeId: string,
     @Query(ValidationPipe) findProductsDto: FindProductsDto,
   ) {
     try {
-      return this.productsService.findAll(storeId, findProductsDto);
+      return await this.productsService.findAll(storeId, findProductsDto);
     } catch (error) {
-      console.log(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -67,7 +72,7 @@ export class ProductsController {
       );
       return { product: product, message: 'Product created successfully' };
     } catch (error) {
-      console.log('ERRO1: ' + error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -78,11 +83,15 @@ export class ProductsController {
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    const product = await this.productsService.updateProductDetails(
-      id,
-      updateProductDto,
-    );
-    return { product: product, message: 'Product successfully updated.' };
+    try {
+      const product = await this.productsService.updateProductDetails(
+        id,
+        updateProductDto,
+      );
+      return { product: product, message: 'Product successfully updated.' };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 
   @Patch('images/:id')
@@ -98,20 +107,31 @@ export class ProductsController {
     @Body() updateProductImagesDto: UpdateProductImagesDto,
     @UploadedFiles() images: Express.Multer.File[],
   ) {
-    updateProductImagesDto.product_id = id;
-    updateProductImagesDto.files = images;
-    const product = await this.productsService.updateProductImages(
-      updateProductImagesDto,
-    );
+    try {
+      updateProductImagesDto.product_id = id;
+      updateProductImagesDto.files = images;
+      const product = await this.productsService.updateProductImages(
+        updateProductImagesDto,
+      );
 
-    return { product: product, message: 'Product images sucessfully updated.' };
+      return {
+        product: product,
+        message: 'Product images sucessfully updated.',
+      };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async remove(@Param('id') id: string) {
-    await this.productsService.remove(id);
-    return { message: 'Product sucessfully removed.' };
+    try {
+      await this.productsService.remove(id);
+      return { message: 'Product sucessfully removed.' };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 }

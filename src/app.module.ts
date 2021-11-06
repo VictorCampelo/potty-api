@@ -25,7 +25,7 @@ dotenv.config();
 @Module({
   imports: [
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
-    WinstonModule.forRoot(winstonConfig),
+    // WinstonModule.forRoot(winstonConfig),
     MailerModule.forRoot(mailerConfig),
     EmailsModule,
     UsersModule,
@@ -39,11 +39,11 @@ dotenv.config();
     DashboardModule,
   ],
   controllers: [AppController],
-  providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggerInterceptor,
-    },
-  ],
+  // providers: [
+  //   {
+  //     provide: APP_INTERCEPTOR,
+  //     useClass: LoggerInterceptor,
+  //   },
+  // ],
 })
 export class AppModule {}

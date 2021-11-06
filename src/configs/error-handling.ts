@@ -13,10 +13,10 @@ export class ErrorHandling {
 
     throw new HttpException(
       {
-        status: error.status || 400,
+        status: error.status,
         error: error.message,
       },
-      error.status || 400,
+      error.status,
     );
   }
 }

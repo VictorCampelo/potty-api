@@ -43,7 +43,6 @@ export class StoresService {
     if (!store) {
       throw new NotFoundException('Store not found');
     }
-
     return store;
   }
 

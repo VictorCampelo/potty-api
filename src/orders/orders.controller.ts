@@ -18,6 +18,7 @@ import { OrdersService } from './orders.service';
 import { UserRole } from 'src/users/user-roles.enum';
 import { Role } from 'src/auth/role.decorator';
 import { FindMostSolds } from 'src/dashboard/dto/find-most-solds.dto';
+import { ErrorHandling } from 'src/configs/error-handling';
 
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('orders')
@@ -34,23 +35,36 @@ export class OrdersController {
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
   ): Promise<{ orders: Order[]; whatsapp: string; message: string }> {
-    const store = await this.storesService.findOne(storeId);
+    try {
+      const store = await this.storesService.findOne(storeId);
 
-    const result = await this.ordersService.create(createOrderDto, user, store);
-    return {
-      orders: result.orders2,
-      whatsapp: result.msg,
-      message: 'Order sucessfuly created',
-    };
+      const result = await this.ordersService.create(
+        createOrderDto,
+        user,
+        store,
+      );
+      return {
+        orders: result.ordersResult,
+        whatsapp: result.msg,
+        message: 'Order sucessfuly created',
+      };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 
-  @Post('confirm/:id')
+  @Post('store/:storeId/confirm/:hashId')
   @Role(UserRole.OWNER)
   async confirmOrder(
-    @Param('orderId') orderId: string,
-  ): Promise<{ orders: Order; message: string }> {
-    const orders = await this.ordersService.confirmOrder(orderId);
-    return { orders: orders, message: 'Order sucessfuly confirmed' };
+    @Param('hashId') hashId: string,
+    @Param('storeId') storeId: string,
+  ): Promise<{ message: string }> {
+    try {
+      await this.ordersService.confirmOrder(hashId, storeId);
+      return { message: 'Order sucessfuly confirmed' };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 
   @Get('store/:storeId')
@@ -58,22 +72,43 @@ export class OrdersController {
   async findAll(
     @Param('storeId') storeId: string,
     @Body(ValidationPipe) query: FindMostSolds,
-  ): Promise<Order[]> {
-    const order = await this.ordersService.findAllPending(
-      storeId,
-      query.confirmed,
-      query.limit,
-      query.offset,
-    );
-
-    return order;
+  ) {
+    try {
+      return await this.ordersService.fillAllOrderByStatus(
+        storeId,
+        query.confirmed,
+        query.limit,
+        query.offset,
+      );
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 
-  @Get(':orderId')
+  @Get('user/hash/:hashId')
+  @Role(UserRole.USER)
+  async findOneToUser(
+    @Param('hashId') hashId: string,
+    @GetUser() user: User,
+  ): Promise<Order[]> {
+    try {
+      return await this.ordersService.findOneToUser(hashId, user.id);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Get('store/:storeId/hash/:hashId/')
   @Role(UserRole.OWNER)
-  async findOne(@Param('orderId') orderId: string): Promise<Order> {
-    const order = await this.ordersService.findOne(orderId);
-    return order;
+  async findOneToStore(
+    @Param('hashId') hashId: string,
+    @Param('storeId') storeId: string,
+  ): Promise<Order[]> {
+    try {
+      return await this.ordersService.findOneToStore(hashId, storeId);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 
   @Get('user/')
@@ -81,12 +116,15 @@ export class OrdersController {
   async findAllOrdersByUser(
     @GetUser() user: User,
     @Body(ValidationPipe) query: FindMostSolds,
-  ): Promise<Order[]> {
-    const order = await this.ordersService.findAllOrderByUser(
-      user.id,
-      query.limit,
-      query.offset,
-    );
-    return order;
+  ) {
+    try {
+      return await this.ordersService.findAllOrderByUser(
+        user.id,
+        query.limit,
+        query.offset,
+      );
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
   }
 }
