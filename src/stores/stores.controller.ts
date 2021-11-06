@@ -37,6 +37,13 @@ export class StoresController {
     return await this.storesService.findOne(id);
   }
 
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Role(UserRole.OWNER)
+  @Get('me')
+  async getStoreMe(@GetUser() user: User) {
+    return await this.storesService.findStoreMe(user.id);
+  }
+
   @Get(':name')
   async findOneByName(@Param('name') name: string) {
     return await this.storesService.findOneByName(name);

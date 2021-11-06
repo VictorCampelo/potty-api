@@ -72,6 +72,11 @@ export class UsersController {
     } catch (error) {}
   }
 
+  @Get('me')
+  async getUserMe(@GetUser() user: User) {
+    return await this.usersService.findUserMe(user.id);
+  }
+
   @ApiTags('admin')
   @Get(':id')
   @Role(UserRole.ADMIN)

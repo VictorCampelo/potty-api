@@ -48,6 +48,17 @@ export class UsersService {
     return user;
   }
 
+  async findUserMe(userId: string): Promise<User> {
+    const user = await this.userRepository.findOne(userId, {
+      select: ['email', 'firstName', 'lastName', 'role', 'id', 'profileImage'],
+      loadRelationIds: true,
+    });
+
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+
+    return user;
+  }
+
   async updateUser(updateUserRequestDto: UpdateUserRequestDto): Promise<User> {
     try {
       let file;

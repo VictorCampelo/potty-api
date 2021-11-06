@@ -46,6 +46,16 @@ export class StoresService {
     return store;
   }
 
+  async findStoreMe(owner_id: string) {
+    const user = await this.usersService.findUserMe(owner_id);
+
+    const store = await this.storeRepository.findOne(user.store);
+    if (!store) {
+      throw new NotFoundException('Store not found');
+    }
+    return store;
+  }
+
   async findOneByName(formatedName: string) {
     const store = await this.storeRepository.findOne({
       where: { formatedName: formatedName },
