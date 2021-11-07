@@ -27,6 +27,7 @@ import { SentryInterceptor } from '../interceptors/sentry.interceptor';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { ErrorHandling } from 'src/configs/error-handling';
 // import { multerOptions } from 'src/configs/multer.config';
 @Controller('users')
 @UseGuards(AuthGuard(), RolesGuard) //protect all user endpoints
@@ -39,11 +40,15 @@ export class UsersController {
   async createAdminUser(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<ReturnUserDto> {
-    const user = await this.usersService.createAdminUser(createUserDto);
-    return {
-      user,
-      message: 'Administrador cadastrado com sucesso',
-    };
+    try {
+      const user = await this.usersService.createAdminUser(createUserDto);
+      return {
+        user,
+        message: 'Administrador cadastrado com sucesso',
+      };
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @ApiTags('owner')
@@ -51,11 +56,15 @@ export class UsersController {
   async createOwnerUser(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<ReturnUserDto> {
-    const user = await this.usersService.createOwnerUser(createUserDto);
-    return {
-      user,
-      message: 'Dono cadastrado com sucesso',
-    };
+    try {
+      const user = await this.usersService.createOwnerUser(createUserDto);
+      return {
+        user,
+        message: 'Dono cadastrado com sucesso',
+      };
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @UseInterceptors(SentryInterceptor)
@@ -69,23 +78,33 @@ export class UsersController {
         user,
         message: 'Usuário encontrado',
       };
-    } catch (error) {}
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @Get('me')
   async getUserMe(@GetUser() user: User) {
-    return await this.usersService.findUserMe(user.id);
+    try {
+      return await this.usersService.findUserMe(user.id);
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @ApiTags('admin')
   @Get(':id')
   @Role(UserRole.ADMIN)
   async findUserById(@Param('id') id): Promise<ReturnUserDto> {
-    const user = await this.usersService.findUserById(id);
-    return {
-      user,
-      message: 'Usuário encontrado',
-    };
+    try {
+      const user = await this.usersService.findUserById(id);
+      return {
+        user,
+        message: 'Usuário encontrado',
+      };
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @ApiTags('admin')
@@ -102,7 +121,11 @@ export class UsersController {
     @GetUser() user: User,
     @Param('id') id: string,
   ) {
-    return this.usersService.updateUser({ id, updateUserDto, file });
+    try {
+      return this.usersService.updateUser({ id, updateUserDto, file });
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @ApiTags('users')
@@ -122,7 +145,7 @@ export class UsersController {
       const id = user.id;
       return this.usersService.updateUser({ id, updateUserDto, file });
     } catch (error) {
-      console.log(error);
+      new ErrorHandling(error);
     }
   }
 
@@ -130,20 +153,28 @@ export class UsersController {
   @Delete(':id')
   @Role(UserRole.ADMIN)
   async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
-    await this.usersService.deleteUser(id);
-    return {
-      message: 'Usuário removido com sucesso',
-    };
+    try {
+      await this.usersService.deleteUser(id);
+      return {
+        message: 'Usuário removido com sucesso',
+      };
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @ApiTags('admin')
   @Get()
   @Role(UserRole.ADMIN)
   async findUsers(@Query() query: FindUsersQueryDto) {
-    const found = await this.usersService.findUsers(query);
-    return {
-      found,
-      message: 'Usuários encontrados',
-    };
+    try {
+      const found = await this.usersService.findUsers(query);
+      return {
+        found,
+        message: 'Usuários encontrados',
+      };
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 }

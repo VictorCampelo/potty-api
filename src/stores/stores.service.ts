@@ -25,13 +25,13 @@ export class StoresService {
   ) {}
 
   async save(store: Store) {
-    return await this.storeRepository.save(store);
+    return this.storeRepository.save(store);
   }
 
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
     const store = this.storeRepository.createStore(createStoreDto);
 
-    return await store.save();
+    return store.save();
   }
 
   findAll() {
@@ -86,7 +86,7 @@ export class StoresService {
       store[props] = updateStoreDto[props];
     }
 
-    return await store.save();
+    return store.save();
   }
 
   remove(id: number) {
@@ -113,6 +113,6 @@ export class StoresService {
       }
     });
 
-    return await this.storeRepository.addLike(user, store);
+    return this.storeRepository.addLike(user, store);
   }
 }

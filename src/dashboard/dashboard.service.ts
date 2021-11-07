@@ -14,7 +14,7 @@ export class DashboardService {
   ) {}
 
   async mostSolds(storeId: string, findMostSolds: FindMostSolds) {
-    return await this.productsService.findMostSolds(
+    return this.productsService.findMostSolds(
       storeId,
       findMostSolds.start,
       findMostSolds.end,
@@ -27,7 +27,7 @@ export class DashboardService {
     storeId: string,
     findMostSolds: FindMostSolds,
   ): Promise<Order[]> {
-    return await this.ordersService.findLastSold(
+    return this.ordersService.findLastSold(
       storeId,
       findMostSolds.limit,
       findMostSolds.offset,
@@ -39,7 +39,7 @@ export class DashboardService {
   }
 
   async amountSoldProducts(storeId: string, findMostSolds: FindMostSolds) {
-    return await this.productsService.amountSolds(
+    return this.productsService.amountSolds(
       storeId,
       findMostSolds.start,
       findMostSolds.end,
@@ -48,7 +48,7 @@ export class DashboardService {
     );
   }
   async income(storeId: string, findMostSolds: FindMostSolds) {
-    return await this.ordersService.income(
+    return this.ordersService.income(
       storeId,
       findMostSolds.start,
       findMostSolds.end,

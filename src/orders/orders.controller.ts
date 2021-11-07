@@ -58,10 +58,9 @@ export class OrdersController {
   async confirmOrder(
     @Param('hashId') hashId: string,
     @Param('storeId') storeId: string,
-  ): Promise<{ message: string }> {
+  ) {
     try {
-      await this.ordersService.confirmOrder(hashId, storeId);
-      return { message: 'Order sucessfuly confirmed' };
+      return await this.ordersService.confirmOrder(hashId, storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
