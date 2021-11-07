@@ -31,7 +31,7 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, type: 'simple-array' })
   tags?: string[];
 
-  @Column({ nullable: false, default: 0 })
+  @Column({ nullable: false, type: 'float', default: 0 })
   price: number;
 
   @Column({ nullable: true, type: 'float' })
