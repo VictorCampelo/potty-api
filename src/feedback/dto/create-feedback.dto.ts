@@ -5,5 +5,4 @@ interface IFeedback {
 }
 export class CreateFeedbackDto {
   feedbacks: IFeedback[];
-  orderhashId: string;
 }

@@ -45,7 +45,7 @@ export class OrdersService {
       .orderBy('order.createdAt', 'DESC')
       .getRawMany();
 
-    return _.groupBy(orders, (order) => order.orderHash);
+    return _.groupBy(orders, (order) => order.order_orderHash);
   }
 
   async confirmOrder(hashId: string, storeId: string): Promise<Order[]> {
@@ -244,7 +244,7 @@ export class OrdersService {
       .leftJoinAndSelect('order.product', 'product')
       .select(['order', 'product'])
       .where('order.userId = :id', { id: userId })
-      .andWhere('order.order_hash = :hash', { hash })
+      .andWhere('order.orderHash = :hash', { hash })
       .andWhere('order.status = :status', { status: true })
       .limit(limit)
       .offset(offset)
