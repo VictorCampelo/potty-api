@@ -23,7 +23,11 @@ export class CategoriesController {
 
   @Get()
   findAllPublicCategories() {
-    return this.categoriesService.findAll();
+    try {
+      return this.categoriesService.findAll();
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @Post()
@@ -88,10 +92,14 @@ export class CategoriesController {
     @Param('categoryId') categoryId: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoriesService.update(
-      { categoryId, storeId },
-      updateCategoryDto,
-    );
+    try {
+      return this.categoriesService.update(
+        { categoryId, storeId },
+        updateCategoryDto,
+      );
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @Delete('products/:storeId/category/:categoryId')
@@ -101,6 +109,10 @@ export class CategoriesController {
     @Param('storeId') storeId: string,
     @Param('categoryId') categoryId: string,
   ) {
-    return this.categoriesService.remove({ categoryId, storeId });
+    try {
+      return this.categoriesService.remove({ categoryId, storeId });
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 }

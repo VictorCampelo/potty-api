@@ -22,7 +22,7 @@ export class UsersService {
 
   async createAdminUser(createUserDto: CreateUserDto): Promise<User> {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
-      throw new UnprocessableEntityException('As senhas não conferem');
+      throw new UnprocessableEntityException('Passwords dont match');
     } else {
       return this.userRepository.createUser(createUserDto, UserRole.ADMIN);
     }
@@ -31,7 +31,7 @@ export class UsersService {
   //TODO criar dtos para owner
   async createOwnerUser(createUserDto: CreateUserDto): Promise<User> {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
-      throw new UnprocessableEntityException('As senhas não conferem');
+      throw new UnprocessableEntityException('Passwords dont match');
     } else {
       return this.userRepository.createUser(createUserDto, UserRole.OWNER);
     }
@@ -60,65 +60,52 @@ export class UsersService {
   }
 
   async updateUser(updateUserRequestDto: UpdateUserRequestDto): Promise<User> {
-    try {
-      let file;
-      let user = await this.findUserById(updateUserRequestDto.id);
-      user = Object.assign(user, updateUserRequestDto.updateUserDto);
-      if (updateUserRequestDto.file && user) {
-        file = await this.filesService.createFiles([updateUserRequestDto.file]);
-        user.profileImage = file;
-      }
-      user = await this.userRepository.save(user);
-      await this.filesService.saveFile(file);
-      return user;
-    } catch (err) {
-      throw new NotFoundException(err);
+    let file;
+    let user = await this.findUserById(updateUserRequestDto.id);
+    if (!user) {
+      throw new NotFoundException('user not found');
     }
+    user = Object.assign(user, updateUserRequestDto.updateUserDto);
+    if (updateUserRequestDto.file && user) {
+      file = await this.filesService.createFiles([updateUserRequestDto.file]);
+      user.profileImage = file;
+    }
+    user = await this.userRepository.save(user);
+    await this.filesService.saveFile(file);
+    return user;
   }
 
   async addUserPic(user: User, newProfileImage: Express.Multer.File) {
-    try {
-      const file = await this.filesService.createFiles([newProfileImage]);
-      user.profileImage = file[0];
-      return await this.userRepository.save(user);
-    } catch (err) {
-      throw new NotFoundException('error: ' + err);
+    const file = await this.filesService.createFiles([newProfileImage]);
+    if (!file) {
+      throw new NotFoundException('File not found');
     }
+    user.profileImage = file[0];
+    return this.userRepository.save(user);
   }
 
   async deleteUserPic(userFileId: string) {
-    try {
-      await this.filesService.remove([userFileId]);
-      return 'User image file was successfully removed';
-    } catch (err) {
-      throw new NotFoundException('error: ' + err);
-    }
+    return this.filesService.remove([userFileId]);
   }
 
   async updateUserPic(user: User, newProfileImage: Express.Multer.File) {
-    try {
-      await this.filesService.remove([user.profileImage.id]);
-      const file = await this.filesService.createFiles([newProfileImage]);
-      user.profileImage = file[0];
-      return await this.userRepository.save(user);
-    } catch (err) {
-      throw new NotFoundException('error: ' + err);
-    }
+    await this.filesService.remove([user.profileImage.id]);
+    const file = await this.filesService.createFiles([newProfileImage]);
+    user.profileImage = file[0];
+    return this.userRepository.save(user);
   }
 
   async deleteUser(userId: string) {
     const result = await this.userRepository.delete({ id: userId });
     if (result.affected === 0) {
-      throw new NotFoundException(
-        'Não foi encontrado um usuário com o ID informado',
-      );
+      throw new NotFoundException('User not found');
     }
+    return result;
   }
 
   async findUsers(
     queryDto: FindUsersQueryDto,
   ): Promise<{ users: User[]; total: number }> {
-    const users = await this.userRepository.findUsers(queryDto);
-    return users;
+    return this.userRepository.findUsers(queryDto);
   }
 }

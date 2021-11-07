@@ -71,8 +71,12 @@ export class FeedbackController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.feedbackService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.feedbackService.findOne(+id);
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 
   @Patch(':id')
@@ -89,6 +93,10 @@ export class FeedbackController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.feedbackService.remove(+id);
+    try {
+      return this.feedbackService.remove(+id);
+    } catch (error) {
+      new ErrorHandling(error);
+    }
   }
 }

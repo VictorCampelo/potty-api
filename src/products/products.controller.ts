@@ -128,8 +128,7 @@ export class ProductsController {
   @Role(UserRole.OWNER)
   async remove(@Param('id') id: string) {
     try {
-      await this.productsService.remove(id);
-      return { message: 'Product sucessfully removed.' };
+      return await this.productsService.remove(id);
     } catch (error) {
       throw new ErrorHandling(error);
     }
