@@ -29,17 +29,22 @@ export class FeedbackService {
       user.id,
       hash,
     );
-
+    console.log(
+      '%cfeedback.service.ts line:32 orders',
+      'color: #007acc;',
+      orders,
+    );
     if (orders) {
       const feedbacks = createFeedbackDto.feedbacks;
       const feedbacksToSave = [];
       const productsToSave = [];
 
       feedbacks.forEach((feedback) => {
-        const product = orders.find(
-          (o) => o.productId === feedback.productId,
-        ).product;
-        if (product) {
+        const resultSearch = orders.find(
+          (o) => o.product_id === feedback.productId,
+        );
+        if (resultSearch && resultSearch.product) {
+          const product = resultSearch.product;
           const feedbackToCreate = this.feedbackRepository.create({
             comment: feedback.comment,
             star: feedback.star,
