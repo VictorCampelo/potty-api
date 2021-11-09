@@ -170,7 +170,7 @@ export class ProductsService {
     }
 
     return this.productRepository.find({
-      relations: findProducts.loadRelations ? ['files', 'categories'] : [],
+      relations: findProducts.loadRelations ? ['files', 'productsCategories'] : [],
       where: whereOpt,
       skip: findProducts.offset ? findProducts.offset : 0,
       take: findProducts.limit ? findProducts.limit : 10,
@@ -195,7 +195,7 @@ export class ProductsService {
         tables.push('feedbacks');
       }
       if (findProducts.categories) {
-        tables.push('categories');
+        tables.push('productsCategories');
       }
       if (findProducts.feedbacksUser) {
         tables.push('feedbacks.user');
