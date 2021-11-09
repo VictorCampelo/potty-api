@@ -49,11 +49,11 @@ export class StoresService {
   async findStoreMe(owner_id: string) {
     const user = await this.usersService.findUserMe(owner_id);
 
-    const store = await this.storeRepository.findOne(user.store);
-    if (!store) {
-      throw new NotFoundException('Store not found');
+    // const store = await this.storeRepository.findOne(user.store.id);
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    return store;
+    return user;
   }
 
   async findOneByName(formatedName: string) {

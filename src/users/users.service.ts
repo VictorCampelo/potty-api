@@ -51,7 +51,7 @@ export class UsersService {
   async findUserMe(userId: string): Promise<User> {
     const user = await this.userRepository.findOne(userId, {
       select: ['email', 'firstName', 'lastName', 'role', 'id', 'profileImage'],
-      loadRelationIds: true,
+      relations: ['store', 'file'],
     });
 
     if (!user) throw new NotFoundException('Usuário não encontrado');
