@@ -16,6 +16,7 @@ import { StoresService } from 'src/stores/stores.service';
 import { Equal, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm';
 import { Order } from 'src/orders/order.entity';
 import { CategoriesService } from 'src/categories/categories.service';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -99,9 +100,9 @@ export class ProductsService {
 
   async createProduct(
     createProductDto: CreateProductDto,
-    storeId: string,
+    user: User,
   ): Promise<Product> {
-    const store = await this.storesService.findOne(storeId);
+    const store = await this.storesService.findOneByUser(user.id);
     const product = this.productRepository.create();
 
     product.title = createProductDto.title;

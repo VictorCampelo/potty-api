@@ -68,7 +68,7 @@ export class ProductsController {
       createProductDto.files = images;
       const product = await this.productsService.createProduct(
         createProductDto,
-        user.storeId,
+        user,
       );
       return { product: product, message: 'Product created successfully' };
     } catch (error) {
