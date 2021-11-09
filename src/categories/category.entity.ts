@@ -34,7 +34,6 @@ export class Category {
   storeProductsId: string;
 
   @ManyToMany(() => Product, (product) => product.categories)
-  @JoinTable({name: "productsCategories"})
   products: Product[];
 
   @CreateDateColumn()

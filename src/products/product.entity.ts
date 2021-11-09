@@ -13,6 +13,7 @@ import {
   DeleteDateColumn,
   JoinColumn,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
@@ -73,6 +74,7 @@ export class Product extends BaseEntity {
   files: File[];
 
   @ManyToMany(() => Category, (category) => category.products)
+  @JoinTable({name: "products_categories"})
   categories: Category[];
 
   @OneToMany(() => Feedback, (feedback) => feedback.product)
