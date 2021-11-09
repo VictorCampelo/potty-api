@@ -1,3 +1,4 @@
+import { Store } from 'src/stores/store.entity';
 import { UpdateUserRequestDto } from './dto/update-user-request.dto';
 import {
   Injectable,
@@ -57,6 +58,16 @@ export class UsersService {
     if (!user) throw new NotFoundException('Usuário não encontrado');
 
     return user;
+  }
+
+  async myStore(userId: string): Promise<Store> {
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['store'],
+    });
+
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+
+    return user.store;
   }
 
   async updateUser(updateUserRequestDto: UpdateUserRequestDto): Promise<User> {
