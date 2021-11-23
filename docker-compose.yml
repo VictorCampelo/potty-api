@@ -14,10 +14,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
     depends_on:
-      - ult_pgsql
-  ult_pgsql:
+      - bdv
+  bdv:
     image: postgres
-    container_name: 'ult_pgsql'
+    container_name: 'bdv'
     restart: always
     volumes:
       - ./db:/docker-entrypoint-initdb.d/
