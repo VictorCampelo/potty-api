@@ -17,16 +17,17 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+const productsByCategory = 'products/:storeId/category/:categoryId';
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  findAllPublicCategories() {
+  async findAllPublicCategories() {
     try {
-      return this.categoriesService.findAll();
+      return await this.categoriesService.findAll();
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -60,14 +61,14 @@ export class CategoriesController {
   async findAllProductsCategories(@Param('storeId') storeId: string) {
     try {
       return await this.categoriesService.findProductsCategories({
-        storeId: storeId,
+        storeId,
       });
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('products/:storeId/category/:categoryId')
+  @Get(productsByCategory)
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async findOneStoresCategories(
@@ -76,43 +77,43 @@ export class CategoriesController {
   ) {
     try {
       return await this.categoriesService.findProductsCategories({
-        storeId: storeId,
-        categoryId: categoryId,
+        storeId,
+        categoryId,
       });
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Patch('products/:storeId/category/:categoryId')
+  @Patch(productsByCategory)
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
-  update(
+  async update(
     @Param('storeId') storeId: string,
     @Param('categoryId') categoryId: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     try {
-      return this.categoriesService.update(
+      return await this.categoriesService.update(
         { categoryId, storeId },
         updateCategoryDto,
       );
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
-  @Delete('products/:storeId/category/:categoryId')
+  @Delete(productsByCategory)
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
-  remove(
+  async remove(
     @Param('storeId') storeId: string,
     @Param('categoryId') categoryId: string,
   ) {
     try {
-      return this.categoriesService.remove({ categoryId, storeId });
+      return await this.categoriesService.remove({ categoryId, storeId });
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }

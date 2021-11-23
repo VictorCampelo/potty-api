@@ -1,10 +1,9 @@
-import { NotFoundException } from '@nestjs/common';
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
   BadRequestException,
   forwardRef,
   Inject,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -20,7 +19,7 @@ import { StoresService } from 'src/stores/stores.service';
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
-    private categoryRepository: Repository<Category>,
+    private readonly categoryRepository: Repository<Category>,
     @Inject(forwardRef(() => StoresService))
     private readonly storesService: StoresService,
   ) {}
