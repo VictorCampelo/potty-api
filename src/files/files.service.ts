@@ -1,23 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { FileRepository } from './files.repository';
 import { File } from './file.entity';
+import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 @Injectable()
 export class FilesService {
   constructor(
     @InjectRepository(FileRepository)
-    private fileRepository: FileRepository,
+    private readonly fileRepository: FileRepository,
   ) {}
   async create(file: Express.Multer.File): Promise<File> {
     const { buffer } = file;
-    const timestamp = new Date().getTime();
-    const ref = `${timestamp}.png`;
+    const ref = `${uuidv4()}.png`;
 
     fs.writeFile('public/uploads/' + ref, buffer, (err) => {
-      if (err) throw err;
+      if (err) {
+        throw err;
+      } 
     });
     const link = `http://localhost:3000/${ref}`;
 
@@ -30,7 +31,7 @@ export class FilesService {
 
     const fileToSave = this.fileRepository.createFile(fileToUpload);
 
-    return await fileToSave.save();
+    return fileToSave.save();
   }
 
   async createFiles(files: Express.Multer.File[]): Promise<File[]> {
@@ -40,13 +41,14 @@ export class FilesService {
       }
     });
     const filesToUpload = [];
-    files.map((file) => {
+    files.forEach((file) => {
       const { buffer } = file;
-      const timestamp = new Date().getTime();
-      const ref = `${timestamp}.png`;
+      const ref = `${uuidv4()}.png`;
 
       fs.writeFile('public/uploads/' + ref, buffer, (err) => {
-        if (err) throw err;
+        if (err) {
+          throw err;
+        }
       });
       const link = `http://localhost:3000/${ref}`;
 
@@ -58,7 +60,7 @@ export class FilesService {
       });
     });
 
-    return await this.fileRepository.save(filesToUpload);
+    return this.fileRepository.save(filesToUpload);
   }
 
   async saveFile(file: File) {

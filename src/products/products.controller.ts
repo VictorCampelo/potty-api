@@ -26,6 +26,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { User } from 'src/users/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { ErrorHandling } from 'src/configs/error-handling';
+
+const numberOfImages = 3;
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -55,14 +57,14 @@ export class ProductsController {
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   @UseInterceptors(
-    FilesInterceptor('files', 3, {
+    FilesInterceptor('files', numberOfImages, {
       storage: memoryStorage(),
     }),
   )
   async create(
-    @UploadedFiles() images: Express.Multer.File[],
     @Body(ValidationPipe) createProductDto: CreateProductDto,
     @GetUser() user: User,
+    @UploadedFiles() images?: Express.Multer.File[],
   ) {
     try {
       createProductDto.files = images;
@@ -70,7 +72,7 @@ export class ProductsController {
         createProductDto,
         user,
       );
-      return { product: product, message: 'Product created successfully' };
+      return { product, message: 'Product created successfully' };
     } catch (error) {
       throw new ErrorHandling(error);
     }
