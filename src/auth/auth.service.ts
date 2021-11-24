@@ -71,6 +71,7 @@ export class AuthService {
     const jwtPayload = {
       id: user.id,
     };
+
     const jwtToken = await this.jwtService.sign(jwtPayload);
 
     return { jwtToken };

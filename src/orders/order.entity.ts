@@ -1,3 +1,4 @@
+import { Coupon } from './../coupons/entities/coupon.entity';
 import { Product } from 'src/products/product.entity';
 import { Store } from 'src/stores/store.entity';
 import { User } from 'src/users/user.entity';
@@ -22,6 +23,10 @@ export class Order extends BaseEntity {
   @ManyToOne(() => User, (user) => user.order)
   user: User;
   userId: string;
+
+  @ManyToOne(() => Coupon, (coupon) => coupon.orders)
+  coupon: Coupon;
+  couponId: string;
 
   @ManyToOne(() => Product)
   product: Product;

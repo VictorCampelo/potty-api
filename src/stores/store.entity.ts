@@ -1,3 +1,4 @@
+import { Coupon } from './../coupons/entities/coupon.entity';
 import { ScheduleProperties } from './types/scheduleProperties.interface';
 import {
   BaseEntity,
@@ -117,6 +118,9 @@ export class Store extends BaseEntity {
 
   @OneToMany(() => User, (user: User) => user.store)
   owners: User[];
+
+  @OneToMany(() => Coupon, (coupon) => coupon.store)
+  coupons: Coupon[];
 
   @ManyToMany(() => User)
   @JoinTable({ name: 'favorites' })
