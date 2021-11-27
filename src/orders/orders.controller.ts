@@ -34,7 +34,7 @@ export class OrdersController {
     @Param('id') storeId: string,
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
-  ): Promise<{ orders: Order[]; whatsapp: string; message: string }> {
+  ): Promise<{ orders: Order; whatsapp: string; message: string }> {
     try {
       const store = await this.storesService.findOne(storeId);
 
@@ -44,7 +44,7 @@ export class OrdersController {
         store,
       );
       return {
-        orders: result.ordersResult,
+        orders: result.order,
         whatsapp: result.msg,
         message: 'Order sucessfuly created',
       };
@@ -53,20 +53,20 @@ export class OrdersController {
     }
   }
 
-  @Post('store/:storeId/confirm/:hashId')
+  @Post('store/:storeId/confirm/:id')
   @Role(UserRole.OWNER)
   async confirmOrder(
-    @Param('hashId') hashId: string,
+    @Param('id') orderId: string,
     @Param('storeId') storeId: string,
   ) {
     try {
-      return await this.ordersService.confirmOrder(hashId, storeId);
+      return await this.ordersService.confirmOrder(orderId, storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('store/:storeId')
+  @Get('store/all/:storeId')
   @Role(UserRole.OWNER)
   async findAll(
     @Param('storeId') storeId: string,
@@ -84,33 +84,30 @@ export class OrdersController {
     }
   }
 
-  @Get('user/hash/:hashId')
+  @Get('user/:id')
   @Role(UserRole.USER)
-  async findOneToUser(
-    @Param('hashId') hashId: string,
-    @GetUser() user: User,
-  ): Promise<Order[]> {
+  async findOneToUser(@Param('id') id: string, @GetUser() user: User) {
     try {
-      return await this.ordersService.findOneToUser(hashId, user.id);
+      return await this.ordersService.findOneToUser(id, user.id);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('store/:storeId/hash/:hashId/')
+  @Get('store/:storeId/:id/')
   @Role(UserRole.OWNER)
   async findOneToStore(
-    @Param('hashId') hashId: string,
+    @Param('id') orderId: string,
     @Param('storeId') storeId: string,
-  ): Promise<Order[]> {
+  ) {
     try {
-      return await this.ordersService.findOneToStore(hashId, storeId);
+      return await this.ordersService.findOneToStore(orderId, storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('user/')
+  @Get('user/all')
   @Role(UserRole.USER)
   async findAllOrdersByUser(
     @GetUser() user: User,
@@ -119,6 +116,7 @@ export class OrdersController {
     try {
       return await this.ordersService.findAllOrderByUser(
         user.id,
+        query.confirmed,
         query.limit,
         query.offset,
       );

@@ -2,12 +2,23 @@ import { CouponRepository } from './coupons.repository';
 import { Injectable } from '@nestjs/common';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
+import { LessThan } from 'typeorm';
 
 @Injectable()
 export class CouponsService {
   constructor(private readonly couponRepository: CouponRepository) {}
   async create(createCouponDto: CreateCouponDto) {
     return this.couponRepository.save(createCouponDto);
+  }
+
+  async checkCoupom(code: string, storeId: string) {
+    return this.couponRepository.findOne(code, {
+      where: {
+        store: storeId,
+        isExpired: false,
+        validate: LessThan(Date.now())
+      }
+    });
   }
 
   findAll() {

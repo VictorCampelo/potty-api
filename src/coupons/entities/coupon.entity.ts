@@ -20,8 +20,11 @@ export class Coupon extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   code: string;
+
+  @Column({ nullable: false, unique: true, type: 'float' })
+  discountPorcent: number;
   
   @Column({ nullable: false })
   maxUsage: number;

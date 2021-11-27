@@ -1,3 +1,4 @@
+import { OrderHistoric } from './../order-historics/entities/order-historic.entity';
 import { Coupon } from './../coupons/entities/coupon.entity';
 import { Product } from 'src/products/product.entity';
 import { Store } from 'src/stores/store.entity';
@@ -10,15 +11,13 @@ import {
   UpdateDateColumn,
   BaseEntity,
   Column,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('order')
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({ nullable: false })
-  orderHash: string;
 
   @ManyToOne(() => User, (user) => user.order)
   user: User;
@@ -28,9 +27,8 @@ export class Order extends BaseEntity {
   coupon: Coupon;
   couponId: string;
 
-  @ManyToOne(() => Product)
-  product: Product;
-  productId: string;
+  @OneToMany(() => OrderHistoric, orderHistoric => orderHistoric.order)
+  orderHistorics!: OrderHistoric[];
 
   @ManyToOne(() => Store)
   store: Store;
