@@ -28,7 +28,7 @@ export class Order extends BaseEntity {
   couponId: string;
 
   @OneToMany(() => OrderHistoric, orderHistoric => orderHistoric.order)
-  orderHistorics!: OrderHistoric[];
+  orderHistorics: OrderHistoric[];
 
   @ManyToOne(() => Store)
   store: Store;

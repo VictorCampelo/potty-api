@@ -1,3 +1,4 @@
+import { OrderHistoricsModule } from './../order-historics/order-historics.module';
 import { ProductsModule } from 'src/products/products.module';
 import { FeedbackModule } from './../feedback/feedback.module';
 import { OrdersModule } from './../orders/orders.module';
@@ -12,6 +13,7 @@ import { PassportModule } from '@nestjs/passport';
     OrdersModule,
     FeedbackModule,
     ProductsModule,
+    OrderHistoricsModule,
   ],
   controllers: [DashboardController],
   providers: [DashboardService],

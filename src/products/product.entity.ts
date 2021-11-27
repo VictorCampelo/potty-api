@@ -82,5 +82,5 @@ export class Product extends BaseEntity {
   feedbacks: Feedback[];
 
   @OneToMany(() => OrderHistoric, orderHistoric => orderHistoric.product)
-  orderHistorics!: OrderHistoric[];
+  orderHistorics: OrderHistoric[];
 }
