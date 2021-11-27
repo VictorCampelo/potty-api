@@ -138,6 +138,12 @@ export class ProductsService {
     return this.productRepository.findByIds(ids);
   }
 
+  async findProductstByIdsAndStoreId(ids: string[], storeId: string) {
+    return this.productRepository.findByIds(ids, { where: {
+      store: storeId
+    }});
+  }
+
   async findAll(
     storeId: string,
     findProducts: FindProductsDto,
@@ -205,21 +211,12 @@ export class ProductsService {
     return this.productRepository.findOne(id, options);
   }
 
-  async updateProductDetails(
-    product_id: string,
-    updateProductDto: UpdateProductDto,
-  ) {
-    let product = await this.findOne(product_id);
+  async updateProductDetails(id: string, updateProductDto: UpdateProductDto) {
+    return this.productRepository.update(id, updateProductDto);
+  }
 
-    if (!product) {
-      throw new NotFoundException(
-        "The product_id sent doesn't matches any Product on the database.",
-      );
-    }
-
-    product = Object.assign(product, updateProductDto);
-
-    return this.productRepository.save(product);
+  async saveProducts(products: Product[]) {
+    return this.productRepository.save(products);
   }
 
   async updateProductImages({

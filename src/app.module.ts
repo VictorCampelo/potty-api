@@ -20,6 +20,7 @@ import { OrdersModule } from './orders/orders.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { OrderHistoricsModule } from './order-historics/order-historics.module';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ dotenv.config();
     FeedbackModule,
     DashboardModule,
     CouponsModule,
+    OrderHistoricsModule,
   ],
   controllers: [AppController],
   // providers: [
