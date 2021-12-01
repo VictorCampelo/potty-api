@@ -25,10 +25,7 @@ export class DashboardService {
     );
   }
 
-  async lastSolds(
-    storeId: string,
-    findMostSolds: FindMostSolds,
-  ) {
+  async lastSolds(storeId: string, findMostSolds: FindMostSolds) {
     return this.historicService.findLastSold(
       storeId,
       findMostSolds.limit,
@@ -47,6 +44,17 @@ export class DashboardService {
       findMostSolds.end,
       findMostSolds.limit,
       findMostSolds.offset,
+    );
+  }
+
+  async amountSold(storeId: string, findAmountSold: FindMostSolds) {
+    const { start, end, limit, offset } = findAmountSold;
+    return this.productsService.productsSold(
+      storeId,
+      start,
+      end,
+      limit,
+      offset,
     );
   }
 }

@@ -3,10 +3,12 @@ import { OrderHistoricRepository } from './order-historics.repository';
 import { Injectable } from '@nestjs/common';
 import { CreateOrderHistoricDto } from './dto/create-order-historic.dto';
 import { UpdateOrderHistoricDto } from './dto/update-order-historic.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class OrderHistoricsService {
   constructor(
+    @InjectRepository(OrderHistoricRepository)
     private readonly orderHistoricRepository: OrderHistoricRepository,
   ) {}
   create(createOrderHistoricDto: CreateOrderHistoricDto) {
@@ -40,11 +42,15 @@ export class OrderHistoricsService {
   ) {
     return this.orderHistoricRepository
       .createQueryBuilder('order-historic')
-      .select(`date_trunc('week', "order-historic"."updatedAt"::date) as weekly`)
+      .select(
+        `date_trunc('week', "order-historic"."updatedAt"::date) as weekly`,
+      )
       .addSelect('product_qtd * product_price', 'income')
       .groupBy('weekly')
       .orderBy('weekly', 'ASC')
-      .leftJoin('order-historic.order','order', 'order.store_id = :id', { id: storeId })
+      .leftJoin('order-historic.order', 'order', 'order.store_id = :id', {
+        id: storeId,
+      })
       .where('updatedAt between :start and :end', {
         start: startDate,
         end: endDate,

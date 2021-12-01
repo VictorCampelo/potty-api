@@ -2,7 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
@@ -27,7 +27,6 @@ export class ProductsService {
     private readonly storesService: StoresService,
     private readonly categoriesService: CategoriesService,
   ) {}
-
 
   async amountSolds(
     storeId: string,
@@ -217,5 +216,31 @@ export class ProductsService {
 
   async remove(id: string) {
     return this.productRepository.softDelete(id);
+  }
+
+  async productsSold(
+    storeId: string,
+    startDate: Date,
+    endDate: Date,
+    limit?: number,
+    offset?: number,
+  ) {
+    return this.productRepository
+      .createQueryBuilder('product')
+      .innerJoinAndSelect('product.orderHistorics', 'historic')
+      .select('product')
+      .addSelect('sum(historic.productQtd)', 'qtd')
+      .where('product.store_id = :id', { id: storeId })
+      .andWhere('product.sumOrders > 0')
+      .andWhere(
+        `historic.createdAt
+          BETWEEN :begin
+          AND :end`,
+        { begin: startDate, end: endDate },
+      )
+      .skip(offset)
+      .take(limit)
+      .groupBy('product.id')
+      .getMany();
   }
 }

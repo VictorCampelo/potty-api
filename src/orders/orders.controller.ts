@@ -116,7 +116,6 @@ export class OrdersController {
     try {
       return await this.ordersService.findAllOrderByUser(
         user.id,
-        query.confirmed,
         query.limit,
         query.offset,
       );

@@ -5,10 +5,9 @@ import { OrderHistoricsController } from './order-historics.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([OrderHistoricRepository]),
-  ],
+  imports: [TypeOrmModule.forFeature([OrderHistoricRepository])],
   controllers: [OrderHistoricsController],
-  providers: [OrderHistoricsService]
+  providers: [OrderHistoricsService],
+  exports: [OrderHistoricsService],
 })
 export class OrderHistoricsModule {}

@@ -252,16 +252,10 @@ income(
     });
   }
 
-  async findAllOrderByUser(
-    userId: string,
-    confirmed: boolean,
-    limit?: number,
-    offset?: number,
-  ) {
+  async findAllOrderByUser(userId: string, limit?: number, offset?: number) {
     return this.orderRepository.find({
       where: {
         userId,
-        status: confirmed,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
       take: limit,
