@@ -115,8 +115,8 @@ export class OrdersService {
       order.amount = sumAmount;
 
       await this.productService.saveProducts(productsToSave);
-      await this.historicsService.saveAll(historics);
       await this.orderRepository.save(order);
+      await this.historicsService.saveAll(historics);
       await this.storesService.save(store);
 
       const msg = this.createWhatsappMessage(
