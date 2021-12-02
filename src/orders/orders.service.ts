@@ -163,7 +163,7 @@ export class OrdersService {
   ) {
     return this.orderRepository.find({
       where: {
-        storeId,
+        store: storeId,
         status: confirmed,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
@@ -247,7 +247,7 @@ income(
     });
   }
 
-  findOneToStore(id: string, storeId: string) {
+  async findOneToStore(id: string, storeId: string) {
     return this.orderRepository.findOne(id, {
       where: {
         store: storeId,
@@ -259,7 +259,7 @@ income(
   async findAllOrderByUser(userId: string, limit?: number, offset?: number) {
     return this.orderRepository.find({
       where: {
-        userId,
+        user: userId,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
       take: limit,

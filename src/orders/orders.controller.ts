@@ -107,7 +107,7 @@ export class OrdersController {
     }
   }
 
-  @Get('user/all')
+  @Get('fromuser/all')
   @Role(UserRole.USER)
   async findAllOrdersByUser(
     @GetUser() user: User,
