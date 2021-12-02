@@ -55,6 +55,9 @@ export class OrdersService {
 
       const order = this.orderRepository.create({
         id: uuidv4(),
+        store: store,
+        user: user,
+        status: false,
         userId: user.id,
         couponId: coupon?.id,
       });
@@ -173,11 +176,12 @@ export class OrdersService {
   async confirmOrder(orderId: string, storeId: string) {
     const order = await this.orderRepository.findOne(orderId, {
       where: {
-        storeId,
+        store: storeId,
         status: false,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
     });
+
     if (!order) {
       throw new NotFoundException(`Orders not found`);
     }
