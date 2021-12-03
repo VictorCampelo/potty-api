@@ -32,7 +32,6 @@ const numberOfImages = 3;
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // ! Retorna 200 mesmo se não encontrar
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
@@ -42,7 +41,6 @@ export class ProductsController {
     }
   }
 
-  // ! Retorna 200 mesmo se não encontrar
   @Get('store/:id')
   async findAllProduct(
     @Param('id') storeId: string,
@@ -55,7 +53,6 @@ export class ProductsController {
     }
   }
 
-  // ok
   @Post()
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)

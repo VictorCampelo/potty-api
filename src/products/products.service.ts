@@ -204,9 +204,10 @@ export class ProductsService {
     }
 
     if (files) {
-      if (product.files.length === 0) {
+      if (product.files && product.files.length === 0) {
         product.files = await this.filesService.createFiles(files);
       } else {
+        product.files = [];
         product.files.push(...(await this.filesService.createFiles(files)));
       }
     }

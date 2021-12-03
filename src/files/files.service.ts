@@ -18,7 +18,7 @@ export class FilesService {
     fs.writeFile('public/uploads/' + ref, buffer, (err) => {
       if (err) {
         throw err;
-      } 
+      }
     });
     const link = `http://localhost:3000/${ref}`;
 
@@ -41,6 +41,7 @@ export class FilesService {
       }
     });
     const filesToUpload = [];
+
     files.forEach((file) => {
       const { buffer } = file;
       const ref = `${uuidv4()}.png`;
