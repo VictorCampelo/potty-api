@@ -242,6 +242,6 @@ export class ProductsService {
       .skip(offset)
       .take(limit)
       .groupBy('product.id')
-      .getMany();
+      .getRawMany();
   }
 }
