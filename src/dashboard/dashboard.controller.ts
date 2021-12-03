@@ -27,7 +27,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.mostSolds(storeId, query);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -39,7 +39,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.lastSolds(storeId, query);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -48,7 +48,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.lastFeedbacks(storeId);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -60,7 +60,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.amountSoldProducts(storeId, query);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -72,7 +72,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.income(storeId, query);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }

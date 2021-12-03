@@ -47,7 +47,7 @@ export class UsersController {
         message: 'Administrador cadastrado com sucesso',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -63,7 +63,7 @@ export class UsersController {
         message: 'Dono cadastrado com sucesso',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -79,7 +79,7 @@ export class UsersController {
         message: 'Usuário encontrado',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -88,7 +88,7 @@ export class UsersController {
     try {
       return await this.usersService.findUserMe(user.id);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -103,7 +103,7 @@ export class UsersController {
         message: 'Usuário encontrado',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -124,7 +124,7 @@ export class UsersController {
     try {
       return this.usersService.updateUser({ id, updateUserDto, file });
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -145,7 +145,7 @@ export class UsersController {
       const id = user.id;
       return this.usersService.updateUser({ id, updateUserDto, file });
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -159,7 +159,7 @@ export class UsersController {
         message: 'Usuário removido com sucesso',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -174,7 +174,7 @@ export class UsersController {
         message: 'Usuários encontrados',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }
