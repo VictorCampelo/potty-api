@@ -26,7 +26,7 @@ export class CategoriesController {
     try {
       return this.categoriesService.findAll();
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -98,7 +98,7 @@ export class CategoriesController {
         updateCategoryDto,
       );
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -112,7 +112,7 @@ export class CategoriesController {
     try {
       return this.categoriesService.remove({ categoryId, storeId });
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }

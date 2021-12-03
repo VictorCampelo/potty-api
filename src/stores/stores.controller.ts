@@ -31,7 +31,7 @@ export class StoresController {
     try {
       return await this.storesService.findAll();
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -40,7 +40,7 @@ export class StoresController {
     try {
       return await this.storesService.findOne(id);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -51,7 +51,7 @@ export class StoresController {
     try {
       return await this.storesService.findStoreMe(user.id);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -60,11 +60,11 @@ export class StoresController {
     try {
       return await this.storesService.findOneByName(name);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
-  @Patch(':id')
+  @Patch()
   @UseInterceptors(
     FilesInterceptor('files', 2, {
       storage: memoryStorage(),
@@ -73,14 +73,14 @@ export class StoresController {
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async update(
+    @GetUser() user: User,
     @UploadedFiles() files: Express.Multer.File[],
-    @Param('id') id: string,
     @Body() updateStoreDto: UpdateStoreDto,
   ) {
     try {
-      return await this.storesService.update(id, updateStoreDto, files);
+      return await this.storesService.update(user.storeId, updateStoreDto, files);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -91,7 +91,7 @@ export class StoresController {
     try {
       return await this.storesService.remove(+id);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -106,7 +106,7 @@ export class StoresController {
         message: 'Sucessfuly added one like to the Store.',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }
