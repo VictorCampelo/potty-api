@@ -22,33 +22,24 @@ import { CredentialsDto } from './dto/credentials.dto';
 export class AuthService {
   constructor(
     @InjectRepository(UserRepository)
-    private userRepository: UserRepository,
-    private jwtService: JwtService,
-    private emailsService: EmailsService,
-    private storesService: StoresService,
-    private usersService: UsersService,
+    private readonly userRepository: UserRepository,
+    private readonly jwtService: JwtService,
+    private readonly emailsService: EmailsService,
+    private readonly storesService: StoresService,
+    private readonly usersService: UsersService,
   ) {}
 
   async signUp(createUserDto: CreateUserDto, role: UserRole): Promise<User> {
-    if (createUserDto.password != createUserDto.passwordConfirmation) {
+    if (createUserDto.password !== createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
-      const user = await this.userRepository.createUser(createUserDto, role);
-      // await this.emailsService.sendEmail(
-      //   user.email,
-      //   'Email de confirmação',
-      //   'email-confirmation',
-      //   {
-      //     token: user.confirmationToken,
-      //   },
-      // );
-      return user;
+      return this.userRepository.createUser(createUserDto, role);
     }
   }
 
   async signUpOwner(createUserAndStore: CreateUserStore): Promise<User> {
     const { userDto, storeDto } = createUserAndStore;
-    if (userDto.password != userDto.passwordConfirmation) {
+    if (userDto.password !== userDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
       storeDto['formatedName'] = storeDto.name.replace(/ /g, '-');
@@ -70,11 +61,13 @@ export class AuthService {
 
     const jwtPayload = {
       id: user.id,
+      role: user.role,
+      storeId: user.store && user.store.id ? user.store.id : null
     };
 
-    const jwtToken = await this.jwtService.sign(jwtPayload);
+    const jwtToken = this.jwtService.sign(jwtPayload);
 
-    return { jwtToken };
+    return { user, jwtToken };
   }
 
   async confirmEmail(confirmationToken: string) {

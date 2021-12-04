@@ -8,7 +8,7 @@ export class AppController {
     try {
       return { response: 'pong' };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }
