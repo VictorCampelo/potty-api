@@ -15,9 +15,9 @@ export class OrderHistoricsService {
     return this.orderHistoricRepository.create(createOrderHistoricDto);
   }
 
-  findLastSold(storeId: string, limit?: number, offset?: number) {
+  async findLastSold(storeId: string, limit?: number, offset?: number) {
     return this.orderHistoricRepository.find({
-      select: ['product'],
+      // select: ['product'], - tem colunas productId e product
       relations: ['product', 'order'],
       where: {
         product: {
@@ -33,7 +33,7 @@ export class OrderHistoricsService {
     });
   }
 
-  income(
+  async income(
     storeId: string,
     startDate: Date,
     endDate: Date,
@@ -45,19 +45,26 @@ export class OrderHistoricsService {
       .select(
         `date_trunc('week', "order-historic"."updatedAt"::date) as weekly`,
       )
-      .addSelect('product_qtd * product_price', 'income')
+      .addSelect(
+        'order-historic.productQtd * order-historic.productPrice',
+        'income',
+      )
+      .addSelect('order-historic.order')
       .groupBy('weekly')
+      .addGroupBy('order-historic.productQtd')
+      .addGroupBy('order-historic.productPrice')
+      .addGroupBy('order-historic.orderId')
       .orderBy('weekly', 'ASC')
-      .leftJoin('order-historic.order', 'order', 'order.store_id = :id', {
+      .leftJoin('order-historic.order', 'order', 'order.storeId = :id', {
         id: storeId,
       })
-      .where('updatedAt between :start and :end', {
+      .where('order.updatedAt between :start and :end', {
         start: startDate,
         end: endDate,
       })
-      .offset(offset)
+      .skip(offset)
       .limit(limit)
-      .getMany();
+      .getRawMany();
   }
 
   async saveAll(historics: OrderHistoric[]) {

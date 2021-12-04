@@ -34,7 +34,7 @@ export class FeedbackService {
     );
 
     if (orders) {
-      let products: Product[];
+      const products: Product[] = [];
 
       orders.forEach((order) => {
         products.push(...order.orderHistorics.map((oh) => oh.product));
