@@ -13,12 +13,16 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { UserRole } from 'src/users/user-roles.enum';
 import { DashboardService } from './dashboard.service';
 import { ErrorHandling } from 'src/configs/error-handling';
+import { ProductsService } from 'src/products/products.service';
 
 @Controller('dashboard')
 @UseGuards(AuthGuard(), RolesGuard)
 @Role(UserRole.OWNER)
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(
+    private readonly dashboardService: DashboardService,
+    private readonly productsService: ProductsService,
+  ) {}
   @Get('mostSolds/:id')
   async findMostSoldsProducts(
     @Param('id') storeId: string,
@@ -27,7 +31,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.mostSolds(storeId, query);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -39,7 +43,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.lastSolds(storeId, query);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -48,7 +52,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.lastFeedbacks(storeId);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -58,9 +62,9 @@ export class DashboardController {
     @Body(ValidationPipe) query: FindMostSolds,
   ) {
     try {
-      return await this.dashboardService.amountSoldProducts(storeId, query);
+      return await this.dashboardService.amountSold(storeId, query);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -72,7 +76,7 @@ export class DashboardController {
     try {
       return await this.dashboardService.income(storeId, query);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }

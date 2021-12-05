@@ -25,25 +25,25 @@ export class Coupon extends BaseEntity {
 
   @Column({ nullable: false, unique: true, type: 'float' })
   discountPorcent: number;
-  
+
   @Column({ nullable: false })
   maxUsage: number;
-  
+
   @Column({ nullable: false, default: false })
   isExpired: boolean;
-  
+
   @Column({ nullable: true, type: 'timestamptz' })
   validate: Date;
-  
+
   @CreateDateColumn()
   createdAt: Date;
-  
+
   @UpdateDateColumn()
   updatedAt: Date;
-  
+
   @OneToMany(() => Order, (order) => order.coupon)
   orders: Order[];
-  
+
   @ManyToOne(() => Store, (store) => store.coupons)
   @JoinColumn({ name: 'store_id' })
   store: Store;

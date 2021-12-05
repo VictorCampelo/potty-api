@@ -49,4 +49,22 @@ export class DashboardService {
       findMostSolds.offset,
     );
   }
+
+  async amountSold(storeId: string, findAmountSold: FindMostSolds) {
+    const { start, end, limit, offset } = findAmountSold;
+    const products = await this.productsService.productsSold(
+      storeId,
+      start,
+      end,
+      limit,
+      offset,
+    );
+
+    let totalAmount = 0;
+    products.forEach((p) => {
+      totalAmount += parseInt(p.qtd);
+    });
+
+    return { products, totalAmount };
+  }
 }

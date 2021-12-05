@@ -36,21 +36,21 @@ export class AuthController {
       const user = await this.authService.signUpOwner(createUserAndStore);
       return { user: user, message: 'User and Store createds.' };
     } catch (error) {
-      return new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
   @Post('/signup')
   async signUp(
     @Body(ValidationPipe) createUserDto: CreateUserDto,
-  ): Promise<{ message: string }> {
+  ) {
     try {
       await this.authService.signUp(createUserDto, UserRole.USER);
       return {
         message: 'Cadastro realizado com sucesso',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -61,7 +61,7 @@ export class AuthController {
     try {
       return await this.authService.signIn(credentiaslsDto);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -77,7 +77,7 @@ export class AuthController {
         message: 'Erro ao confirmar o seu E-mail',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -91,7 +91,7 @@ export class AuthController {
         message: 'Foi enviado um email com instruções para resetar sua senha',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -107,7 +107,7 @@ export class AuthController {
         message: 'Senha alterada com sucesso',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -129,7 +129,7 @@ export class AuthController {
         message: 'Senha alterada',
       };
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -139,7 +139,7 @@ export class AuthController {
     try {
       return user;
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }

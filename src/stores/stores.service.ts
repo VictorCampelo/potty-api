@@ -47,7 +47,7 @@ export class StoresService {
   }
 
   async findOneByUser(userId: string) {
-    const store = await this.usersService.myStore(userId)
+    const store = await this.usersService.myStore(userId);
     if (!store) {
       throw new NotFoundException('Store not found');
     }

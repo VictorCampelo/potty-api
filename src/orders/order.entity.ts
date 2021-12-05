@@ -27,12 +27,12 @@ export class Order extends BaseEntity {
   coupon: Coupon;
   couponId: string;
 
-  @OneToMany(() => OrderHistoric, orderHistoric => orderHistoric.order)
+  @OneToMany(() => OrderHistoric, (orderHistoric) => orderHistoric.order)
   orderHistorics: OrderHistoric[];
 
-  @ManyToOne(() => Store)
+  @ManyToOne(() => Store, (store) => store.orders)
   store: Store;
-  storeId: string;
+  //storeId: string;
 
   @Column({ nullable: false })
   amount: number;

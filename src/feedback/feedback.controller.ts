@@ -47,7 +47,7 @@ export class FeedbackController {
         store,
       );
     } catch (error) {
-      return new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -75,7 +75,7 @@ export class FeedbackController {
     try {
       return await this.feedbackService.findOne(+id);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 
@@ -96,7 +96,7 @@ export class FeedbackController {
     try {
       return this.feedbackService.remove(+id);
     } catch (error) {
-      new ErrorHandling(error);
+      throw new ErrorHandling(error);
     }
   }
 }

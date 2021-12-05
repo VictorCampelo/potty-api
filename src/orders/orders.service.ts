@@ -55,6 +55,9 @@ export class OrdersService {
 
       const order = this.orderRepository.create({
         id: uuidv4(),
+        store: store,
+        user: user,
+        status: false,
         userId: user.id,
         couponId: coupon?.id,
       });
@@ -115,8 +118,8 @@ export class OrdersService {
       order.amount = sumAmount;
 
       await this.productService.saveProducts(productsToSave);
-      await this.historicsService.saveAll(historics);
       await this.orderRepository.save(order);
+      await this.historicsService.saveAll(historics);
       await this.storesService.save(store);
 
       const msg = this.createWhatsappMessage(
@@ -160,7 +163,7 @@ export class OrdersService {
   ) {
     return this.orderRepository.find({
       where: {
-        storeId,
+        store: storeId,
         status: confirmed,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
@@ -173,7 +176,7 @@ export class OrdersService {
   async confirmOrder(orderId: string, storeId: string) {
     const order = await this.orderRepository.findOne(orderId, {
       where: {
-        storeId,
+        store: storeId,
         status: false,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
@@ -243,7 +246,7 @@ income(
     });
   }
 
-  findOneToStore(id: string, storeId: string) {
+  async findOneToStore(id: string, storeId: string) {
     return this.orderRepository.findOne(id, {
       where: {
         store: storeId,

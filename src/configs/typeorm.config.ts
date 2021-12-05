@@ -36,11 +36,6 @@ class ConfigService {
       username: this.getValue('TYPEORM_USERNAME'),
       password: this.getValue('TYPEORM_PASSWORD'),
       database: this.getValue('TYPEORM_DATABASE'),
-      extra: {
-        max: 100, // set pool max size to 20
-        idleTimeoutMillis: 1000 * 60, // close idle clients after 1 second
-        connectionTimeoutMillis: 15000, // return an error after 1 second if connection could not be established
-      },
       synchronize: true,
       entities: [
         (__dirname + this.getValue('TYPEORM_ENTITIES_OPTIONS')) as any,
@@ -52,6 +47,11 @@ class ConfigService {
         migrationsDir: __dirname + '/migration/',
       },
       ssl: this.isProduction(),
+      extra: {
+        max: 100, // set pool max size to 20
+        idleTimeoutMillis: 1000 * 60, // close idle clients after 1 second
+        connectionTimeoutMillis: 15000, // return an error after 1 second if connection could not be established
+      },
     };
   }
 }

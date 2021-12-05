@@ -18,6 +18,7 @@ import { Product } from 'src/products/product.entity';
 import { File as Files } from 'src/files/file.entity';
 import { Category } from 'src/categories/category.entity';
 import { User } from 'src/users/user.entity';
+import { Order } from 'src/orders/order.entity';
 
 @Entity('store')
 export class Store extends BaseEntity {
@@ -128,4 +129,7 @@ export class Store extends BaseEntity {
 
   @Column({ nullable: false, default: 0 })
   likes: number;
+
+  @OneToMany(() => Order, (order) => order.store)
+  orders: Order[];
 }

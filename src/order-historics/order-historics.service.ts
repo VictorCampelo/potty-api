@@ -3,19 +3,21 @@ import { OrderHistoricRepository } from './order-historics.repository';
 import { Injectable } from '@nestjs/common';
 import { CreateOrderHistoricDto } from './dto/create-order-historic.dto';
 import { UpdateOrderHistoricDto } from './dto/update-order-historic.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class OrderHistoricsService {
   constructor(
+    @InjectRepository(OrderHistoricRepository)
     private readonly orderHistoricRepository: OrderHistoricRepository,
   ) {}
   create(createOrderHistoricDto: CreateOrderHistoricDto) {
     return this.orderHistoricRepository.create(createOrderHistoricDto);
   }
 
-  findLastSold(storeId: string, limit?: number, offset?: number) {
+  async findLastSold(storeId: string, limit?: number, offset?: number) {
     return this.orderHistoricRepository.find({
-      select: ['product'],
+      // select: ['product'], - tem colunas productId e product
       relations: ['product', 'order'],
       where: {
         product: {
@@ -31,7 +33,7 @@ export class OrderHistoricsService {
     });
   }
 
-  income(
+  async income(
     storeId: string,
     startDate: Date,
     endDate: Date,
@@ -40,18 +42,29 @@ export class OrderHistoricsService {
   ) {
     return this.orderHistoricRepository
       .createQueryBuilder('order-historic')
-      .select(`date_trunc('week', "order-historic"."updatedAt"::date) as weekly`)
-      .addSelect('product_qtd * product_price', 'income')
+      .select(
+        `date_trunc('week', "order-historic"."updatedAt"::date) as weekly`,
+      )
+      .addSelect(
+        'order-historic.productQtd * order-historic.productPrice',
+        'income',
+      )
+      .addSelect('order-historic.order')
       .groupBy('weekly')
+      .addGroupBy('order-historic.productQtd')
+      .addGroupBy('order-historic.productPrice')
+      .addGroupBy('order-historic.orderId')
       .orderBy('weekly', 'ASC')
-      .leftJoin('order-historic.order','order', 'order.store_id = :id', { id: storeId })
-      .where('updatedAt between :start and :end', {
+      .leftJoin('order-historic.order', 'order', 'order.storeId = :id', {
+        id: storeId,
+      })
+      .where('order.updatedAt between :start and :end', {
         start: startDate,
         end: endDate,
       })
-      .offset(offset)
+      .skip(offset)
       .limit(limit)
-      .getMany();
+      .getRawMany();
   }
 
   async saveAll(historics: OrderHistoric[]) {

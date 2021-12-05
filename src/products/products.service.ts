@@ -28,7 +28,6 @@ export class ProductsService {
     private readonly categoriesService: CategoriesService,
   ) {}
 
-
   async amountSolds(
     storeId: string,
     startDate: Date,
@@ -205,9 +204,10 @@ export class ProductsService {
     }
 
     if (files) {
-      if (product.files.length === 0) {
+      if (product.files && product.files.length === 0) {
         product.files = await this.filesService.createFiles(files);
       } else {
+        product.files = [];
         product.files.push(...(await this.filesService.createFiles(files)));
       }
     }
@@ -217,5 +217,31 @@ export class ProductsService {
 
   async remove(id: string) {
     return this.productRepository.softDelete(id);
+  }
+
+  async productsSold(
+    storeId: string,
+    startDate: Date,
+    endDate: Date,
+    limit?: number,
+    offset?: number,
+  ) {
+    return this.productRepository
+      .createQueryBuilder('product')
+      .innerJoinAndSelect('product.orderHistorics', 'historic')
+      .select('product')
+      .addSelect('sum(historic.productQtd)', 'qtd')
+      .where('product.store_id = :id', { id: storeId })
+      .andWhere('product.sumOrders > 0')
+      .andWhere(
+        `historic.createdAt
+          BETWEEN :begin
+          AND :end`,
+        { begin: startDate, end: endDate },
+      )
+      .skip(offset)
+      .take(limit)
+      .groupBy('product.id')
+      .getRawMany();
   }
 }
