@@ -1,3 +1,4 @@
+import { findOrdersDto } from './dto/find-order.dto';
 import { OrderHistoricsService } from './../order-historics/order-historics.service';
 import { StoresService } from 'src/stores/stores.service';
 import {
@@ -12,7 +13,6 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from './order.entity';
 import { User } from 'src/users/user.entity';
 import { Store } from 'src/stores/store.entity';
-import { Product } from 'src/products/product.entity';
 import { MD5 } from 'crypto-js';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -41,9 +41,9 @@ export class OrdersService {
       let couponDiscount = 100;
       let coupon: any = {};
 
-      if (createOrderDto?.coupomCode) {
+      if (createOrderDto?.couponCode) {
         coupon = await this.couponsService.checkCoupom(
-          createOrderDto.coupomCode,
+          createOrderDto.couponCode,
           store.id,
         );
         if (coupon) {
@@ -55,10 +55,9 @@ export class OrdersService {
 
       const order = this.orderRepository.create({
         id: uuidv4(),
-        store: store,
-        user: user,
+        store,
+        user,
         status: false,
-        userId: user.id,
         couponId: coupon?.id,
       });
 
@@ -104,18 +103,15 @@ export class OrdersService {
 
         historics.push(history);
 
-        if (product.discount) {
-          sumAmount += prod.amount * ((1 - product.discount) * product.price);
-        } else {
-          sumAmount += prod.amount * product.price;
-        }
+        sumAmount += prod.amount * product.price;
 
         productsListToMsg.push(`${prod.amount} ${product.title} `);
       });
 
-      sumAmount = sumAmount * couponDiscount;
-
-      order.amount = sumAmount;
+      order.amount =
+        couponDiscount > 0
+          ? sumAmount + (sumAmount * (1 - couponDiscount / 100))
+          : sumAmount;
 
       await this.productService.saveProducts(productsToSave);
       await this.orderRepository.save(order);
@@ -163,7 +159,7 @@ export class OrdersService {
   ) {
     return this.orderRepository.find({
       where: {
-        store: storeId,
+        storeId,
         status: confirmed,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
@@ -176,13 +172,13 @@ export class OrdersService {
   async confirmOrder(orderId: string, storeId: string) {
     const order = await this.orderRepository.findOne(orderId, {
       where: {
-        store: storeId,
+        storeId,
         status: false,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
     });
     if (!order) {
-      throw new NotFoundException(`Orders not found`);
+      throw new NotFoundException(`Order not found`);
     }
     const products = [];
     order.orderHistorics.forEach((history) => {
@@ -240,7 +236,7 @@ income(
   findOneToUser(id: string, userId: string) {
     return this.orderRepository.findOne(id, {
       where: {
-        user: userId,
+        userId,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
     });
@@ -249,7 +245,7 @@ income(
   async findOneToStore(id: string, storeId: string) {
     return this.orderRepository.findOne(id, {
       where: {
-        store: storeId,
+        storeId,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
     });
@@ -267,8 +263,8 @@ income(
         status: confirmed,
       },
       relations: ['orderHistorics', 'orderHistorics.product'],
-      take: limit,
-      skip: offset,
+      take: limit ? limit : 10,
+      skip: offset ? offset : 0,
       order: { createdAt: 'DESC' },
     });
   }

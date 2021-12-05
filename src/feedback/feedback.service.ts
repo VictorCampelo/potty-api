@@ -27,7 +27,7 @@ export class FeedbackService {
     store: Store,
   ) {
     const orders = await this.ordersService.findAllOrderByUser(user.id, true);
-   
+
     if (orders) {
       const products: Product[] = [];
 
@@ -74,31 +74,45 @@ export class FeedbackService {
     }
   }
 
-  async findAllFeedbacksFromStore(store_id: string) {
+  async findAllFeedbacksFromStore(storeId: string) {
     const allFeedbacks = await this.feedbackRepository
       .createQueryBuilder('feedback')
       .leftJoinAndSelect('feedback.user', 'user')
       .leftJoinAndSelect('feedback.product', 'product')
       .leftJoinAndSelect('product.store', 'store')
-      .where('store.id = :id', { id: store_id })
-      .select(['feedback', 'user', 'product'])
+      .where('store.id = :id', { id: storeId })
+      .select([
+        'feedback.comment',
+        'feedback.star',
+        'feedback.updatedAt',
+        'user.id',
+        'user.firstName',
+      ])
       .orderBy('feedback.createdAt', 'DESC')
-      .execute();
+      .getMany();
 
-    if (allFeedbacks.length == 0) {
+    if (!allFeedbacks.length) {
       throw new NotFoundException("The Store doesn't have any feedbacks yet.");
     }
 
     return allFeedbacks;
   }
 
-  async fromProduct(product_id: string) {
-    return this.productService.findOne(product_id, {
-      files: false,
-      store: false,
-      feedbacks: true,
-      feedbacksUser: true,
-    });
+  async fromProduct(productId: string) {
+    return this.feedbackRepository
+      .createQueryBuilder('feedback')
+      .leftJoinAndSelect('feedback.user', 'user')
+      .leftJoinAndSelect('feedback.product', 'product')
+      .where('product.id = :id', { id: productId })
+      .select([
+        'feedback.comment',
+        'feedback.star',
+        'feedback.updatedAt',
+        'user.id',
+        'user.firstName',
+      ])
+      .orderBy('feedback.createdAt', 'DESC')
+      .getOne();
   }
 
   findOne(id: number) {

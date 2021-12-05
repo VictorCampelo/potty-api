@@ -1,3 +1,4 @@
+import { User } from 'src/users/user.entity';
 import { FindMostSolds } from './dto/find-most-solds.dto';
 import {
   Controller,
@@ -6,6 +7,7 @@ import {
   Param,
   Body,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Role } from 'src/auth/role.decorator';
@@ -14,6 +16,7 @@ import { UserRole } from 'src/users/user-roles.enum';
 import { DashboardService } from './dashboard.service';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { ProductsService } from 'src/products/products.service';
+import { GetUser } from 'src/auth/get-user.decorator';
 
 @Controller('dashboard')
 @UseGuards(AuthGuard(), RolesGuard)
@@ -21,15 +24,14 @@ import { ProductsService } from 'src/products/products.service';
 export class DashboardController {
   constructor(
     private readonly dashboardService: DashboardService,
-    private readonly productsService: ProductsService,
   ) {}
-  @Get('mostSolds/:id')
+  @Get('mostSolds')
   async findMostSoldsProducts(
-    @Param('id') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User
   ) {
     try {
-      return await this.dashboardService.mostSolds(storeId, query);
+      return await this.dashboardService.mostSolds(user.storeId, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }

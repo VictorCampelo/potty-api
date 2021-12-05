@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { UserRole } from 'src/users/user-roles.enum';
 import { Role } from 'src/auth/role.decorator';
 import { FindMostSolds } from 'src/dashboard/dto/find-most-solds.dto';
 import { ErrorHandling } from 'src/configs/error-handling';
+import { findOrdersDto } from './dto/find-order.dto';
 
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('orders')
@@ -53,28 +55,62 @@ export class OrdersController {
     }
   }
 
-  @Post('store/:storeId/confirm/:id')
+  @Post('store/confirm/:id')
   @Role(UserRole.OWNER)
   async confirmOrder(
     @Param('id') orderId: string,
-    @Param('storeId') storeId: string,
+    @GetUser() user: User
   ) {
     try {
-      return await this.ordersService.confirmOrder(orderId, storeId);
+      return await this.ordersService.confirmOrder(orderId, user.storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('store/all/:storeId')
+  @Get('store')
   @Role(UserRole.OWNER)
   async findAll(
-    @Param('storeId') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: findOrdersDto,
+    @GetUser() user: User,
   ) {
     try {
       return await this.ordersService.fillAllOrderByStatus(
-        storeId,
+        user.storeId,
+        query.confirmed,
+        query.limit,
+        query.offset,
+      );
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Get('store/:id')
+  @Role(UserRole.OWNER)
+  async findOneToStore(
+    @Param('id') orderId: string,
+    @GetUser() user: User,
+  ) {
+    try {
+      return await this.ordersService.findOneToStore(
+        orderId,
+        user.storeId,
+      );
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Get('user')
+  @Role(UserRole.USER)
+  async findAllOrdersByUser(
+    @GetUser() user: User,
+    @Query(ValidationPipe) query: FindMostSolds,
+  ) {
+    try {
+      return await this.ordersService.findAllOrderByUser(
+        user.id,
         query.confirmed,
         query.limit,
         query.offset,
@@ -89,37 +125,6 @@ export class OrdersController {
   async findOneToUser(@Param('id') id: string, @GetUser() user: User) {
     try {
       return await this.ordersService.findOneToUser(id, user.id);
-    } catch (error) {
-      throw new ErrorHandling(error);
-    }
-  }
-
-  @Get('store/:storeId/:id/')
-  @Role(UserRole.OWNER)
-  async findOneToStore(
-    @Param('id') orderId: string,
-    @Param('storeId') storeId: string,
-  ) {
-    try {
-      return await this.ordersService.findOneToStore(orderId, storeId);
-    } catch (error) {
-      throw new ErrorHandling(error);
-    }
-  }
-
-  @Get('fromuser/all')
-  @Role(UserRole.USER)
-  async findAllOrdersByUser(
-    @GetUser() user: User,
-    @Body(ValidationPipe) query: FindMostSolds,
-  ) {
-    try {
-      return await this.ordersService.findAllOrderByUser(
-        user.id,
-        query.confirmed,
-        query.limit,
-        query.offset,
-      );
     } catch (error) {
       throw new ErrorHandling(error);
     }

@@ -25,20 +25,14 @@ export class CategoriesService {
   ) {}
   async create(
     createCategoryDto: CreateCategoryDto,
-    type: string,
-    store?: Store,
+    typeOfCategory: string,
+    storeId?: string,
   ) {
     const category = this.categoryRepository.create();
     category.name = createCategoryDto.name;
-    category.type = type;
-    if (type === 'product') {
-      if (createCategoryDto.storeId) {
-        category.storeProducts = await this.storesService.findOne(
-          createCategoryDto.storeId,
-        );
-      } else {
-        throw new BadRequestException();
-      }
+    category.type = typeOfCategory;
+    if (typeOfCategory === 'product') {
+      category.storeProductsId = storeId;
     }
     return this.categoryRepository.save(category);
   }
@@ -81,11 +75,12 @@ export class CategoriesService {
 
   async findProductsCategories(
     findCategoriesProductsDto: FindCategoriesProductsDto,
-  ): Promise<Category[]> {
+  ) {
     const whereFind = {
-      storeProducts: findCategoriesProductsDto.storeId,
+      storeProductsId: findCategoriesProductsDto.storeId,
       type: 'product',
     };
+
     if (findCategoriesProductsDto.categoryId) {
       whereFind['id'] = findCategoriesProductsDto.categoryId;
     }
@@ -103,14 +98,13 @@ export class CategoriesService {
     findCategoriesProductsDto: FindCategoriesProductsDto,
     updateCategoryDto: UpdateCategoryDto,
   ) {
-    const category = await this.findProductsCategories(
-      findCategoriesProductsDto,
+    return this.categoryRepository.update(
+      {
+        id: findCategoriesProductsDto.categoryId,
+        storeProductsId: findCategoriesProductsDto.storeId,
+      },
+      updateCategoryDto,
     );
-    if (!category) {
-      throw new NotFoundException('category Not found');
-    }
-    category[0].name = updateCategoryDto.name;
-    return this.categoryRepository.save(category);
   }
 
   async remove(findCategoriesProductsDto: FindCategoriesProductsDto) {

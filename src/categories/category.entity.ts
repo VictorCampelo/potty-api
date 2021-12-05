@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -23,14 +24,17 @@ export class Category {
   enabled: boolean;
 
   //store or product
-  @Column({ nullable: false, type: 'varchar', length: 20, default: 'product' })
+  @Column({ nullable: false, type: 'varchar', length: 50, default: 'product' })
   type: string;
 
   @ManyToMany(() => Store, (store) => store.categories)
   store: Store[];
 
   @ManyToOne(() => Store, (store) => store.productCategories)
+  @JoinColumn({ name: 'store_products_id' })
   storeProducts: Store;
+
+  @Column({ type: 'varchar', nullable: true, name: 'store_products_id' })
   storeProductsId: string;
 
   @ManyToMany(() => Product, (product) => product.categories)

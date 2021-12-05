@@ -17,11 +17,11 @@ export class UserRepository extends Repository<User> {
     queryDto: FindUsersQueryDto,
   ): Promise<{ users: User[]; total: number }> {
     queryDto.enabled = queryDto.enabled === undefined ? true : queryDto.enabled;
-    queryDto.page = queryDto.page < 1 ? 1 : queryDto.page;
+    queryDto.offset = queryDto.offset < 1 ? 1 : queryDto.offset;
     queryDto.limit = queryDto.limit > 100 ? 100 : queryDto.limit;
 
     const { email, firstName, lastName, enabled, role } = queryDto;
-    const query = this.createQueryBuilder('user'); //alias utilizado durante a montagem da query
+    const query = this.createQueryBuilder('user');
     query.where('user.enabled = :enabled', { enabled });
 
     if (email) {

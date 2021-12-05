@@ -5,5 +5,5 @@ interface Order {
 
 export class CreateOrderDto {
   products: Order[];
-  coupomCode?: string;
+  couponCode?: string;
 }

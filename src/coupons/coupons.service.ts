@@ -8,16 +8,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class CouponsService {
   constructor(private readonly couponRepository: CouponRepository) {}
-  async create(createCouponDto: CreateCouponDto) {
+  async create(createCouponDto: CreateCouponDto, storeId: string) {
+    createCouponDto['storeId'] = storeId;
     return this.couponRepository.save(createCouponDto);
   }
 
   async checkCoupom(code: string, storeId: string) {
-    return this.couponRepository.findOne(code, {
+    return this.couponRepository.findOne({
       where: {
-        store: storeId,
+        code,
+        storeId,
         isExpired: false,
-        validate: LessThan(Date.now()),
       },
     });
   }

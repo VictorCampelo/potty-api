@@ -23,7 +23,7 @@ export class Coupon extends BaseEntity {
   @Column({ nullable: false, unique: true })
   code: string;
 
-  @Column({ nullable: false, unique: true, type: 'float' })
+  @Column({ nullable: false, type: 'float' })
   discountPorcent: number;
 
   @Column({ nullable: false })

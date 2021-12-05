@@ -53,18 +53,18 @@ export class FeedbackController {
 
   //DASHBOARD
   @Get('findAllFromStore/:id')
-  async findAllFeedbacksFromStore(@Param('id') store_id: string) {
+  async findAllFeedbacksFromStore(@Param('id') storeId: string) {
     try {
-      return await this.feedbackService.findAllFeedbacksFromStore(store_id);
+      return await this.feedbackService.findAllFeedbacksFromStore(storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
   @Get('fromProduct/:id')
-  async fromProduct(@Param('id') product_id: string) {
+  async fromProduct(@Param('id') productId: string) {
     try {
-      return await this.feedbackService.fromProduct(product_id);
+      return await this.feedbackService.fromProduct(productId);
     } catch (error) {
       throw new ErrorHandling(error);
     }

@@ -5,6 +5,7 @@ import { Role } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { UserRole } from 'src/users/user-roles.enum';
+import { User } from 'src/users/user.entity';
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 
@@ -15,9 +16,9 @@ export class CouponsController {
 
   @Post()
   @Role(UserRole.OWNER)
-  async create(@Body() createCouponDto: CreateCouponDto) {
+  async create(@Body() createCouponDto: CreateCouponDto, @GetUser() user: User) {
     try {
-      return await this.couponsService.create(createCouponDto);
+      return await this.couponsService.create(createCouponDto, user.storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }

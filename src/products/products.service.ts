@@ -38,19 +38,18 @@ export class ProductsService {
     return this.productRepository
       .createQueryBuilder('product')
       .innerJoinAndSelect('product.orderHistorics', 'historic')
-      .select('product')
-      .addSelect('sum(historic.productQtd)', 'qtd')
+      .select('product', 'historic')
       .where('product.store_id = :id', { id: storeId })
       .andWhere('product.sumOrders > 0')
-      .andWhere(
-        `historic.createdAt
-          BETWEEN :begin
-          AND :end`,
-        { begin: startDate, end: endDate },
-      )
+      // .andWhere(
+      //   `historic.createdAt
+      //     BETWEEN :begin
+      //     AND :end`,
+      //   { begin: startDate, end: endDate },
+      // )
       .skip(offset)
       .take(limit)
-      .groupBy('product.id')
+      .orderBy('product.sumOrders', 'DESC')
       .getMany();
   }
 

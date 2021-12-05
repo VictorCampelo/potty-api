@@ -66,7 +66,7 @@ export class Store extends BaseEntity {
   @Column({ nullable: true, default: 0, name: 'sum_stars' })
   sumStars?: number;
 
-  @Column({ nullable: true, default: 0, name: 'avg_stars' })
+  @Column({ nullable: true, default: 0, name: 'avg_stars', type: 'float' })
   avgStars?: number;
 
   @Column({

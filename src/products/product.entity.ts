@@ -49,7 +49,7 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, default: 0 })
   sumStars?: number;
 
-  @Column({ nullable: true, default: 0 })
+  @Column({ nullable: true, default: 0, type: 'float' })
   avgStars?: number;
 
   @Column({ nullable: false, default: 0 })
