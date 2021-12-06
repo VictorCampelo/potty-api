@@ -29,7 +29,7 @@ export class OrderHistoricsService {
       },
       relations: ['product', 'order'],
       take: limit ? limit : 10,
-      skip: offset ? offset: 0,
+      skip: offset ? offset : 0,
       order: { createdAt: 'DESC' },
     });
   }

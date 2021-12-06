@@ -17,6 +17,7 @@ import { MD5 } from 'crypto-js';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { CouponsService } from 'src/coupons/coupons.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class OrdersService {
@@ -27,6 +28,7 @@ export class OrdersService {
     private readonly storesService: StoresService,
     private readonly couponsService: CouponsService,
     private readonly historicsService: OrderHistoricsService,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(
@@ -110,7 +112,7 @@ export class OrdersService {
 
       order.amount =
         couponDiscount > 0
-          ? sumAmount + (sumAmount * (1 - couponDiscount / 100))
+          ? sumAmount + sumAmount * (1 - couponDiscount / 100)
           : sumAmount;
 
       await this.productService.saveProducts(productsToSave);
@@ -118,8 +120,10 @@ export class OrdersService {
       await this.historicsService.saveAll(historics);
       await this.storesService.save(store);
 
+      const userInfo = await this.usersService.findUserById(user.id);
+
       const msg = this.createWhatsappMessage(
-        user,
+        userInfo,
         productsListToMsg,
         sumAmount,
         store,

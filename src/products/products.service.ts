@@ -130,7 +130,7 @@ export class ProductsService {
   async findProductstByIdsAndStoreId(ids: string[], storeId: string) {
     return this.productRepository.findByIds(ids, {
       where: {
-        store: storeId,
+        storeId,
       },
     });
   }
