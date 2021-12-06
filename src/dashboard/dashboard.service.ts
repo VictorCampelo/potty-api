@@ -16,7 +16,7 @@ export class DashboardService {
   ) {}
 
   async mostSolds(storeId: string, findMostSolds: FindMostSolds) {
-    return this.productsService.amountSolds(
+    return this.historicService.amountSolds(
       storeId,
       findMostSolds.start,
       findMostSolds.end,

@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Order } from 'src/orders/order.entity';
 
-@Entity('order-historic')
+@Entity('order_historic')
 export class OrderHistoric extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

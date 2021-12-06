@@ -70,6 +70,9 @@ export class Product extends BaseEntity {
   @ManyToOne(() => Store, (store: Store) => store.products)
   @JoinColumn({ name: 'store_id' })
   store: Store;
+  
+  @Column({ type: 'varchar', nullable: true, name: 'store_id' })
+  storeId: string;
 
   @OneToMany(() => File, (file) => file.product)
   files: File[];

@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrderHistoricDto } from './dto/create-order-historic.dto';
 import { UpdateOrderHistoricDto } from './dto/update-order-historic.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { getConnection } from 'typeorm';
+import camelcaseKeys from 'camelcase-keys';
 
 @Injectable()
 export class OrderHistoricsService {
@@ -17,18 +19,17 @@ export class OrderHistoricsService {
 
   async findLastSold(storeId: string, limit?: number, offset?: number) {
     return this.orderHistoricRepository.find({
-      // select: ['product'], - tem colunas productId e product
-      relations: ['product', 'order'],
       where: {
         product: {
-          store: storeId,
+          storeId,
         },
         order: {
           status: true,
         },
       },
-      take: limit,
-      skip: offset,
+      relations: ['product', 'order'],
+      take: limit ? limit : 10,
+      skip: offset ? offset: 0,
       order: { createdAt: 'DESC' },
     });
   }
@@ -40,31 +41,76 @@ export class OrderHistoricsService {
     limit?: number,
     offset?: number,
   ) {
-    return this.orderHistoricRepository
-      .createQueryBuilder('order-historic')
-      .select(
-        `date_trunc('week', "order-historic"."updatedAt"::date) as weekly`,
-      )
-      .addSelect(
-        'order-historic.productQtd * order-historic.productPrice',
-        'income',
-      )
-      .addSelect('order-historic.order')
-      .groupBy('weekly')
-      .addGroupBy('order-historic.productQtd')
-      .addGroupBy('order-historic.productPrice')
-      .addGroupBy('order-historic.orderId')
-      .orderBy('weekly', 'ASC')
-      .leftJoin('order-historic.order', 'order', 'order.storeId = :id', {
-        id: storeId,
-      })
-      .where('order.updatedAt between :start and :end', {
-        start: startDate,
-        end: endDate,
-      })
-      .skip(offset)
-      .limit(limit)
-      .getRawMany();
+    const params: any = [storeId, startDate, endDate];
+
+    let query = `
+    select
+      date_trunc('week', oh."updatedAt"::date) as weekly,
+      sum((oh."productQtd" * oh."productPrice")) as income
+    from
+      "order-historic" oh
+    inner join 
+      product p on p.id = oh."productId"
+    where 
+      p.store_id = $1
+    AND
+      oh."updatedAt" >= $2 and oh."updatedAt" <= $3
+    group by weekly
+    `;
+
+    if (offset) {
+      params.push(offset);
+      query += `offset $${params.length} `;
+    }
+
+    if (limit) {
+      params.push(limit);
+      query += `limit $${params.length} `;
+    }
+
+    const products = await getConnection().query(query, params);
+
+    return camelcaseKeys(products);
+  }
+
+  async amountSolds(
+    storeId: string,
+    startDate: Date,
+    endDate: Date,
+    limit?: number,
+    offset?: number,
+  ) {
+    const params: any = [storeId, startDate, endDate];
+
+    let query = `
+    select
+      "productId",
+      sum("productQtd") as qtd,
+      p.title
+    from
+      "order-historic" oh
+    inner join (select id, title from product where store_id = $1) as p on
+      p.id = oh."productId"
+    where
+      oh."updatedAt" >= $2 and oh."updatedAt" <= $3
+    group by
+      "productId",
+      p.title 
+    `;
+
+    if (offset) {
+      params.push(offset);
+      query += `offset $${params.length} `;
+    }
+
+    if (limit) {
+      params.push(limit);
+      query += `limit $${params.length} `;
+    }
+
+    const products = await getConnection().query(query, params);
+
+    return camelcaseKeys(products);
   }
 
   async saveAll(historics: OrderHistoric[]) {

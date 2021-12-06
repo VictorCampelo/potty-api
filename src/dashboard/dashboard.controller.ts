@@ -22,13 +22,11 @@ import { GetUser } from 'src/auth/get-user.decorator';
 @UseGuards(AuthGuard(), RolesGuard)
 @Role(UserRole.OWNER)
 export class DashboardController {
-  constructor(
-    private readonly dashboardService: DashboardService,
-  ) {}
+  constructor(private readonly dashboardService: DashboardService) {}
   @Get('mostSolds')
   async findMostSoldsProducts(
     @Query(ValidationPipe) query: FindMostSolds,
-    @GetUser() user: User
+    @GetUser() user: User,
   ) {
     try {
       return await this.dashboardService.mostSolds(user.storeId, query);
@@ -37,22 +35,25 @@ export class DashboardController {
     }
   }
 
-  @Get('lastSolds/:id')
+  @Get('lastSolds')
   async findLastSoldsProducts(
-    @Param('id') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User,
   ) {
     try {
-      return await this.dashboardService.lastSolds(storeId, query);
+      return await this.dashboardService.lastSolds(user.storeId, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('lastFeedbacks/:id')
-  async findFeedbacks(@Param('id') storeId: string) {
+  @Get('lastFeedbacks')
+  async findFeedbacks(
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User,
+  ) {
     try {
-      return await this.dashboardService.lastFeedbacks(storeId);
+      return await this.dashboardService.lastFeedbacks(user.storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -70,13 +71,13 @@ export class DashboardController {
     }
   }
 
-  @Get('income/:id')
+  @Get('income')
   async findIncome(
-    @Param('id') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User,
   ) {
     try {
-      return await this.dashboardService.income(storeId, query);
+      return await this.dashboardService.income(user.storeId, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }

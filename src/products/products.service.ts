@@ -2,14 +2,21 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import camelcaseKeys from 'camelcase-keys';
 import { CategoriesService } from 'src/categories/categories.service';
 import { FilesService } from 'src/files/files.service';
 import { StoresService } from 'src/stores/stores.service';
 import { User } from 'src/users/user.entity';
-import { Equal, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm';
+import {
+  Equal,
+  getConnection,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Not,
+} from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductsDto } from './dto/find-products.dto';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
@@ -35,22 +42,41 @@ export class ProductsService {
     limit?: number,
     offset?: number,
   ) {
-    return this.productRepository
-      .createQueryBuilder('product')
-      .innerJoinAndSelect('product.orderHistorics', 'historic')
-      .select('product', 'historic')
-      .where('product.store_id = :id', { id: storeId })
-      .andWhere('product.sumOrders > 0')
-      // .andWhere(
-      //   `historic.createdAt
-      //     BETWEEN :begin
-      //     AND :end`,
-      //   { begin: startDate, end: endDate },
-      // )
-      .skip(offset)
-      .take(limit)
-      .orderBy('product.sumOrders', 'DESC')
-      .getMany();
+    const params: any = [storeId, startDate, endDate];
+
+    let query = `
+    select distinct
+      ohp."productId",
+      ohp.qtd
+    from
+      product p, (
+      select
+        oh."productId",
+        p.store_id,
+        sum(oh."productQtd") as qtd
+      from
+        "order-historic" oh
+      inner join 
+        product p on p.id = oh."productId"
+      where 
+        oh."updatedAt" >= $2 and oh."updatedAt" <= $3
+      group by oh."productId", p.store_id ) as ohp
+    where ohp.store_id = $1 
+    `;
+
+    if (offset) {
+      params.push(offset);
+      query += `offset $${params.length} `;
+    }
+
+    if (limit) {
+      params.push(limit);
+      query += `limit $${params.length} `;
+    }
+
+    const products = await getConnection().query(query, params);
+
+    return camelcaseKeys(products);
   }
 
   create() {
