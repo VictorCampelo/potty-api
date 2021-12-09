@@ -1,6 +1,9 @@
 interface Order {
-  productId: string;
-  amount: number;
+  storeId: string;
+  orderProducts: {
+    productId: string;
+    amount: number;
+  }[];
 }
 
 export class CreateOrderDto {

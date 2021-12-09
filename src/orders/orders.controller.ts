@@ -30,24 +30,25 @@ export class OrdersController {
     private readonly storesService: StoresService,
   ) {}
 
-  @Post(':id')
+  @Post('')
   @Role(UserRole.USER)
   async create(
-    @Param('id') storeId: string,
+    //@Param('id') storeId: string,
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
-  ): Promise<{ orders: Order; whatsapp: string; message: string }> {
+  ): Promise<{ orders: Order[]; whatsapp: string[]; message: string }> {
+    //createOrderDto.products[0].orderProducts[0].productId
     try {
-      const store = await this.storesService.findOne(storeId);
+      //const store = await this.storesService.findOne(storeId);
 
       const result = await this.ordersService.create(
         createOrderDto,
         user,
-        store,
+        //store,
       );
       return {
-        orders: result.order,
-        whatsapp: result.msg,
+        orders: result.orders,
+        whatsapp: result.messages,
         message: 'Order sucessfuly created',
       };
     } catch (error) {
@@ -57,10 +58,7 @@ export class OrdersController {
 
   @Post('store/confirm/:id')
   @Role(UserRole.OWNER)
-  async confirmOrder(
-    @Param('id') orderId: string,
-    @GetUser() user: User
-  ) {
+  async confirmOrder(@Param('id') orderId: string, @GetUser() user: User) {
     try {
       return await this.ordersService.confirmOrder(orderId, user.storeId);
     } catch (error) {
@@ -88,15 +86,9 @@ export class OrdersController {
 
   @Get('store/:id')
   @Role(UserRole.OWNER)
-  async findOneToStore(
-    @Param('id') orderId: string,
-    @GetUser() user: User,
-  ) {
+  async findOneToStore(@Param('id') orderId: string, @GetUser() user: User) {
     try {
-      return await this.ordersService.findOneToStore(
-        orderId,
-        user.storeId,
-      );
+      return await this.ordersService.findOneToStore(orderId, user.storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }

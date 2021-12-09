@@ -28,6 +28,10 @@ export class StoresService {
     return this.storeRepository.save(store);
   }
 
+  async saveAll(stores: Store[]) {
+    return this.storeRepository.save(stores);
+  }
+
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
     const store = this.storeRepository.createStore(createStoreDto);
 

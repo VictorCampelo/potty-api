@@ -18,6 +18,7 @@ import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { UsersService } from 'src/users/users.service';
+import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
 
 @Injectable()
 export class OrdersService {
@@ -34,105 +35,114 @@ export class OrdersService {
   async create(
     createOrderDto: CreateOrderDto,
     user: User,
-    store: Store,
-  ): Promise<{ order: Order; msg: string }> {
+  ): Promise<{ orders: Order[]; messages: string[] }> {
     const queryRunner = getConnection().createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      let couponDiscount = 100;
-      let coupon: any = {};
-
-      if (createOrderDto?.couponCode) {
-        coupon = await this.couponsService.checkCoupom(
-          createOrderDto.couponCode,
-          store.id,
-        );
-        if (coupon) {
-          couponDiscount += coupon.discountPorcent;
-        } else {
-          throw new NotFoundException('Coupon Not Valid!');
-        }
-      }
-
-      const order = this.orderRepository.create({
-        id: uuidv4(),
-        store,
-        user,
-        status: false,
-        couponId: coupon?.id,
-      });
-
-      let sumAmount = 0;
-      const historics = [];
+      const messages: string[] = [];
+      const historics: OrderHistoric[] = [];
+      const orders: Order[] = [];
+      const stores: Store[] = [];
       const productsToSave = [];
-      const productsListToMsg = [];
-      const products = await this.productService.findProductstByIdsAndStoreId(
-        createOrderDto.products.map((prod) => prod.productId),
-        store.id,
-      );
-
-      const orderStoreIdHash = MD5(
-        order.id + store.id + user.id + Date.now(),
-      ).toString();
-
-      createOrderDto.products.forEach((prod) => {
-        const product = products.find((obj) => obj.id === prod.productId);
-
-        if (!product) {
-          throw new UnauthorizedException(`Product not found`);
-        }
-
-        if (prod.amount > product.inventory) {
-          throw new UnauthorizedException(
-            `There aren't enough ${product.title}`,
-          );
-        }
-
-        product.sumOrders += prod.amount;
-        product.lastSold = new Date();
-        productsToSave.push(product);
-
-        store.sumOrders += prod.amount;
-
-        const history = this.historicsService.create({
-          productId: product.id,
-          orderId: order.id,
-          orderHash: orderStoreIdHash,
-          productQtd: prod.amount,
-          productPrice: product.price,
-        });
-
-        historics.push(history);
-
-        sumAmount += prod.amount * product.price;
-
-        productsListToMsg.push(`${prod.amount} ${product.title} `);
-      });
-
-      order.amount =
-        couponDiscount > 0
-          ? sumAmount + sumAmount * (1 - couponDiscount / 100)
-          : sumAmount;
-
-      await this.productService.saveProducts(productsToSave);
-      await this.orderRepository.save(order);
-      await this.historicsService.saveAll(historics);
-      await this.storesService.save(store);
 
       const userInfo = await this.usersService.findUserById(user.id);
 
-      const msg = this.createWhatsappMessage(
-        userInfo,
-        productsListToMsg,
-        sumAmount,
-        store,
-      );
+      createOrderDto.products.forEach(async (storeOrder) => {
+        const store = await this.storesService.findOne(storeOrder.storeId);
+        let couponDiscount = 100;
+        let coupon: any = {};
+
+        if (createOrderDto?.couponCode) {
+          coupon = await this.couponsService.checkCoupom(
+            createOrderDto.couponCode,
+            store.id,
+          );
+          if (coupon) {
+            couponDiscount += coupon.discountPorcent;
+          } else {
+            throw new NotFoundException('Coupon Not Valid!');
+          }
+        }
+
+        const order = this.orderRepository.create({
+          id: uuidv4(),
+          store,
+          user,
+          status: false,
+          couponId: coupon?.id,
+        });
+
+        let sumAmount = 0;
+        const productsListToMsg = [];
+        const products = await this.productService.findProductstByIdsAndStoreId(
+          storeOrder.orderProducts.map((prod) => prod.productId),
+          store.id,
+        );
+
+        const orderStoreIdHash = MD5(
+          order.id + store.id + user.id + Date.now(),
+        ).toString();
+
+        storeOrder.orderProducts.forEach((prod) => {
+          const product = products.find((obj) => obj.id === prod.productId);
+
+          if (!product) {
+            throw new UnauthorizedException(`Product not found`);
+          }
+
+          if (prod.amount > product.inventory) {
+            throw new UnauthorizedException(
+              `There aren't enough ${product.title}`,
+            );
+          }
+
+          product.sumOrders += prod.amount;
+          product.lastSold = new Date();
+          productsToSave.push(product);
+
+          store.sumOrders += prod.amount;
+
+          const history = this.historicsService.create({
+            productId: product.id,
+            orderId: order.id,
+            orderHash: orderStoreIdHash,
+            productQtd: prod.amount,
+            productPrice: product.price,
+          });
+
+          sumAmount += prod.amount * product.price;
+
+          productsListToMsg.push(`${prod.amount} ${product.title} `);
+
+          order.amount =
+            couponDiscount > 0
+              ? sumAmount + sumAmount * (1 - couponDiscount / 100)
+              : sumAmount;
+
+          messages.push(
+            this.createWhatsappMessage(
+              userInfo,
+              productsListToMsg,
+              sumAmount,
+              store,
+            ),
+          );
+
+          historics.push(history);
+          orders.push(order);
+          stores.push(store);
+        });
+      });
+      await this.productService.saveProducts(productsToSave);
+      await this.orderRepository.save(orders);
+      await this.historicsService.saveAll(historics);
+      await this.storesService.saveAll(stores);
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
 
-      return { order, msg };
+      return { orders, messages };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
