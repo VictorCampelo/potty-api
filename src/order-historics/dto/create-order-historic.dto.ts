@@ -1,5 +1,5 @@
 export class CreateOrderHistoricDto {
-  orderHash!: string;
+  // orderHash!: string;
 
   orderId!: string;
 

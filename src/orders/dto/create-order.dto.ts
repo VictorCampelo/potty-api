@@ -1,12 +1,13 @@
-interface Order {
+interface IProducts {
+  productId: string;
+  amount: number;
+}
+interface IOrder {
   storeId: string;
-  orderProducts: {
-    productId: string;
-    amount: number;
-  }[];
+  orderProducts: IProducts[];
 }
 
 export class CreateOrderDto {
-  products: Order[];
+  products: IOrder[];
   couponCode?: string;
 }

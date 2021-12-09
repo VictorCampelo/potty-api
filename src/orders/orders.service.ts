@@ -43,13 +43,21 @@ export class OrdersService {
       const messages: string[] = [];
       const historics: OrderHistoric[] = [];
       const orders: Order[] = [];
-      const stores: Store[] = [];
       const productsToSave = [];
 
       const userInfo = await this.usersService.findUserById(user.id);
+      const stores = await this.storesService.findAllByIds(
+        createOrderDto.products.map((prod) => prod.storeId),
+      );
 
-      createOrderDto.products.forEach(async (storeOrder) => {
-        const store = await this.storesService.findOne(storeOrder.storeId);
+      // for (const store of stores) {
+      for (const storeOrder of createOrderDto.products) {
+        const store: Store = stores.find(
+          (obj) => obj.id === storeOrder.storeId,
+        );
+
+        console.log(store);
+
         let couponDiscount = 100;
         let coupon: any = {};
 
@@ -75,19 +83,21 @@ export class OrdersService {
 
         let sumAmount = 0;
         const productsListToMsg = [];
+        // console.log(storeOrder.orderProducts);
+
         const products = await this.productService.findProductstByIdsAndStoreId(
           storeOrder.orderProducts.map((prod) => prod.productId),
           store.id,
         );
 
-        const orderStoreIdHash = MD5(
-          order.id + store.id + user.id + Date.now(),
-        ).toString();
-
         storeOrder.orderProducts.forEach((prod) => {
           const product = products.find((obj) => obj.id === prod.productId);
+          console.log(products);
 
           if (!product) {
+            console.log(prod);
+            console.log(store.id);
+
             throw new UnauthorizedException(`Product not found`);
           }
 
@@ -106,7 +116,6 @@ export class OrdersService {
           const history = this.historicsService.create({
             productId: product.id,
             orderId: order.id,
-            orderHash: orderStoreIdHash,
             productQtd: prod.amount,
             productPrice: product.price,
           });
@@ -120,20 +129,23 @@ export class OrdersService {
               ? sumAmount + sumAmount * (1 - couponDiscount / 100)
               : sumAmount;
 
-          messages.push(
-            this.createWhatsappMessage(
-              userInfo,
-              productsListToMsg,
-              sumAmount,
-              store,
-            ),
-          );
-
           historics.push(history);
-          orders.push(order);
-          stores.push(store);
         });
-      });
+
+        messages.push(
+          this.createWhatsappMessage(
+            userInfo,
+            productsListToMsg,
+            sumAmount,
+            store,
+          ),
+        );
+        console.log(stores);
+
+        orders.push(order);
+      }
+      // }
+
       await this.productService.saveProducts(productsToSave);
       await this.orderRepository.save(orders);
       await this.historicsService.saveAll(historics);

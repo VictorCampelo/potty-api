@@ -42,6 +42,10 @@ export class StoresService {
     return this.storeRepository.find();
   }
 
+  findAllByIds(ids: string[]) {
+    return this.storeRepository.findByIds(ids);
+  }
+
   async findOne(id: string) {
     const store = await this.storeRepository.findOne(id);
     if (!store) {

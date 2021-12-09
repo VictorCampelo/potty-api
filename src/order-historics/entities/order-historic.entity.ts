@@ -15,9 +15,6 @@ export class OrderHistoric extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
-  orderHash: string;
-
   @Column()
   orderId!: string;
 
