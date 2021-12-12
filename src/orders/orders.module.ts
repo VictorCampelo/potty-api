@@ -6,6 +6,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './order.entity';
 import { PassportModule } from '@nestjs/passport';
 import { ProductsModule } from 'src/products/products.module';
+import { CouponsModule } from 'src/coupons/coupons.module';
+import { OrderHistoricsModule } from 'src/order-historics/order-historics.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -13,6 +16,9 @@ import { ProductsModule } from 'src/products/products.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     ProductsModule,
     StoresModule,
+    CouponsModule,
+    OrderHistoricsModule,
+    UsersModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

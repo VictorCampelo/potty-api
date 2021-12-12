@@ -1,3 +1,4 @@
+import { OrderHistoricsService } from './../order-historics/order-historics.service';
 import { ProductsService } from 'src/products/products.service';
 import { FeedbackService } from './../feedback/feedback.service';
 import { OrdersService } from './../orders/orders.service';
@@ -8,13 +9,14 @@ import { FindMostSolds } from './dto/find-most-solds.dto';
 @Injectable()
 export class DashboardService {
   constructor(
-    private ordersService: OrdersService,
-    private feedbackService: FeedbackService,
-    private productsService: ProductsService,
+    private readonly ordersService: OrdersService,
+    private readonly feedbackService: FeedbackService,
+    private readonly productsService: ProductsService,
+    private readonly historicService: OrderHistoricsService,
   ) {}
 
   async mostSolds(storeId: string, findMostSolds: FindMostSolds) {
-    return this.productsService.findMostSolds(
+    return this.historicService.amountSolds(
       storeId,
       findMostSolds.start,
       findMostSolds.end,
@@ -26,8 +28,8 @@ export class DashboardService {
   async lastSolds(
     storeId: string,
     findMostSolds: FindMostSolds,
-  ): Promise<Order[]> {
-    return this.ordersService.findLastSold(
+  ) {
+    return this.historicService.findLastSold(
       storeId,
       findMostSolds.limit,
       findMostSolds.offset,
@@ -38,8 +40,8 @@ export class DashboardService {
     return this.feedbackService.findAllFeedbacksFromStore(storeId);
   }
 
-  async amountSoldProducts(storeId: string, findMostSolds: FindMostSolds) {
-    return this.productsService.amountSolds(
+  async income(storeId: string, findMostSolds: FindMostSolds) {
+    return this.historicService.income(
       storeId,
       findMostSolds.start,
       findMostSolds.end,
@@ -47,13 +49,22 @@ export class DashboardService {
       findMostSolds.offset,
     );
   }
-  async income(storeId: string, findMostSolds: FindMostSolds) {
-    return this.ordersService.income(
+
+  async amountSold(storeId: string, findAmountSold: FindMostSolds) {
+    const { start, end, limit, offset } = findAmountSold;
+    const products = await this.productsService.productsSold(
       storeId,
-      findMostSolds.start,
-      findMostSolds.end,
-      findMostSolds.limit,
-      findMostSolds.offset,
+      start,
+      end,
+      limit,
+      offset,
     );
+
+    let totalAmount = 0;
+    products.forEach((p) => {
+      totalAmount += parseInt(p.qtd);
+    });
+
+    return { products, totalAmount };
   }
 }

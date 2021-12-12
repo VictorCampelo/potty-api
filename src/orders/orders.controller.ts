@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { UserRole } from 'src/users/user-roles.enum';
 import { Role } from 'src/auth/role.decorator';
 import { FindMostSolds } from 'src/dashboard/dto/find-most-solds.dto';
 import { ErrorHandling } from 'src/configs/error-handling';
+import { findOrdersDto } from './dto/find-order.dto';
 
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('orders')
@@ -28,24 +30,25 @@ export class OrdersController {
     private readonly storesService: StoresService,
   ) {}
 
-  @Post(':id')
+  @Post('')
   @Role(UserRole.USER)
   async create(
-    @Param('id') storeId: string,
+    //@Param('id') storeId: string,
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
-  ): Promise<{ orders: Order[]; whatsapp: string; message: string }> {
+  ): Promise<{ orders: Order[]; whatsapp: string[]; message: string }> {
+    //createOrderDto.products[0].orderProducts[0].productId
     try {
-      const store = await this.storesService.findOne(storeId);
+      //const store = await this.storesService.findOne(storeId);
 
       const result = await this.ordersService.create(
         createOrderDto,
         user,
-        store,
+        //store,
       );
       return {
-        orders: result.ordersResult,
-        whatsapp: result.msg,
+        orders: result.orders,
+        whatsapp: result.messages,
         message: 'Order sucessfuly created',
       };
     } catch (error) {
@@ -53,28 +56,25 @@ export class OrdersController {
     }
   }
 
-  @Post('store/:storeId/confirm/:hashId')
+  @Post('store/confirm/:id')
   @Role(UserRole.OWNER)
-  async confirmOrder(
-    @Param('hashId') hashId: string,
-    @Param('storeId') storeId: string,
-  ) {
+  async confirmOrder(@Param('id') orderId: string, @GetUser() user: User) {
     try {
-      return await this.ordersService.confirmOrder(hashId, storeId);
+      return await this.ordersService.confirmOrder(orderId, user.storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('store/:storeId')
+  @Get('store')
   @Role(UserRole.OWNER)
   async findAll(
-    @Param('storeId') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: findOrdersDto,
+    @GetUser() user: User,
   ) {
     try {
       return await this.ordersService.fillAllOrderByStatus(
-        storeId,
+        user.storeId,
         query.confirmed,
         query.limit,
         query.offset,
@@ -84,44 +84,39 @@ export class OrdersController {
     }
   }
 
-  @Get('user/hash/:hashId')
-  @Role(UserRole.USER)
-  async findOneToUser(
-    @Param('hashId') hashId: string,
-    @GetUser() user: User,
-  ): Promise<Order[]> {
-    try {
-      return await this.ordersService.findOneToUser(hashId, user.id);
-    } catch (error) {
-      throw new ErrorHandling(error);
-    }
-  }
-
-  @Get('store/:storeId/hash/:hashId/')
+  @Get('store/:id')
   @Role(UserRole.OWNER)
-  async findOneToStore(
-    @Param('hashId') hashId: string,
-    @Param('storeId') storeId: string,
-  ): Promise<Order[]> {
+  async findOneToStore(@Param('id') orderId: string, @GetUser() user: User) {
     try {
-      return await this.ordersService.findOneToStore(hashId, storeId);
+      return await this.ordersService.findOneToStore(orderId, user.storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('user/')
+  @Get('user')
   @Role(UserRole.USER)
   async findAllOrdersByUser(
     @GetUser() user: User,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: FindMostSolds,
   ) {
     try {
       return await this.ordersService.findAllOrderByUser(
         user.id,
+        query.confirmed,
         query.limit,
         query.offset,
       );
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Get('user/:id')
+  @Role(UserRole.USER)
+  async findOneToUser(@Param('id') id: string, @GetUser() user: User) {
+    try {
+      return await this.ordersService.findOneToUser(id, user.id);
     } catch (error) {
       throw new ErrorHandling(error);
     }

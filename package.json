@@ -39,10 +39,13 @@
     "@nestjs/typeorm": "^8.0.2",
     "@sentry/minimal": "^6.11.0",
     "@sentry/node": "^6.11.0",
+    "@types/camelcase-keys": "^5.1.1",
     "@types/crypto-js": "^4.0.2",
     "@types/dotenv": "^8.2.0",
     "@types/sharp": "^0.28.5",
+    "@types/uuid": "^8.3.3",
     "bcrypt": "^5.0.1",
+    "camelcase-keys": "^7.0.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "crypto-js": "^4.1.1",
@@ -64,6 +67,7 @@
     "sharp": "^0.28.3",
     "swagger-ui-express": "^4.1.6",
     "typeorm": "^0.2.36",
+    "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {

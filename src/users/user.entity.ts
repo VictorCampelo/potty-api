@@ -1,3 +1,4 @@
+import { Coupon } from './../coupons/entities/coupon.entity';
 import { Feedback } from '../feedback/feedback.entity';
 import {
   BaseEntity,
@@ -78,6 +79,9 @@ export class User extends BaseEntity {
 
   @ManyToMany(() => Store, (stores) => stores.usersWhoLiked)
   likedstores: Store[];
+
+  @ManyToMany(() => Coupon, (coupon) => coupon.users)
+  coupons: Coupon[];
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

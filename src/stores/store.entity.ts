@@ -1,3 +1,4 @@
+import { Coupon } from './../coupons/entities/coupon.entity';
 import { ScheduleProperties } from './types/scheduleProperties.interface';
 import {
   BaseEntity,
@@ -17,6 +18,7 @@ import { Product } from 'src/products/product.entity';
 import { File as Files } from 'src/files/file.entity';
 import { Category } from 'src/categories/category.entity';
 import { User } from 'src/users/user.entity';
+import { Order } from 'src/orders/order.entity';
 
 @Entity('store')
 export class Store extends BaseEntity {
@@ -64,7 +66,7 @@ export class Store extends BaseEntity {
   @Column({ nullable: true, default: 0, name: 'sum_stars' })
   sumStars?: number;
 
-  @Column({ nullable: true, default: 0, name: 'avg_stars' })
+  @Column({ nullable: true, default: 0, name: 'avg_stars', type: 'float' })
   avgStars?: number;
 
   @Column({
@@ -118,10 +120,16 @@ export class Store extends BaseEntity {
   @OneToMany(() => User, (user: User) => user.store)
   owners: User[];
 
+  @OneToMany(() => Coupon, (coupon) => coupon.store)
+  coupons: Coupon[];
+
   @ManyToMany(() => User)
   @JoinTable({ name: 'favorites' })
   usersWhoLiked: User[];
 
   @Column({ nullable: false, default: 0 })
   likes: number;
+
+  @OneToMany(() => Order, (order) => order.store)
+  orders: Order[];
 }

@@ -18,6 +18,7 @@ import {
 import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
 import { Category } from 'src/categories/category.entity';
+import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
 @Entity('product')
 @Unique(['id', 'title'])
 export class Product extends BaseEntity {
@@ -48,7 +49,7 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, default: 0 })
   sumStars?: number;
 
-  @Column({ nullable: true, default: 0 })
+  @Column({ nullable: true, default: 0, type: 'float' })
   avgStars?: number;
 
   @Column({ nullable: false, default: 0 })
@@ -69,6 +70,9 @@ export class Product extends BaseEntity {
   @ManyToOne(() => Store, (store: Store) => store.products)
   @JoinColumn({ name: 'store_id' })
   store: Store;
+  
+  @Column({ type: 'varchar', nullable: true, name: 'store_id' })
+  storeId: string;
 
   @OneToMany(() => File, (file) => file.product)
   files: File[];
@@ -80,6 +84,6 @@ export class Product extends BaseEntity {
   @OneToMany(() => Feedback, (feedback) => feedback.product)
   feedbacks: Feedback[];
 
-  @OneToMany(() => Order, (orders) => orders.product)
-  orders: Order[];
+  @OneToMany(() => OrderHistoric, orderHistoric => orderHistoric.product)
+  orderHistorics: OrderHistoric[];
 }

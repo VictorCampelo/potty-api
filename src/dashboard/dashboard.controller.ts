@@ -1,3 +1,4 @@
+import { User } from 'src/users/user.entity';
 import { FindMostSolds } from './dto/find-most-solds.dto';
 import {
   Controller,
@@ -6,6 +7,7 @@ import {
   Param,
   Body,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Role } from 'src/auth/role.decorator';
@@ -13,40 +15,45 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { UserRole } from 'src/users/user-roles.enum';
 import { DashboardService } from './dashboard.service';
 import { ErrorHandling } from 'src/configs/error-handling';
+import { ProductsService } from 'src/products/products.service';
+import { GetUser } from 'src/auth/get-user.decorator';
 
 @Controller('dashboard')
 @UseGuards(AuthGuard(), RolesGuard)
 @Role(UserRole.OWNER)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
-  @Get('mostSolds/:id')
+  @Get('mostSolds')
   async findMostSoldsProducts(
-    @Param('id') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User,
   ) {
     try {
-      return await this.dashboardService.mostSolds(storeId, query);
+      return await this.dashboardService.mostSolds(user.storeId, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('lastSolds/:id')
+  @Get('lastSolds')
   async findLastSoldsProducts(
-    @Param('id') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User,
   ) {
     try {
-      return await this.dashboardService.lastSolds(storeId, query);
+      return await this.dashboardService.lastSolds(user.storeId, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('lastFeedbacks/:id')
-  async findFeedbacks(@Param('id') storeId: string) {
+  @Get('lastFeedbacks')
+  async findFeedbacks(
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User,
+  ) {
     try {
-      return await this.dashboardService.lastFeedbacks(storeId);
+      return await this.dashboardService.lastFeedbacks(user.storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -58,19 +65,19 @@ export class DashboardController {
     @Body(ValidationPipe) query: FindMostSolds,
   ) {
     try {
-      return await this.dashboardService.amountSoldProducts(storeId, query);
+      return await this.dashboardService.amountSold(storeId, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('income/:id')
+  @Get('income')
   async findIncome(
-    @Param('id') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User,
   ) {
     try {
-      return await this.dashboardService.income(storeId, query);
+      return await this.dashboardService.income(user.storeId, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }

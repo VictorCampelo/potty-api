@@ -26,8 +26,8 @@ async function bootstrap() {
   app.use(urlencoded({ limit: '500mb', extended: true }));
 
   const config = new DocumentBuilder()
-    .setTitle('Ultimo API')
-    .setDescription('Ultimo API Doc')
+    .setTitle('BDV API')
+    .setDescription('BDV API Doc')
     .setVersion('1.0')
     .addTag('users')
     .addTag('admin')

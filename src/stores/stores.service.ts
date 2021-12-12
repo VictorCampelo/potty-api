@@ -28,6 +28,10 @@ export class StoresService {
     return this.storeRepository.save(store);
   }
 
+  async saveAll(stores: Store[]) {
+    return this.storeRepository.save(stores);
+  }
+
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
     const store = this.storeRepository.createStore(createStoreDto);
 
@@ -36,6 +40,10 @@ export class StoresService {
 
   findAll() {
     return this.storeRepository.find();
+  }
+
+  findAllByIds(ids: string[]) {
+    return this.storeRepository.findByIds(ids);
   }
 
   async findOne(id: string) {
@@ -47,7 +55,7 @@ export class StoresService {
   }
 
   async findOneByUser(userId: string) {
-    const store = await this.usersService.myStore(userId)
+    const store = await this.usersService.myStore(userId);
     if (!store) {
       throw new NotFoundException('Store not found');
     }

@@ -9,22 +9,25 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { UserRole } from 'src/users/user-roles.enum';
+import { User } from 'src/users/user.entity';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+const productsByCategory = 'products/:storeId/category/:categoryId';
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  findAllPublicCategories() {
+  async findAllPublicCategories() {
     try {
-      return this.categoriesService.findAll();
+      return await this.categoriesService.findAll();
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -46,9 +49,10 @@ export class CategoriesController {
   @Role(UserRole.OWNER)
   async createProductStoreCategory(
     @Body() createCategoryDto: CreateCategoryDto,
+    @GetUser() user: User,
   ) {
     try {
-      return await this.categoriesService.create(createCategoryDto, 'product');
+      return await this.categoriesService.create(createCategoryDto, user.storeId, 'product');
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -60,14 +64,14 @@ export class CategoriesController {
   async findAllProductsCategories(@Param('storeId') storeId: string) {
     try {
       return await this.categoriesService.findProductsCategories({
-        storeId: storeId,
+        storeId,
       });
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Get('products/:storeId/category/:categoryId')
+  @Get(productsByCategory)
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async findOneStoresCategories(
@@ -76,24 +80,24 @@ export class CategoriesController {
   ) {
     try {
       return await this.categoriesService.findProductsCategories({
-        storeId: storeId,
-        categoryId: categoryId,
+        storeId,
+        categoryId,
       });
     } catch (error) {
       throw new ErrorHandling(error);
     }
   }
 
-  @Patch('products/:storeId/category/:categoryId')
+  @Patch(productsByCategory)
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
-  update(
+  async update(
     @Param('storeId') storeId: string,
     @Param('categoryId') categoryId: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     try {
-      return this.categoriesService.update(
+      return await this.categoriesService.update(
         { categoryId, storeId },
         updateCategoryDto,
       );
@@ -102,15 +106,15 @@ export class CategoriesController {
     }
   }
 
-  @Delete('products/:storeId/category/:categoryId')
+  @Delete(productsByCategory)
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
-  remove(
+  async remove(
     @Param('storeId') storeId: string,
     @Param('categoryId') categoryId: string,
   ) {
     try {
-      return this.categoriesService.remove({ categoryId, storeId });
+      return await this.categoriesService.remove({ categoryId, storeId });
     } catch (error) {
       throw new ErrorHandling(error);
     }

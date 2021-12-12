@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductsService } from 'src/products/products.service';
 import { StoresService } from 'src/stores/stores.service';
+import { Product } from 'src/products/product.entity';
 
 @Injectable()
 export class FeedbackService {
@@ -25,43 +26,41 @@ export class FeedbackService {
     user: User,
     store: Store,
   ) {
-    const orders = await this.ordersService.findOneFinishedOrderByUser(
-      user.id,
-      hash,
-    );
-    console.log(
-      '%cfeedback.service.ts line:32 orders',
-      'color: #007acc;',
-      orders,
-    );
+    const orders = await this.ordersService.findAllOrderByUser(user.id, true);
+
     if (orders) {
+      const products: Product[] = [];
+
+      orders.forEach((order) => {
+        products.push(...order.orderHistorics.map((oh) => oh.product));
+      });
+
       const feedbacks = createFeedbackDto.feedbacks;
       const feedbacksToSave = [];
       const productsToSave = [];
 
       feedbacks.forEach((feedback) => {
-        const resultSearch = orders.find(
-          (o) => o.product_id === feedback.productId,
-        );
-        if (resultSearch && resultSearch.product) {
-          const product = resultSearch.product;
+        const resultSearch = products.find((p) => p.id === feedback.productId);
+
+        if (resultSearch) {
           const feedbackToCreate = this.feedbackRepository.create({
             comment: feedback.comment,
             star: feedback.star,
           });
 
-          product.sumStars += feedback.star;
-          product.sumFeedbacks += 1;
-          product.avgStars = product.sumStars / product.sumFeedbacks;
+          resultSearch.sumStars += feedback.star;
+          resultSearch.sumFeedbacks += 1;
+          resultSearch.avgStars =
+            resultSearch.sumStars / resultSearch.sumFeedbacks;
 
-          productsToSave.push(product);
+          productsToSave.push(resultSearch);
 
           store.sumStars += feedback.star;
           store.sumFeedbacks += 1;
           store.avgStars = store.sumStars / store.sumFeedbacks;
 
           feedbackToCreate.user = user;
-          feedbackToCreate.product = product;
+          feedbackToCreate.product = resultSearch;
 
           feedbacksToSave.push(feedbackToCreate);
         }
@@ -75,31 +74,45 @@ export class FeedbackService {
     }
   }
 
-  async findAllFeedbacksFromStore(store_id: string) {
+  async findAllFeedbacksFromStore(storeId: string) {
     const allFeedbacks = await this.feedbackRepository
       .createQueryBuilder('feedback')
       .leftJoinAndSelect('feedback.user', 'user')
       .leftJoinAndSelect('feedback.product', 'product')
       .leftJoinAndSelect('product.store', 'store')
-      .where('store.id = :id', { id: store_id })
-      .select(['feedback', 'user', 'product'])
+      .where('store.id = :id', { id: storeId })
+      .select([
+        'feedback.comment',
+        'feedback.star',
+        'feedback.updatedAt',
+        'user.id',
+        'user.firstName',
+      ])
       .orderBy('feedback.createdAt', 'DESC')
-      .execute();
+      .getMany();
 
-    if (allFeedbacks.length == 0) {
+    if (!allFeedbacks.length) {
       throw new NotFoundException("The Store doesn't have any feedbacks yet.");
     }
 
     return allFeedbacks;
   }
 
-  async fromProduct(product_id: string) {
-    return this.productService.findOne(product_id, {
-      files: false,
-      store: false,
-      feedbacks: true,
-      feedbacksUser: true,
-    });
+  async fromProduct(productId: string) {
+    return this.feedbackRepository
+      .createQueryBuilder('feedback')
+      .leftJoinAndSelect('feedback.user', 'user')
+      .leftJoinAndSelect('feedback.product', 'product')
+      .where('product.id = :id', { id: productId })
+      .select([
+        'feedback.comment',
+        'feedback.star',
+        'feedback.updatedAt',
+        'user.id',
+        'user.firstName',
+      ])
+      .orderBy('feedback.createdAt', 'DESC')
+      .getOne();
   }
 
   findOne(id: number) {

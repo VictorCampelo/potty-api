@@ -1,4 +1,5 @@
-import { Product } from 'src/products/product.entity';
+import { OrderHistoric } from './../order-historics/entities/order-historic.entity';
+import { Coupon } from './../coupons/entities/coupon.entity';
 import { Store } from 'src/stores/store.entity';
 import { User } from 'src/users/user.entity';
 import {
@@ -9,6 +10,8 @@ import {
   UpdateDateColumn,
   BaseEntity,
   Column,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('order')
@@ -16,22 +19,28 @@ export class Order extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
-  orderHash: string;
-
   @ManyToOne(() => User, (user) => user.order)
+  @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @Column({ type: 'varchar', nullable: true, name: 'user_id' })
   userId: string;
 
-  @ManyToOne(() => Product)
-  product: Product;
-  productId: string;
+  @ManyToOne(() => Coupon, (coupon) => coupon.orders)
+  coupon: Coupon;
+  couponId: string;
 
-  @ManyToOne(() => Store)
+  @OneToMany(() => OrderHistoric, (orderHistoric) => orderHistoric.order)
+  orderHistorics: OrderHistoric[];
+
+  @ManyToOne(() => Store, (store) => store.orders)
+  @JoinColumn({ name: 'store_id' })
   store: Store;
+
+  @Column({ type: 'varchar', nullable: true, name: 'store_id' })
   storeId: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: 'float' })
   amount: number;
 
   @Column({ nullable: false, default: false })

@@ -1,4 +1,3 @@
-import { FindProductsDto } from './dto/find-products.dto';
 import {
   forwardRef,
   Inject,
@@ -6,62 +5,35 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import camelcaseKeys from 'camelcase-keys';
+import { CategoriesService } from 'src/categories/categories.service';
 import { FilesService } from 'src/files/files.service';
+import { StoresService } from 'src/stores/stores.service';
+import { User } from 'src/users/user.entity';
+import {
+  Equal,
+  getConnection,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Not,
+} from 'typeorm';
+import { CreateProductDto } from './dto/create-product.dto';
+import { FindProductsDto } from './dto/find-products.dto';
+import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { ProductRepository } from './products.repository';
-import { UpdateProductImagesDto } from './dto/update-product-images.dto';
-import { CreateProductDto } from './dto/create-product.dto';
-import { StoresService } from 'src/stores/stores.service';
-import { Equal, LessThanOrEqual, MoreThanOrEqual, Not } from 'typeorm';
-import { Order } from 'src/orders/order.entity';
-import { CategoriesService } from 'src/categories/categories.service';
-import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(ProductRepository)
-    private productRepository: ProductRepository,
-    private filesService: FilesService,
+    private readonly productRepository: ProductRepository,
+    private readonly filesService: FilesService,
     @Inject(forwardRef(() => StoresService))
-    private storesService: StoresService,
-    private categoriesService: CategoriesService,
+    private readonly storesService: StoresService,
+    private readonly categoriesService: CategoriesService,
   ) {}
-
-  async findMostSolds(
-    storeId: string,
-    startDate: Date,
-    endDate: Date,
-    limit?: number,
-    offset?: number,
-  ): Promise<Product[]> {
-    return this.productRepository
-      .createQueryBuilder('product')
-      .select('product')
-      .addSelect(this.sumOrderAmount(), 'qtd')
-      .setParameter('start', startDate)
-      .setParameter('end', endDate)
-      .where('product.store_id = :id')
-      .andWhere('product.sumOrders > 0')
-      .setParameter('start', startDate)
-      .setParameter('end', endDate)
-      .setParameter('id', storeId)
-      .skip(offset)
-      .take(limit)
-      .groupBy('product.id')
-      .getRawMany();
-  }
-
-  private sumOrderAmount() {
-    return (subQuery) =>
-      subQuery
-        .select('SUM(order.amount)')
-        .from(Order, 'order')
-        .where('order.productId = product.id')
-        .andWhere('order.createdAt between :start and :end')
-        .groupBy('order.productId');
-  }
 
   async amountSolds(
     storeId: string,
@@ -69,25 +41,42 @@ export class ProductsService {
     endDate: Date,
     limit?: number,
     offset?: number,
-  ): Promise<number> {
-    const orders = await this.productRepository
-      .createQueryBuilder('product')
-      .select('product.store_id')
-      .addSelect(this.sumOrderAmount(), 'qtd')
-      .setParameter('start', startDate)
-      .setParameter('end', endDate)
-      .where('product.store_id = :id')
-      .andWhere('product.sumOrders > 0')
-      .setParameter('start', startDate)
-      .setParameter('end', endDate)
-      .setParameter('id', storeId)
-      .skip(offset)
-      .take(limit)
-      .groupBy('product.id')
-      .getRawMany();
-    return orders
-      .map((order) => order.qtd)
-      .reduce((prev, next) => +prev + +next);
+  ) {
+    const params: any = [storeId, startDate, endDate];
+
+    let query = `
+    select distinct
+      ohp."productId",
+      ohp.qtd
+    from
+      product p, (
+      select
+        oh."productId",
+        p.store_id,
+        sum(oh."productQtd") as qtd
+      from
+        "order-historic" oh
+      inner join 
+        product p on p.id = oh."productId"
+      where 
+        oh."updatedAt" >= $2 and oh."updatedAt" <= $3
+      group by oh."productId", p.store_id ) as ohp
+    where ohp.store_id = $1 
+    `;
+
+    if (offset) {
+      params.push(offset);
+      query += `offset $${params.length} `;
+    }
+
+    if (limit) {
+      params.push(limit);
+      query += `limit $${params.length} `;
+    }
+
+    const products = await getConnection().query(query, params);
+
+    return camelcaseKeys(products);
   }
 
   create() {
@@ -136,6 +125,14 @@ export class ProductsService {
 
   async findProductstByIds(ids: string[]) {
     return this.productRepository.findByIds(ids);
+  }
+
+  async findProductstByIdsAndStoreId(ids: string[], storeId: string) {
+    return this.productRepository.findByIds(ids, {
+      where: {
+        storeId,
+      },
+    });
   }
 
   async findAll(
@@ -189,7 +186,8 @@ export class ProductsService {
         tables.push('store');
       }
       if (findProducts.order) {
-        tables.push('orders');
+        tables.push('orderHistorics');
+        tables.push('orderHistorics.orders');
       }
       if (findProducts.feedbacks) {
         tables.push('feedbacks');
@@ -205,21 +203,12 @@ export class ProductsService {
     return this.productRepository.findOne(id, options);
   }
 
-  async updateProductDetails(
-    product_id: string,
-    updateProductDto: UpdateProductDto,
-  ) {
-    let product = await this.findOne(product_id);
+  async updateProductDetails(id: string, updateProductDto: UpdateProductDto) {
+    return this.productRepository.update(id, updateProductDto);
+  }
 
-    if (!product) {
-      throw new NotFoundException(
-        "The product_id sent doesn't matches any Product on the database.",
-      );
-    }
-
-    product = Object.assign(product, updateProductDto);
-
-    return this.productRepository.save(product);
+  async saveProducts(products: Product[]) {
+    return this.productRepository.save(products);
   }
 
   async updateProductImages({
@@ -240,9 +229,10 @@ export class ProductsService {
     }
 
     if (files) {
-      if (product.files.length === 0) {
+      if (product.files && product.files.length === 0) {
         product.files = await this.filesService.createFiles(files);
       } else {
+        product.files = [];
         product.files.push(...(await this.filesService.createFiles(files)));
       }
     }
@@ -252,5 +242,31 @@ export class ProductsService {
 
   async remove(id: string) {
     return this.productRepository.softDelete(id);
+  }
+
+  async productsSold(
+    storeId: string,
+    startDate: Date,
+    endDate: Date,
+    limit?: number,
+    offset?: number,
+  ) {
+    return this.productRepository
+      .createQueryBuilder('product')
+      .innerJoinAndSelect('product.orderHistorics', 'historic')
+      .select('product')
+      .addSelect('sum(historic.productQtd)', 'qtd')
+      .where('product.store_id = :id', { id: storeId })
+      .andWhere('product.sumOrders > 0')
+      .andWhere(
+        `historic.createdAt
+          BETWEEN :begin
+          AND :end`,
+        { begin: startDate, end: endDate },
+      )
+      .skip(offset)
+      .take(limit)
+      .groupBy('product.id')
+      .getRawMany();
   }
 }
