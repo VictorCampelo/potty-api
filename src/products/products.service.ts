@@ -151,7 +151,7 @@ export class ProductsService {
       };
     }
     const whereOpt = {
-      store: storeId,
+      storeId: storeId,
     };
     if (findProducts.starsEq) {
       whereOpt['avgStars'] = Equal(findProducts.starsEq);
