@@ -52,7 +52,11 @@ export class CategoriesController {
     @GetUser() user: User,
   ) {
     try {
-      return await this.categoriesService.create(createCategoryDto, user.storeId, 'product');
+      return await this.categoriesService.create(
+        createCategoryDto,
+        'product',
+        user.storeId,
+      );
     } catch (error) {
       throw new ErrorHandling(error);
     }
