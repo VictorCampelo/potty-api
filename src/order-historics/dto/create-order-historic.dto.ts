@@ -8,4 +8,6 @@ export class CreateOrderHistoricDto {
   productQtd!: number;
 
   productPrice!: number;
+
+  productParcels?: number;
 }
