@@ -5,11 +5,13 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
 import { getConnection, Repository } from 'typeorm';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, IProductsToListMsg } from './dto/create-order.dto';
 import { Order } from './order.entity';
 import { User } from 'src/users/user.entity';
 import { Store } from 'src/stores/store.entity';
@@ -50,13 +52,10 @@ export class OrdersService {
         createOrderDto.products.map((prod) => prod.storeId),
       );
 
-      // for (const store of stores) {
       for (const storeOrder of createOrderDto.products) {
         const store: Store = stores.find(
           (obj) => obj.id === storeOrder.storeId,
         );
-
-        console.log(store);
 
         let couponDiscount = 100;
         let coupon: any = {};
@@ -82,8 +81,7 @@ export class OrdersService {
         });
 
         let sumAmount = 0;
-        const productsListToMsg = [];
-        // console.log(storeOrder.orderProducts);
+        const productsListToMsg: IProductsToListMsg[] = [];
 
         const products = await this.productService.findProductstByIdsAndStoreId(
           storeOrder.orderProducts.map((prod) => prod.productId),
@@ -95,15 +93,20 @@ export class OrdersService {
           console.log(products);
 
           if (!product) {
-            console.log(prod);
-            console.log(store.id);
-
-            throw new UnauthorizedException(`Product not found`);
+            throw new HttpException(`Product not found`, HttpStatus.NOT_FOUND);
           }
 
           if (prod.amount > product.inventory) {
-            throw new UnauthorizedException(
-              `There aren't enough ${product.title}`,
+            throw new HttpException(
+              `There aren't enough '${product.title}'.`,
+              HttpStatus.FORBIDDEN,
+            );
+          }
+
+          if (prod.parcels > product.parcelAmount) {
+            throw new HttpException(
+              `Maximum parcels allowed on product '${product.title}' is ${product.parcelAmount}. You're trying ${prod.parcels}.`,
+              HttpStatus.FORBIDDEN,
             );
           }
 
@@ -118,11 +121,16 @@ export class OrdersService {
             orderId: order.id,
             productQtd: prod.amount,
             productPrice: product.price,
+            productParcels: prod.parcels,
           });
 
           sumAmount += prod.amount * product.price;
 
-          productsListToMsg.push(`${prod.amount} ${product.title} `);
+          productsListToMsg.push({
+            amount: prod.amount,
+            title: product.title,
+            parcels: prod.parcels,
+          });
 
           order.amount =
             couponDiscount > 0
@@ -140,11 +148,9 @@ export class OrdersService {
             store,
           ),
         );
-        console.log(stores);
 
         orders.push(order);
       }
-      // }
 
       await this.productService.saveProducts(productsToSave);
       await this.orderRepository.save(orders);
@@ -164,16 +170,26 @@ export class OrdersService {
 
   private createWhatsappMessage(
     user: User,
-    productsListToMsg: any[],
+    productsListToMsg: IProductsToListMsg[],
     sumAmount: number,
     store: Store,
   ) {
+    const paymentMethod = `${productsListToMsg.map((p) => {
+      if (p.parcels > 1) {
+        return " '" + p.title + "' parcelado em " + p.parcels + ' vezes';
+      } else {
+        return " À vista: '" + p.title + "'";
+      }
+    })}`;
+
     const text = `Novo pedido! 
       Nome do Cliente: ${user.firstName} ${user.lastName}
-      Itens do Pedido: ${productsListToMsg} Total do Pedido: R$ ${sumAmount} 
+      Itens do Pedido:${productsListToMsg.map((p) => {
+        return ' ' + p.amount + " de '" + p.title + "'";
+      })}. Total do Pedido: R$ ${sumAmount} 
       Forma de Envio: Entrega Custo do Envio: 5,00 
       Endereço do Cliente: Rua Isaac Irineu - 5415 - Universidade Federal do Piauí Teresina - PI Referência: fffd 
-      Meio de Pagamento: À vista Precisa de troco para R$ 100,00`;
+      Meio de Pagamento:${paymentMethod}`;
     return `https://api.whatsapp.com/send?phone=55${store.phone}1&text=${text}`;
   }
 
