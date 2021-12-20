@@ -59,7 +59,7 @@ export class Product extends BaseEntity {
   lastSold?: Date;
 
   @Column({ nullable: true, default: 1 })
-  parcelAmount: number;
+  parcelAmount?: number;
 
   @CreateDateColumn()
   createdAt: Date;
