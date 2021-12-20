@@ -51,7 +51,7 @@ export class Store extends BaseEntity {
   @Column({ nullable: false, type: 'varchar', length: 45 })
   state: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 45 })
+  @Column({ nullable: false, type: 'varchar', length: 190 })
   description: string;
 
   @Column({ nullable: false, default: true })
