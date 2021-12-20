@@ -12,6 +12,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { Product } from 'src/products/product.entity';
@@ -21,6 +22,7 @@ import { User } from 'src/users/user.entity';
 import { Order } from 'src/orders/order.entity';
 
 @Entity('store')
+@Unique(['name'])
 export class Store extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -42,7 +44,7 @@ export class Store extends BaseEntity {
   @Column({ nullable: true, type: 'varchar', length: 45 })
   phone: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 45 })
+  @Column({ nullable: false, type: 'varchar', length: 256 })
   address: string;
 
   @Column({ nullable: false, type: 'varchar', length: 45 })
@@ -51,8 +53,8 @@ export class Store extends BaseEntity {
   @Column({ nullable: false, type: 'varchar', length: 45 })
   state: string;
 
-  @Column({ nullable: true, type: 'varchar', length: 190 })
-  description: string;
+  @Column({ nullable: true, type: 'varchar', length: 256 })
+  description?: string;
 
   @Column({ nullable: false, default: true })
   enabled: boolean;
