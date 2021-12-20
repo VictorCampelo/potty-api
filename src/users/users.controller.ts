@@ -59,7 +59,8 @@ export class UsersController {
       const result = await this.usersService.updateUserTerms();
       return {
         result,
-        message: 'Sucesso. Usuários devem aceitar os novos termos.',
+        message:
+          'Success. Every non-admin user now has to accept the new use terms.',
       };
     } catch (error) {
       throw new ErrorHandling(error);
