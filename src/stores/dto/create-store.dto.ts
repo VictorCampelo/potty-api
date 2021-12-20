@@ -10,10 +10,10 @@ export class CreateStoreDto {
   facebookLink?: string;
   instagramLink?: string;
   whatsappLink?: string;
-  shedules = defaultSchedules;
+  shedules?: ScheduleProperties;
 }
 
-const defaultSchedules: ScheduleProperties = {
+export const defaultSchedules: ScheduleProperties = {
   seg: ['06:00', '20:00'],
   ter: ['06:00', '20:00'],
   qua: ['06:00', '20:00'],

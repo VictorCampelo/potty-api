@@ -20,6 +20,7 @@ import { File as Files } from 'src/files/file.entity';
 import { Category } from 'src/categories/category.entity';
 import { User } from 'src/users/user.entity';
 import { Order } from 'src/orders/order.entity';
+import { defaultSchedules } from './dto/create-store.dto';
 
 @Entity('store')
 @Unique(['name'])
@@ -89,7 +90,7 @@ export class Store extends BaseEntity {
   })
   whatsappLink: string;
 
-  @Column({ nullable: true, type: 'jsonb' })
+  @Column({ nullable: true, type: 'jsonb', default: defaultSchedules })
   schedules: ScheduleProperties;
 
   @CreateDateColumn()
