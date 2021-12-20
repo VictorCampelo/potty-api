@@ -12,6 +12,7 @@ import { User } from './user.entity';
 import { UserRole } from './user-roles.enum';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { FilesService } from 'src/files/files.service';
+import { getConnection } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -118,5 +119,14 @@ export class UsersService {
     queryDto: FindUsersQueryDto,
   ): Promise<{ users: User[]; total: number }> {
     return this.userRepository.findUsers(queryDto);
+  }
+
+  async updateUserTerms() {
+    return getConnection()
+      .createQueryBuilder()
+      .update(User)
+      .set({ hasAcceptedTerms: false })
+      .where('role != :role', { role: 'ADMIN' })
+      .execute();
   }
 }
