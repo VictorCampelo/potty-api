@@ -51,6 +51,22 @@ export class UsersController {
     }
   }
 
+  @ApiTags('admin')
+  @Post('terms')
+  @Role(UserRole.ADMIN) //only admin user can create other admin user
+  async updateUserTerms() {
+    try {
+      const result = await this.usersService.updateUserTerms();
+      return {
+        result,
+        message:
+          'Success. Every non-admin user now has to accept the new use terms.',
+      };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
   @ApiTags('owner')
   @Post()
   async createOwnerUser(

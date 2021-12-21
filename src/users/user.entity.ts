@@ -52,6 +52,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true, type: 'varchar', length: 64 })
   recoverToken: string;
 
+  @Column({ nullable: false, type: 'boolean', default: false })
+  hasAcceptedTerms: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

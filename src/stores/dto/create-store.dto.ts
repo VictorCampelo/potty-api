@@ -12,3 +12,13 @@ export class CreateStoreDto {
   whatsappLink?: string;
   shedules?: ScheduleProperties;
 }
+
+export const defaultSchedules: ScheduleProperties = {
+  seg: ['06:00', '20:00'],
+  ter: ['06:00', '20:00'],
+  qua: ['06:00', '20:00'],
+  qui: ['06:00', '20:00'],
+  sex: ['06:00', '20:00'],
+  sab: ['07:00', '12:00'],
+  dom: ['07:00', '12:00'],
+};

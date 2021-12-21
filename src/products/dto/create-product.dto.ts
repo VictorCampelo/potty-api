@@ -29,4 +29,9 @@ export class CreateProductDto {
   @Max(100)
   @IsOptional()
   discount?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  parcelAmount?: number;
 }

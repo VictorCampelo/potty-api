@@ -58,6 +58,9 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, type: 'timestamptz' })
   lastSold?: Date;
 
+  @Column({ nullable: true, default: 1 })
+  parcelAmount?: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -70,7 +73,7 @@ export class Product extends BaseEntity {
   @ManyToOne(() => Store, (store: Store) => store.products)
   @JoinColumn({ name: 'store_id' })
   store: Store;
-  
+
   @Column({ type: 'varchar', nullable: true, name: 'store_id' })
   storeId: string;
 
@@ -78,12 +81,12 @@ export class Product extends BaseEntity {
   files: File[];
 
   @ManyToMany(() => Category, (category) => category.products)
-  @JoinTable({name: "products_categories"})
+  @JoinTable({ name: 'products_categories' })
   categories: Category[];
 
   @OneToMany(() => Feedback, (feedback) => feedback.product)
   feedbacks: Feedback[];
 
-  @OneToMany(() => OrderHistoric, orderHistoric => orderHistoric.product)
+  @OneToMany(() => OrderHistoric, (orderHistoric) => orderHistoric.product)
   orderHistorics: OrderHistoric[];
 }

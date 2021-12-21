@@ -12,6 +12,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { Product } from 'src/products/product.entity';
@@ -19,8 +20,10 @@ import { File as Files } from 'src/files/file.entity';
 import { Category } from 'src/categories/category.entity';
 import { User } from 'src/users/user.entity';
 import { Order } from 'src/orders/order.entity';
+import { defaultSchedules } from './dto/create-store.dto';
 
 @Entity('store')
+@Unique(['name'])
 export class Store extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -42,7 +45,7 @@ export class Store extends BaseEntity {
   @Column({ nullable: true, type: 'varchar', length: 45 })
   phone: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 45 })
+  @Column({ nullable: false, type: 'varchar', length: 256 })
   address: string;
 
   @Column({ nullable: false, type: 'varchar', length: 45 })
@@ -51,8 +54,8 @@ export class Store extends BaseEntity {
   @Column({ nullable: false, type: 'varchar', length: 45 })
   state: string;
 
-  @Column({ nullable: true, type: 'varchar', length: 190 })
-  description: string;
+  @Column({ nullable: true, type: 'varchar', length: 256 })
+  description?: string;
 
   @Column({ nullable: false, default: true })
   enabled: boolean;
@@ -87,7 +90,7 @@ export class Store extends BaseEntity {
   })
   whatsappLink: string;
 
-  @Column({ nullable: true, type: 'jsonb' })
+  @Column({ nullable: true, type: 'jsonb', default: defaultSchedules })
   schedules: ScheduleProperties;
 
   @CreateDateColumn()

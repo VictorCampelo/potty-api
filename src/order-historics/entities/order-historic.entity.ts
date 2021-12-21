@@ -27,6 +27,9 @@ export class OrderHistoric extends BaseEntity {
   @Column({ nullable: false, type: 'float' })
   productPrice: number;
 
+  @Column({ nullable: true, type: 'int' })
+  productParcels: number;
+
   @ManyToOne(() => Order, (order) => order.orderHistorics)
   order!: Order;
 

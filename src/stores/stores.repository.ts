@@ -11,8 +11,8 @@ export class StoreRepository extends Repository<Store> {
   }
   createStore(createStoreDto: CreateStoreDto): Store {
     const createStore = _.omit(createStoreDto, 'files');
-    const store = this.create(createStore);
-    return store;
+
+    return this.create(createStore);
   }
 
   async addLike(user: User, store: Store): Promise<Store> {

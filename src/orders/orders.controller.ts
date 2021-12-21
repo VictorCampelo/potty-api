@@ -33,19 +33,11 @@ export class OrdersController {
   @Post('')
   @Role(UserRole.USER)
   async create(
-    //@Param('id') storeId: string,
     @Body() createOrderDto: CreateOrderDto,
     @GetUser() user: User,
   ): Promise<{ orders: Order[]; whatsapp: string[]; message: string }> {
-    //createOrderDto.products[0].orderProducts[0].productId
     try {
-      //const store = await this.storesService.findOne(storeId);
-
-      const result = await this.ordersService.create(
-        createOrderDto,
-        user,
-        //store,
-      );
+      const result = await this.ordersService.create(createOrderDto, user);
       return {
         orders: result.orders,
         whatsapp: result.messages,
