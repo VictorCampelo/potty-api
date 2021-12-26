@@ -41,7 +41,22 @@ export class UsersService {
 
   async findUserById(userId: string): Promise<User> {
     const user = await this.userRepository.findOne(userId, {
-      select: ['email', 'firstName', 'lastName', 'role', 'id', 'profileImage'],
+      select: [
+        'email',
+        'firstName',
+        'lastName',
+        'role',
+        'id',
+        'profileImage',
+        'street',
+        'addressNumber',
+        'neighborhood',
+        'complement',
+        'city',
+        'uf',
+        'zipcode',
+        'logradouro',
+      ],
       relations: ['files'],
     });
 
