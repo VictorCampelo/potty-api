@@ -1,11 +1,16 @@
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import AWS from 'aws-sdk';
+import { ManagedUpload } from 'aws-sdk/clients/s3';
 import { randomBytes } from 'crypto';
 import { EmailsService } from 'src/emails/emails.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -33,16 +38,40 @@ export class AuthService {
     if (createUserDto.password !== createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
-      return this.userRepository.createUser(createUserDto, role);
+      const user = await this.userRepository.createUser(createUserDto, role);
+
+      if (
+        !(await this.emailsService.sendEmail(
+          user.email,
+          'Boa de venda - Confirme seu e-mail',
+          'email-confirmation',
+          {
+            token: user.confirmationToken,
+          },
+        ))
+      )
+        throw new HttpException(
+          'Problema no envio de e-mail',
+          HttpStatus.BAD_REQUEST,
+        );
+      return user;
     }
   }
 
-  async signUpOwner(createUserAndStore: CreateUserStore): Promise<User> {
+  async signUpOwner(
+    createUserAndStore: CreateUserStore,
+    storeAvatar: Express.Multer.File,
+  ): Promise<User> {
     const { userDto, storeDto } = createUserAndStore;
     if (userDto.password !== userDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
       storeDto['formatedName'] = storeDto.name.replace(/ /g, '-');
+
+      if (storeAvatar) {
+        storeDto.avatar = storeAvatar;
+      }
+
       const store = await this.storesService.create(storeDto);
       const user = await this.usersService.createOwnerUser(userDto);
       user.store = store;
@@ -62,7 +91,7 @@ export class AuthService {
     const jwtPayload = {
       id: user.id,
       role: user.role,
-      storeId: user.store && user.store.id ? user.store.id : null
+      storeId: user.store && user.store.id ? user.store.id : null,
     };
 
     const jwtToken = this.jwtService.sign(jwtPayload);
@@ -89,7 +118,7 @@ export class AuthService {
     await user.save();
     await this.emailsService.sendEmail(
       user.email,
-      'Recuperação de senha',
+      'Boa de venda - Recuperação de senha',
       'recover-password',
       {
         token: user.recoverToken,
