@@ -16,21 +16,23 @@ export class EmailsService {
     try {
       const mail = {
         to: emailTo,
-        from: 'noreply@application.com',
+        from: 'noreply@boadevenda.com.br',
         subject: subject,
-        template: this.loadTemplate(template),
+        template: `./public/templates/${template}.hbs`,
         context: body,
       };
       await this.mailerService.sendMail(mail);
+      return true;
     } catch (error) {
       console.error(error);
+      return false;
     }
   }
 
-  private loadTemplate(filename: string) {
-    return fs.readFileSync(
-      path.resolve(`public/templates/${filename}.hbs`),
-      'utf8',
-    );
-  }
+  // private loadTemplate(filename: string) {
+  //   return fs.readFileSync(
+  //     path.resolve(`./public/templates/${filename}.hbs`),
+  //     'utf8',
+  //   );
+  // }
 }

@@ -27,4 +27,28 @@ export class UpdateUserDto {
 
   @IsOptional()
   status: boolean;
+
+  @IsOptional()
+  zipcode?: string;
+
+  @IsOptional()
+  street?: string;
+
+  @IsOptional()
+  addressNumber?: number;
+
+  @IsOptional()
+  neighborhood?: string;
+
+  @IsOptional()
+  complement?: string;
+
+  @IsOptional()
+  city?: string;
+
+  @IsOptional()
+  uf?: string;
+
+  @IsOptional()
+  logradouro?: string;
 }

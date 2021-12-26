@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ required: true })
@@ -52,4 +58,28 @@ export class CreateUserDto {
     message: 'A confirmação de senha deve ter no mínimo 6 caracteres',
   })
   passwordConfirmation: string;
+
+  @IsOptional()
+  zipcode?: string;
+
+  @IsOptional()
+  street?: string;
+
+  @IsOptional()
+  addressNumber?: number;
+
+  @IsOptional()
+  neighborhood?: string;
+
+  @IsOptional()
+  complement?: string;
+
+  @IsOptional()
+  city?: string;
+
+  @IsOptional()
+  uf?: string;
+
+  @IsOptional()
+  logradouro?: string;
 }

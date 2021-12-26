@@ -1,16 +1,17 @@
 import { MailerOptions } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 
 dotenv.config();
 
 export const mailerConfig: MailerOptions = {
   template: {
-    dir: process.cwd() + '/templates',
+    dir: path.resolve(__dirname, '..', '..', 'templates'),
     adapter: new HandlebarsAdapter(),
     options: {
       extName: '.hbs',
-      layoutsDir: process.cwd() + '/templates',
+      layoutsDir: path.resolve(__dirname, '..', '..', 'templates'),
     },
   },
   transport: {

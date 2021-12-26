@@ -21,6 +21,7 @@ import { Category } from 'src/categories/category.entity';
 import { User } from 'src/users/user.entity';
 import { Order } from 'src/orders/order.entity';
 import { defaultSchedules } from './dto/create-store.dto';
+import AWS from 'aws-sdk';
 
 @Entity('store')
 @Unique(['name'])
@@ -45,8 +46,8 @@ export class Store extends BaseEntity {
   @Column({ nullable: true, type: 'varchar', length: 45 })
   phone: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 256 })
-  address: string;
+  @Column({ nullable: true, type: 'varchar', length: 256 })
+  address?: string;
 
   @Column({ nullable: false, type: 'varchar', length: 45 })
   city: string;

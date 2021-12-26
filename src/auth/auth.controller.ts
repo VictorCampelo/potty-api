@@ -2,14 +2,20 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
   UnauthorizedException,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { UserRole } from 'src/users/user-roles.enum';
@@ -26,24 +32,36 @@ import { GetUser } from './get-user.decorator';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseInterceptors(FileInterceptor('storeAvatar'))
   @Post('/signup-store')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateUserStore })
   async createUserAndStore(
+    @UploadedFile() storeAvatar: Express.Multer.File,
     @Body(ValidationPipe) createUserAndStore: CreateUserStore,
   ) {
     try {
-      const user = await this.authService.signUpOwner(createUserAndStore);
+      const user = await this.authService.signUpOwner(
+        createUserAndStore,
+        storeAvatar,
+      );
       return { user: user, message: 'User and Store createds.' };
     } catch (error) {
+      if (
+        error.detail &&
+        error.detail.includes('Key (name)=(') &&
+        error.detail.includes(') already exists.')
+      ) {
+        error.status = 409;
+        error.message = 'Store name is currently taken.';
+      }
+
       throw new ErrorHandling(error);
     }
   }
 
   @Post('/signup')
-  async signUp(
-    @Body(ValidationPipe) createUserDto: CreateUserDto,
-  ) {
+  async signUp(@Body(ValidationPipe) createUserDto: CreateUserDto) {
     try {
       await this.authService.signUp(createUserDto, UserRole.USER);
       return {
@@ -142,4 +160,16 @@ export class AuthController {
       throw new ErrorHandling(error);
     }
   }
+
+  // @UseInterceptors(FileInterceptor('storeAvatar'))
+  // @Post('/filetest')
+  // async sendFileTest(@UploadedFile() storeAvatar: Express.Multer.File) {
+  //   const { originalname } = storeAvatar;
+
+  //   return await this.authService.uploadS3(
+  //     storeAvatar.buffer,
+  //     'bdv-dev',
+  //     originalname,
+  //   );
+  // }
 }

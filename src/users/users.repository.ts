@@ -53,7 +53,20 @@ export class UserRepository extends Repository<User> {
     createUserDto: CreateUserDto,
     role: UserRole,
   ): Promise<User> {
-    const { email, firstName, lastName, password } = createUserDto;
+    const {
+      email,
+      firstName,
+      lastName,
+      password,
+      zipcode,
+      street,
+      addressNumber,
+      neighborhood,
+      complement,
+      city,
+      uf,
+      logradouro,
+    } = createUserDto;
 
     const user = this.create();
     user.email = email;
@@ -64,6 +77,15 @@ export class UserRepository extends Repository<User> {
     user.confirmationToken = crypto.randomBytes(32).toString('hex');
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
+    user.zipcode = zipcode;
+    user.street = street;
+    user.addressNumber = addressNumber;
+    user.neighborhood = neighborhood;
+    user.complement = complement;
+    user.city = city;
+    user.uf = uf;
+    user.logradouro = logradouro;
+
     try {
       await user.save();
       delete user.password;

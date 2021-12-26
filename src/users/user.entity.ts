@@ -86,6 +86,30 @@ export class User extends BaseEntity {
   @ManyToMany(() => Coupon, (coupon) => coupon.users)
   coupons: Coupon[];
 
+  @Column({ nullable: true })
+  zipcode?: string;
+
+  @Column({ nullable: true })
+  street?: string;
+
+  @Column({ nullable: true })
+  addressNumber?: number;
+
+  @Column({ nullable: true })
+  neighborhood?: string;
+
+  @Column({ nullable: true })
+  complement?: string;
+
+  @Column({ nullable: true })
+  city?: string;
+
+  @Column({ nullable: true })
+  uf?: string;
+
+  @Column({ nullable: true })
+  logradouro?: string;
+
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);
     return hash === this.password;

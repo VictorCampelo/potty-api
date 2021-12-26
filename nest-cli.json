@@ -1,4 +1,14 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "sourceRoot": "src",
+  "root": "./",
+  "compilerOptions": {
+    "assets": [
+      {
+        "include": "public/templates/*.hbs",
+        "outDir": "dist/src"
+      }
+    ],
+    "watchAssets": true
+  }
 }

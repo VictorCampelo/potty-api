@@ -182,15 +182,22 @@ export class OrdersService {
       }
     })}`;
 
-    const text = `Novo pedido! 
-      Nome do Cliente: ${user.firstName} ${user.lastName}
-      Itens do Pedido:${productsListToMsg.map((p) => {
-        return ' ' + p.amount + " de '" + p.title + "'";
-      })}. Total do Pedido: R$ ${sumAmount} 
-      Forma de Envio: Entrega Custo do Envio: 5,00 
-      Endereço do Cliente: Rua Isaac Irineu - 5415 - Universidade Federal do Piauí Teresina - PI Referência: fffd 
-      Meio de Pagamento:${paymentMethod}`;
-    return `https://api.whatsapp.com/send?phone=55${store.phone}1&text=${text}`;
+    const text = `🛍️ *Novo pedido!* 🛍️%0a%0a*Nome do Cliente:* ${
+      user.firstName
+    } ${user.lastName}%0a%0a*Itens do Pedido:*%0a${productsListToMsg
+      .map((p) => {
+        return '  🏷️ ' + p.amount + 'x ' + p.title + '%0a';
+      })
+      .join(
+        '',
+      )}%0a*Total do Pedido:* R$ ${sumAmount}%0a*Forma de Envio:* Entrega%0a*Custo do Envio:* 5,00%0a*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*%0a*Rua*: ${
+      user.street
+    }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${
+      user.neighborhood
+    }%0a*Cidade:* ${user.city} - ${user.uf}${
+      user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
+    }${user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''}`;
+    return `https://api.whatsapp.com/send?phone=5586981834269&text=${text}`;
   }
 
   async fillAllOrderByStatus(

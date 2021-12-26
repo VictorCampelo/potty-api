@@ -1,4 +1,7 @@
+import { IsOptional } from 'class-validator';
 import { ScheduleProperties } from './../types/scheduleProperties.interface';
+import { File } from 'src/files/file.entity';
+import AWS from 'aws-sdk';
 export class CreateStoreDto {
   name: string;
   CNPJ: string;
@@ -11,6 +14,9 @@ export class CreateStoreDto {
   instagramLink?: string;
   whatsappLink?: string;
   shedules?: ScheduleProperties;
+
+  @IsOptional()
+  avatar?: Express.Multer.File;
 }
 
 export const defaultSchedules: ScheduleProperties = {
