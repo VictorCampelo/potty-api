@@ -197,7 +197,7 @@ export class OrdersService {
     }%0a*Cidade:* ${user.city} - ${user.uf}${
       user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
     }${user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''}`;
-    return `https://api.whatsapp.com/send?phone=5586981834269&text=${text}`;
+    return `https://api.whatsapp.com/send?phone=5586${store.phone}&text=${text}`;
   }
 
   async fillAllOrderByStatus(
