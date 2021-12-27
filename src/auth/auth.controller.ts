@@ -40,9 +40,15 @@ export class AuthController {
     @UploadedFile() storeAvatar: Express.Multer.File,
     @Body(ValidationPipe) createUserAndStore: CreateUserStore,
   ) {
+    const { storeDto, userDto } = JSON.parse(
+      JSON.stringify(createUserAndStore),
+    );
     try {
       const user = await this.authService.signUpOwner(
-        createUserAndStore,
+        {
+          storeDto: JSON.parse(storeDto as any),
+          userDto: JSON.parse(userDto as any),
+        },
         storeAvatar,
       );
       return { user: user, message: 'User and Store createds.' };

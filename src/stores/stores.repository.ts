@@ -9,7 +9,7 @@ export class StoreRepository extends Repository<Store> {
   constructor() {
     super();
   }
-  createStore(createStoreDto: CreateStoreDto): Store {
+  async createStore(createStoreDto: CreateStoreDto): Promise<Store> {
     const createStore = _.omit(createStoreDto, 'files');
 
     return this.create(createStore);

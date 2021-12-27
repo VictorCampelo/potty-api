@@ -33,7 +33,7 @@ export class StoresService {
   }
 
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
-    const store = this.storeRepository.createStore(createStoreDto);
+    const store = await this.storeRepository.createStore(createStoreDto);
 
     if (createStoreDto.avatar) {
       const avatar = await this.filesService.uploadSingleFileToS3(

@@ -4,7 +4,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 
 interface IFile {
   filename: string;
-  url: string;
+  url?: string;
   tags?: string[];
   // user: User;
 }

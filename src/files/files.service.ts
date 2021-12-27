@@ -26,16 +26,16 @@ export class FilesService {
     const { buffer } = file;
     const ref = `${uuidv4()}.png`;
 
-    fs.writeFile('public/uploads/' + ref, buffer, (err) => {
-      if (err) {
-        throw err;
-      }
-    });
-    const link = `http://localhost:3000/${ref}`;
+    // fs.writeFile('public/uploads/' + ref, buffer, (err) => {
+    //   if (err) {
+    //     throw err;
+    //   }
+    // });
+    // const link = `http://localhost:3000/${ref}`;
 
     const fileToUpload = {
       name: ref,
-      url: link,
+      // url: link,
       filename: file.originalname,
       fieldname: null,
     };
@@ -107,7 +107,7 @@ export class FilesService {
     });
 
     const { originalname } = file;
-    let image: File;
+    const image = await this.create(file);
 
     const params: IS3Params = {
       Bucket: process.env.AWS_BUCKET,
@@ -115,21 +115,15 @@ export class FilesService {
       Body: file.buffer,
     };
 
-    await s3
-      .putObject(params)
-      .promise()
-      .then(
-        () => {
-          image.url = process.env.S3_URL + originalname;
-        },
-        (err) => {
-          console.log(err);
-          throw new HttpException(
-            `Erro ao fazer upload na S3: ${err}`,
-            HttpStatus.BAD_REQUEST,
-          );
-        },
+    try {
+      await s3.putObject(params).promise();
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        `Erro ao fazer upload na S3: ${error}`,
+        HttpStatus.BAD_REQUEST,
       );
+    }
 
     // await this.saveFile(image);
 
