@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import camelcaseKeys from 'camelcase-keys';
+import _ from 'lodash';
 import { CategoriesService } from 'src/categories/categories.service';
 import { FilesService } from 'src/files/files.service';
 import { StoresService } from 'src/stores/stores.service';
@@ -206,6 +207,18 @@ export class ProductsService {
   }
 
   async updateProductDetails(id: string, updateProductDto: UpdateProductDto) {
+    if (updateProductDto.categoriesIds) {
+      const product = await this.productRepository.findOne(id);
+
+      product.categories = await this.categoriesService.findAllByIds(
+        updateProductDto.categoriesIds,
+      );
+
+      updateProductDto = _.omit(updateProductDto, 'categoriesIds');
+
+      await product.save();
+    }
+
     return this.productRepository.update(id, updateProductDto);
   }
 

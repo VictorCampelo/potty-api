@@ -13,4 +13,6 @@ export class UpdateProductDto {
   @Min(0)
   @IsOptional()
   inventory: number;
+
+  categoriesIds?: string[];
 }
