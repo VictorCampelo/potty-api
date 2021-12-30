@@ -52,8 +52,18 @@ export class CouponsService {
     return `This action returns all coupons`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} coupon`;
+  async findOne(code: string) {
+    return this.couponRepository.findOne({
+      where: {
+        code,
+      },
+      relations: ['categories'],
+    });
+  }
+
+  async decreaseUsedCoupon(coupon: Coupon) {
+    coupon.maxUsage -= 1;
+    return this.couponRepository.save(coupon);
   }
 
   update(id: number, updateCouponDto: UpdateCouponDto) {
