@@ -1,3 +1,4 @@
+import { Coupon } from 'src/coupons/entities/coupon.entity';
 import { Product } from 'src/products/product.entity';
 import { Store } from 'src/stores/store.entity';
 import {
@@ -39,6 +40,9 @@ export class Category {
 
   @ManyToMany(() => Product, (product) => product.categories)
   products: Product[];
+
+  @ManyToOne(() => Coupon, (coupon) => coupon.categories)
+  coupon: Coupon;
 
   @CreateDateColumn()
   createdAt: Date;
