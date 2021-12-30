@@ -237,6 +237,27 @@ export class OrdersService {
     }
   }
 
+  private applyCouponDiscountBasedOnType(
+    discountType: string,
+    currentSumAmount: number,
+    discountValue?: number,
+    discountPorcent?: number,
+    productPrice?: number,
+  ) {
+    if (discountType !== 'money' && discountType !== 'percentage') {
+      throw new HttpException(
+        'Invalid discount type (must be money or percentage).',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (discountType === 'money') {
+      return (currentSumAmount -= discountValue);
+    }
+
+    return (currentSumAmount -= productPrice * discountPorcent);
+  }
+
   private createWhatsappMessage(
     user: User,
     productsListToMsg: IProductsToListMsg[],
