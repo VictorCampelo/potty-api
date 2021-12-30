@@ -18,6 +18,9 @@ export class OrderHistoric extends BaseEntity {
   @Column()
   orderId!: string;
 
+  @Column({ nullable: false })
+  storeId!: string;
+
   @Column()
   productId!: string;
 
@@ -29,6 +32,9 @@ export class OrderHistoric extends BaseEntity {
 
   @Column({ nullable: true, type: 'int' })
   productParcels: number;
+
+  @Column({ nullable: false })
+  customerId: string;
 
   @ManyToOne(() => Order, (order) => order.orderHistorics)
   order!: Order;
