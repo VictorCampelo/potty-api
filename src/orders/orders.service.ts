@@ -117,14 +117,82 @@ export class OrdersService {
           store.sumOrders += prod.amount;
 
           const history = this.historicsService.create({
+            storeId: storeOrder.storeId,
             productId: product.id,
             orderId: order.id,
             productQtd: prod.amount,
             productPrice: product.price,
             productParcels: prod.parcels,
+            customerId: user.id,
           });
 
           sumAmount += prod.amount * product.price;
+
+          /* CUPONS */
+          if (coupon && coupon.storeId === storeOrder.storeId) {
+            if (coupon.range === 'category') {
+              // verifica categoria
+              if (
+                product.categories &&
+                product.categories.some(
+                  (category) =>
+                    coupon.categories.filter((c) => c.id === category.id)
+                      .length,
+                )
+              ) {
+                sumAmount = this.applyCouponDiscountBasedOnType(
+                  coupon.type,
+                  sumAmount,
+                  coupon.discountValue,
+                  coupon.discountPorcent,
+                  prod.amount * product.price,
+                );
+
+                couponWasUsed = true;
+              } else {
+                throw new HttpException(
+                  `Product '${product.title}' doesn't belong to any category allowed by coupon '${coupon.code}'`,
+                  HttpStatus.BAD_REQUEST,
+                );
+              }
+            } else if (coupon.range === 'store') {
+              // ja verificado se é dessa loja
+              sumAmount = this.applyCouponDiscountBasedOnType(
+                coupon.type,
+                sumAmount,
+                coupon.discountValue,
+                coupon.discountPorcent,
+                prod.amount * product.price,
+              );
+
+              couponWasUsed = true;
+            } else if (coupon.range === 'first-buy') {
+              // verifica se é primeira compra
+              const userHistory =
+                await this.historicsService.findCustomerHistory(
+                  user.id,
+                  storeOrder.storeId,
+                );
+
+              if (!userHistory.length) {
+                sumAmount = this.applyCouponDiscountBasedOnType(
+                  coupon.type,
+                  sumAmount,
+                  coupon.discountValue,
+                  coupon.discountPorcent,
+                  prod.amount * product.price,
+                );
+
+                couponWasUsed = true;
+              } else {
+                throw new HttpException(
+                  `The Coupon '${coupon.code}' cannot be applied on Product '${product.title}' because it's not your first buy`,
+                  HttpStatus.BAD_REQUEST,
+                );
+              }
+            }
+          }
+          /* CUPONS */
 
           productsListToMsg.push({
             amount: prod.amount,
@@ -132,13 +200,14 @@ export class OrdersService {
             parcels: prod.parcels,
           });
 
-          order.amount =
-            couponDiscount > 0
-              ? sumAmount + sumAmount * (1 - couponDiscount / 100)
-              : sumAmount;
+          // order.amount =
+          //   couponDiscount > 0
+          //     ? sumAmount + sumAmount * (1 - couponDiscount / 100)
+          //     : sumAmount;
+          order.amount = sumAmount;
 
           historics.push(history);
-        });
+        }
 
         messages.push(
           this.createWhatsappMessage(
