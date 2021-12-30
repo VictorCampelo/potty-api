@@ -5,8 +5,8 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
-  HttpStatus,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
@@ -21,6 +21,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { UsersService } from 'src/users/users.service';
 import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
+import { Coupon } from 'src/coupons/entities/coupon.entity';
 
 @Injectable()
 export class OrdersService {
@@ -52,32 +53,48 @@ export class OrdersService {
         createOrderDto.products.map((prod) => prod.storeId),
       );
 
+      let coupon: Coupon;
+      let couponWasUsed: boolean;
+
+      if (createOrderDto?.couponCode) {
+        coupon = await this.couponsService.findOne(createOrderDto?.couponCode);
+
+        if (!coupon) {
+          throw new HttpException('Coupon not found', HttpStatus.NOT_FOUND);
+        }
+
+        if (
+          !(await this.couponsService.checkCoupom(coupon.code, coupon.storeId))
+        ) {
+          throw new HttpException('Invalid Coupon', HttpStatus.BAD_REQUEST);
+        }
+
+        if (coupon.maxUsage <= 0) {
+          throw new HttpException(
+            'Coupon exceeded maximum usage',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        if (
+          (coupon.validate && new Date() > coupon.validate) ||
+          coupon.isExpired
+        ) {
+          throw new HttpException(`Coupon expired`, HttpStatus.BAD_REQUEST);
+        }
+      }
+
       for (const storeOrder of createOrderDto.products) {
         const store: Store = stores.find(
           (obj) => obj.id === storeOrder.storeId,
         );
-
-        let couponDiscount = 100;
-        let coupon: any = {};
-
-        if (createOrderDto?.couponCode) {
-          coupon = await this.couponsService.checkCoupom(
-            createOrderDto.couponCode,
-            store.id,
-          );
-          if (coupon) {
-            couponDiscount += coupon.discountPorcent;
-          } else {
-            throw new NotFoundException('Coupon Not Valid!');
-          }
-        }
 
         const order = this.orderRepository.create({
           id: uuidv4(),
           store,
           user,
           status: false,
-          couponId: coupon?.id,
+          couponId: coupon && coupon.id,
         });
 
         let sumAmount = 0;
@@ -88,9 +105,8 @@ export class OrdersService {
           store.id,
         );
 
-        storeOrder.orderProducts.forEach((prod) => {
+        for (const prod of storeOrder.orderProducts) {
           const product = products.find((obj) => obj.id === prod.productId);
-          console.log(products);
 
           if (!product) {
             throw new HttpException(`Product not found`, HttpStatus.NOT_FOUND);
@@ -219,6 +235,10 @@ export class OrdersService {
         );
 
         orders.push(order);
+      }
+
+      if (couponWasUsed) {
+        await this.couponsService.decreaseUsedCoupon(coupon);
       }
 
       await this.productService.saveProducts(productsToSave);
