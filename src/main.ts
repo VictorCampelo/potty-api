@@ -4,9 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as Sentry from '@sentry/node';
 import * as dotenv from 'dotenv';
 import { json, urlencoded } from 'express';
-import { WinstonModule } from 'nest-winston';
 import { AppModule } from './app.module';
-import { winstonConfig } from './configs/winston.config';
 
 dotenv.config();
 

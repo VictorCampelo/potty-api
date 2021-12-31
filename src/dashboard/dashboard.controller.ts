@@ -15,7 +15,6 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { UserRole } from 'src/users/user-roles.enum';
 import { DashboardService } from './dashboard.service';
 import { ErrorHandling } from 'src/configs/error-handling';
-import { ProductsService } from 'src/products/products.service';
 import { GetUser } from 'src/auth/get-user.decorator';
 
 @Controller('dashboard')

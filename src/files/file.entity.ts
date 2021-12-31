@@ -12,7 +12,6 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
-  BeforeInsert,
 } from 'typeorm';
 
 @Entity('file')
@@ -90,9 +89,4 @@ export class File extends BaseEntity {
 
   @DeleteDateColumn()
   deletedAt: Date;
-
-  @BeforeInsert()
-  setUri() {
-    this.filename = `${process.env.S3_URL}${this.filename}`;
-  }
 }

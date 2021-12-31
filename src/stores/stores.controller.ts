@@ -11,12 +11,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { ErrorHandling } from 'src/configs/error-handling';
+import { multerOptions } from 'src/configs/multer.config';
 import { UserRole } from 'src/users/user-roles.enum';
 import { User } from 'src/users/user.entity';
 import { UpdateStoreDto } from './dto/update-store.dto';
@@ -66,19 +67,43 @@ export class StoresController {
 
   @Patch()
   @UseInterceptors(
-    FilesInterceptor('files', 2, {
-      storage: memoryStorage(),
-    }),
+    FileFieldsInterceptor(
+      [
+        {
+          name: 'avatar',
+          maxCount: 1,
+        },
+        {
+          name: 'background',
+          maxCount: 1,
+        },
+      ],
+      multerOptions,
+    ),
   )
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
+  @ApiConsumes('multipart/form-data')
   async update(
     @GetUser() user: User,
-    @UploadedFiles() files: Express.Multer.File[],
-    @Body() updateStoreDto: UpdateStoreDto,
+    @Body() updateStoreDto: { storeDto: UpdateStoreDto },
+    @UploadedFiles()
+    {
+      avatar,
+      background,
+    }: {
+      avatar: Express.Multer.File;
+      background: Express.Multer.File;
+    },
   ) {
+    const { storeDto } = JSON.parse(JSON.stringify(updateStoreDto));
+
     try {
-      return await this.storesService.update(user.storeId, updateStoreDto, files);
+      return await this.storesService.update(
+        user.storeId,
+        JSON.parse(storeDto),
+        [avatar ? avatar[0] : null, background ? background[0] : null],
+      );
     } catch (error) {
       throw new ErrorHandling(error);
     }
