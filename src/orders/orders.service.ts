@@ -15,7 +15,6 @@ import { CreateOrderDto, IProductsToListMsg } from './dto/create-order.dto';
 import { Order } from './order.entity';
 import { User } from 'src/users/user.entity';
 import { Store } from 'src/stores/store.entity';
-import { MD5 } from 'crypto-js';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { CouponsService } from 'src/coupons/coupons.service';

@@ -1,7 +1,9 @@
+import { v4 as uuid } from 'uuid';
 import { Coupon } from './../coupons/entities/coupon.entity';
 import { ScheduleProperties } from './types/scheduleProperties.interface';
 import {
   BaseEntity,
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -136,4 +138,11 @@ export class Store extends BaseEntity {
 
   @OneToMany(() => Order, (order) => order.store)
   orders: Order[];
+
+  @BeforeInsert()
+  setId() {
+    if (!this.id) {
+      this.id = uuid();
+    }
+  }
 }

@@ -26,8 +26,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { User } from 'src/users/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { ErrorHandling } from 'src/configs/error-handling';
+import { multerOptions } from 'src/configs/multer.config';
 
-const numberOfImages = 3;
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -56,11 +56,7 @@ export class ProductsController {
   @Post()
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
-  @UseInterceptors(
-    FilesInterceptor('files', numberOfImages, {
-      storage: memoryStorage(),
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('files', 3, multerOptions))
   async create(
     @Body(ValidationPipe) createProductDto: CreateProductDto,
     @GetUser() user: User,

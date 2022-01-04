@@ -1,7 +1,5 @@
 import { IsOptional } from 'class-validator';
 import { ScheduleProperties } from './../types/scheduleProperties.interface';
-import { File } from 'src/files/file.entity';
-import AWS from 'aws-sdk';
 export class CreateStoreDto {
   name: string;
   CNPJ: string;

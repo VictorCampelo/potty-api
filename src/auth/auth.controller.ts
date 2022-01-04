@@ -28,11 +28,13 @@ import { CreateUserStore } from './dto/create-user-store.dto';
 import { CredentialsDto } from './dto/credentials.dto';
 import { GetUser } from './get-user.decorator';
 
+import { multerOptions } from 'src/configs/multer.config';
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @UseInterceptors(FileInterceptor('storeAvatar'))
+  @UseInterceptors(FileInterceptor('avatar', multerOptions))
   @Post('/signup-store')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateUserStore })
@@ -40,9 +42,15 @@ export class AuthController {
     @UploadedFile() storeAvatar: Express.Multer.File,
     @Body(ValidationPipe) createUserAndStore: CreateUserStore,
   ) {
+    const { storeDto, userDto } = JSON.parse(
+      JSON.stringify(createUserAndStore),
+    );
     try {
       const user = await this.authService.signUpOwner(
-        createUserAndStore,
+        {
+          storeDto: JSON.parse(storeDto as any),
+          userDto: JSON.parse(userDto as any),
+        },
         storeAvatar,
       );
       return { user: user, message: 'User and Store createds.' };

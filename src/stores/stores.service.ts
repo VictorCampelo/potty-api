@@ -1,5 +1,7 @@
 import { FilesService } from './../files/files.service';
 import {
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -24,28 +26,29 @@ export class StoresService {
     private categoriesService: CategoriesService,
   ) {}
 
+  async create(createStoreDto: CreateStoreDto): Promise<Store> {
+    const store = await this.storeRepository.createStore(createStoreDto);
+
+    if (createStoreDto.avatar) {
+      const avatar = await this.filesService.uploadSingleFileToS3(
+        createStoreDto.avatar,
+        store.name,
+      );
+
+      store.avatar = avatar;
+
+      await this.filesService.saveFile(avatar);
+    }
+
+    return this.storeRepository.save(store);
+  }
+
   async save(store: Store) {
     return this.storeRepository.save(store);
   }
 
   async saveAll(stores: Store[]) {
     return this.storeRepository.save(stores);
-  }
-
-  async create(createStoreDto: CreateStoreDto): Promise<Store> {
-    const store = this.storeRepository.createStore(createStoreDto);
-
-    if (createStoreDto.avatar) {
-      const avatar = await this.filesService.uploadSingleFileToS3(
-        createStoreDto.avatar,
-      );
-
-      avatar.store = store;
-
-      await this.filesService.saveFile(avatar);
-    }
-
-    return store.save();
   }
 
   findAll() {
@@ -93,14 +96,35 @@ export class StoresService {
     return store;
   }
 
-  async update(id: string, updateStoreDto: UpdateStoreDto, files) {
+  async update(
+    id: string,
+    updateStoreDto: UpdateStoreDto,
+    files: Express.Multer.File[],
+  ) {
     const store = await this.findOne(id);
+
     if (files && files[0]) {
-      store.avatar = await this.filesService.create(files[0]);
+      const avatar = await this.filesService.uploadSingleFileToS3(
+        files[0],
+        store.name,
+      );
+
+      store.avatar = avatar;
+      await this.filesService.saveFile(avatar);
     }
+
     if (files && files[1]) {
-      store.background = await this.filesService.create(files[1]);
+      console.log(files)
+      const background = await this.filesService.uploadSingleFileToS3(
+        files[1],
+        store.name,
+      );
+
+      store.background = background;
+
+      await this.filesService.saveFile(background);
     }
+
     if (updateStoreDto.categoriesIds) {
       store.categories = await this.categoriesService.findAllByIdsTypeStore(
         updateStoreDto.categoriesIds,
@@ -108,9 +132,7 @@ export class StoresService {
     }
     updateStoreDto = _.omit(updateStoreDto, 'categoriesIds');
 
-    for (const props in updateStoreDto) {
-      store[props] = updateStoreDto[props];
-    }
+    Object.assign(store, updateStoreDto);
 
     return store.save();
   }

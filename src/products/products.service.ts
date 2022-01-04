@@ -106,8 +106,9 @@ export class ProductsService {
     product.store = store;
 
     if (createProductDto.files) {
-      product.files = await this.filesService.createFiles(
+      product.files = await this.filesService.uploadMultipleFilesToS3(
         createProductDto.files,
+        `${store.name}/${product.title}`,
       );
     }
 
@@ -217,7 +218,10 @@ export class ProductsService {
     toBeDeleted,
     files,
   }: UpdateProductImagesDto): Promise<Product> {
-    const product = await this.findOne(product_id);
+    const product = await this.findOne(product_id, {
+      store: true,
+      files: true,
+    });
 
     if (!product) {
       throw new NotFoundException(
@@ -226,15 +230,22 @@ export class ProductsService {
     }
 
     if (toBeDeleted) {
-      await this.filesService.remove(toBeDeleted);
+      await this.filesService.remove(toBeDeleted, product.files);
     }
 
     if (files) {
       if (product.files && product.files.length === 0) {
-        product.files = await this.filesService.createFiles(files);
+        product.files = await this.filesService.uploadMultipleFilesToS3(
+          files,
+          `${product.store.name}/${product.title}`,
+        );
       } else {
+        const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
+          files,
+          `${product.store.name}/${product.title}`,
+        );
         product.files = [];
-        product.files.push(...(await this.filesService.createFiles(files)));
+        product.files.push(...uploadedFiles);
       }
     }
 
