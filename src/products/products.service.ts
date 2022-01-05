@@ -148,6 +148,10 @@ export class ProductsService {
       orderingBy = {
         lastSold: 'DESC',
       };
+    } else if (findProducts.loadLastCreated) {
+      orderingBy = {
+        createdAt: 'DESC',
+      };
     } else {
       orderingBy = {
         sumOrders: 'ASC',

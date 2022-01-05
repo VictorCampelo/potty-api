@@ -23,7 +23,7 @@ export class CreateProductDto {
 
   categoriesIds?: string[];
 
-  @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
+  // @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
   @IsInt()
   @Min(0)
   @Max(100)
