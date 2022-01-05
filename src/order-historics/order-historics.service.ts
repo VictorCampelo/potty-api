@@ -117,12 +117,21 @@ export class OrderHistoricsService {
     return this.orderHistoricRepository.save(historics);
   }
 
+  async findOne(id: string) {
+    return this.orderHistoricRepository.findOne(id);
+  }
+
   findAll() {
     return `This action returns all orderHistorics`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} orderHistoric`;
+  async findCustomerHistory(customerId: string, storeId: string) {
+    return this.orderHistoricRepository.find({
+      where: {
+        customerId,
+        storeId,
+      },
+    });
   }
 
   update(id: number, updateOrderHistoricDto: UpdateOrderHistoricDto) {

@@ -5,8 +5,8 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
-  HttpStatus,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { UsersService } from 'src/users/users.service';
 import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
+import { Coupon } from 'src/coupons/entities/coupon.entity';
 
 @Injectable()
 export class OrdersService {
@@ -51,32 +52,48 @@ export class OrdersService {
         createOrderDto.products.map((prod) => prod.storeId),
       );
 
+      let coupon: Coupon;
+      let couponWasUsed: boolean;
+
+      if (createOrderDto?.couponCode) {
+        coupon = await this.couponsService.findOne(createOrderDto?.couponCode);
+
+        if (!coupon) {
+          throw new HttpException('Coupon not found', HttpStatus.NOT_FOUND);
+        }
+
+        if (
+          !(await this.couponsService.checkCoupom(coupon.code, coupon.storeId))
+        ) {
+          throw new HttpException('Invalid Coupon', HttpStatus.BAD_REQUEST);
+        }
+
+        if (coupon.maxUsage <= 0) {
+          throw new HttpException(
+            'Coupon exceeded maximum usage',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        if (
+          (coupon.validate && new Date() > coupon.validate) ||
+          coupon.isExpired
+        ) {
+          throw new HttpException(`Coupon expired`, HttpStatus.BAD_REQUEST);
+        }
+      }
+
       for (const storeOrder of createOrderDto.products) {
         const store: Store = stores.find(
           (obj) => obj.id === storeOrder.storeId,
         );
-
-        let couponDiscount = 100;
-        let coupon: any = {};
-
-        if (createOrderDto?.couponCode) {
-          coupon = await this.couponsService.checkCoupom(
-            createOrderDto.couponCode,
-            store.id,
-          );
-          if (coupon) {
-            couponDiscount += coupon.discountPorcent;
-          } else {
-            throw new NotFoundException('Coupon Not Valid!');
-          }
-        }
 
         const order = this.orderRepository.create({
           id: uuidv4(),
           store,
           user,
           status: false,
-          couponId: coupon?.id,
+          couponId: coupon && coupon.id,
         });
 
         let sumAmount = 0;
@@ -87,9 +104,8 @@ export class OrdersService {
           store.id,
         );
 
-        storeOrder.orderProducts.forEach((prod) => {
+        for (const prod of storeOrder.orderProducts) {
           const product = products.find((obj) => obj.id === prod.productId);
-          console.log(products);
 
           if (!product) {
             throw new HttpException(`Product not found`, HttpStatus.NOT_FOUND);
@@ -116,14 +132,82 @@ export class OrdersService {
           store.sumOrders += prod.amount;
 
           const history = this.historicsService.create({
+            storeId: storeOrder.storeId,
             productId: product.id,
             orderId: order.id,
             productQtd: prod.amount,
             productPrice: product.price,
             productParcels: prod.parcels,
+            customerId: user.id,
           });
 
           sumAmount += prod.amount * product.price;
+
+          /* CUPONS */
+          if (coupon && coupon.storeId === storeOrder.storeId) {
+            if (coupon.range === 'category') {
+              // verifica categoria
+              if (
+                product.categories &&
+                product.categories.some(
+                  (category) =>
+                    coupon.categories.filter((c) => c.id === category.id)
+                      .length,
+                )
+              ) {
+                sumAmount = this.applyCouponDiscountBasedOnType(
+                  coupon.type,
+                  sumAmount,
+                  coupon.discountValue,
+                  coupon.discountPorcent,
+                  prod.amount * product.price,
+                );
+
+                couponWasUsed = true;
+              } else {
+                throw new HttpException(
+                  `Product '${product.title}' doesn't belong to any category allowed by coupon '${coupon.code}'`,
+                  HttpStatus.BAD_REQUEST,
+                );
+              }
+            } else if (coupon.range === 'store') {
+              // ja verificado se é dessa loja
+              sumAmount = this.applyCouponDiscountBasedOnType(
+                coupon.type,
+                sumAmount,
+                coupon.discountValue,
+                coupon.discountPorcent,
+                prod.amount * product.price,
+              );
+
+              couponWasUsed = true;
+            } else if (coupon.range === 'first-buy') {
+              // verifica se é primeira compra
+              const userHistory =
+                await this.historicsService.findCustomerHistory(
+                  user.id,
+                  storeOrder.storeId,
+                );
+
+              if (!userHistory.length) {
+                sumAmount = this.applyCouponDiscountBasedOnType(
+                  coupon.type,
+                  sumAmount,
+                  coupon.discountValue,
+                  coupon.discountPorcent,
+                  prod.amount * product.price,
+                );
+
+                couponWasUsed = true;
+              } else {
+                throw new HttpException(
+                  `The Coupon '${coupon.code}' cannot be applied on Product '${product.title}' because it's not your first buy`,
+                  HttpStatus.BAD_REQUEST,
+                );
+              }
+            }
+          }
+          /* CUPONS */
 
           productsListToMsg.push({
             amount: prod.amount,
@@ -131,13 +215,14 @@ export class OrdersService {
             parcels: prod.parcels,
           });
 
-          order.amount =
-            couponDiscount > 0
-              ? sumAmount + sumAmount * (1 - couponDiscount / 100)
-              : sumAmount;
+          // order.amount =
+          //   couponDiscount > 0
+          //     ? sumAmount + sumAmount * (1 - couponDiscount / 100)
+          //     : sumAmount;
+          order.amount = sumAmount;
 
           historics.push(history);
-        });
+        }
 
         messages.push(
           this.createWhatsappMessage(
@@ -149,6 +234,10 @@ export class OrdersService {
         );
 
         orders.push(order);
+      }
+
+      if (couponWasUsed) {
+        await this.couponsService.decreaseUsedCoupon(coupon);
       }
 
       await this.productService.saveProducts(productsToSave);
@@ -165,6 +254,27 @@ export class OrdersService {
       await queryRunner.release();
       throw error;
     }
+  }
+
+  private applyCouponDiscountBasedOnType(
+    discountType: string,
+    currentSumAmount: number,
+    discountValue?: number,
+    discountPorcent?: number,
+    productPrice?: number,
+  ) {
+    if (discountType !== 'money' && discountType !== 'percentage') {
+      throw new HttpException(
+        'Invalid discount type (must be money or percentage).',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (discountType === 'money') {
+      return (currentSumAmount -= discountValue);
+    }
+
+    return (currentSumAmount -= productPrice * discountPorcent);
   }
 
   private createWhatsappMessage(

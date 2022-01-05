@@ -19,11 +19,14 @@ export class OrderHistoricsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.orderHistoricsService.findOne(+id);
+    return this.orderHistoricsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderHistoricDto: UpdateOrderHistoricDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateOrderHistoricDto: UpdateOrderHistoricDto,
+  ) {
     return this.orderHistoricsService.update(+id, updateOrderHistoricDto);
   }
 

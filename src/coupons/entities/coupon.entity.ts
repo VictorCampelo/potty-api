@@ -14,6 +14,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from 'src/users/user.entity';
+import { Category } from 'src/categories/category.entity';
 
 @Entity('coupon')
 export class Coupon extends BaseEntity {
@@ -23,8 +24,17 @@ export class Coupon extends BaseEntity {
   @Column({ nullable: false, unique: true })
   code: string;
 
-  @Column({ nullable: false, type: 'float' })
+  @Column({ nullable: true, type: 'varchar' })
+  type: 'money' | 'percentage';
+
+  @Column({ nullable: true, type: 'varchar' })
+  range: 'category' | 'store' | 'first-buy';
+
+  @Column({ nullable: false, type: 'float', default: 0 })
   discountPorcent: number;
+
+  @Column({ nullable: false, type: 'float', default: 0 })
+  discountValue: number;
 
   @Column({ nullable: false })
   maxUsage: number;
@@ -32,7 +42,13 @@ export class Coupon extends BaseEntity {
   @Column({ nullable: false, default: false })
   isExpired: boolean;
 
-  @Column({ nullable: true, type: 'timestamptz' })
+  @Column({ nullable: false, default: false })
+  isPrivate: boolean;
+
+  @Column({ nullable: false, default: false })
+  isLimited: boolean;
+
+  @Column({ nullable: true })
   validate: Date;
 
   @CreateDateColumn()
@@ -40,6 +56,9 @@ export class Coupon extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Category, (category) => category.coupon)
+  categories: Category[];
 
   @OneToMany(() => Order, (order) => order.coupon)
   orders: Order[];
