@@ -24,7 +24,7 @@ jobs:
     if: contains( github.ref, 'dev')
     runs-on: ubuntu-latest
     needs: build
-    environment: staging
+    environment: dev
     env:
         PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
         HOSTNAME : ${{ secrets.HOSTNAME  }}
