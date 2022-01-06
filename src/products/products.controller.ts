@@ -32,6 +32,27 @@ import { multerOptions } from 'src/configs/multer.config';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Get('promoted')
+  async findWithDiscount() {
+    try {
+      return await this.productsService.findWithDiscount();
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Get('category/:id')
+  @Role(UserRole.OWNER)
+  async findFromCategory(@Param('id') categoryId: string) {
+    console.log('test');
+
+    try {
+      return await this.productsService.findFromCategory(categoryId);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {

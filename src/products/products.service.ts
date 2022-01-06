@@ -15,6 +15,7 @@ import {
   Equal,
   getConnection,
   LessThanOrEqual,
+  MoreThan,
   MoreThanOrEqual,
   Not,
 } from 'typeorm';
@@ -148,6 +149,10 @@ export class ProductsService {
       orderingBy = {
         lastSold: 'DESC',
       };
+    } else if (findProducts.loadLastCreated) {
+      orderingBy = {
+        createdAt: 'DESC',
+      };
     } else {
       orderingBy = {
         sumOrders: 'ASC',
@@ -268,6 +273,25 @@ export class ProductsService {
 
   async remove(id: string) {
     return this.productRepository.softDelete(id);
+  }
+
+  async findWithDiscount() {
+    return this.productRepository.find({
+      where: {
+        discount: MoreThan(0),
+      },
+      order: { discount: 'DESC' },
+    });
+  }
+
+  async findFromCategory(categoryId: string) {
+    return this.productRepository
+      .createQueryBuilder('product')
+      .innerJoinAndSelect('product.categories', 'categories')
+      .where('categories.id = :category', {
+        category: categoryId,
+      })
+      .getMany();
   }
 
   async productsSold(

@@ -3,6 +3,7 @@ export class FindProductsDto {
   offset?: number;
   loadRelations?: boolean;
   loadLastSolds?: boolean;
+  loadLastCreated?: boolean;
   files?: boolean;
   categories?: boolean;
   store?: boolean;
