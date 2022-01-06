@@ -37,7 +37,7 @@ jobs:
           . ~/.nvm/nvm.sh &&
           cd /var/www/ultimo-api &&
           git pull origin dev &&
-          npm i &&
+          node --max-old-space-size=2000 $(which npm) i &&
           npm run build &&
           pm2 delete bdv-api &&
           pm2 start npm --name "bdv-api" -- start
