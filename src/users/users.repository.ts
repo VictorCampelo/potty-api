@@ -104,10 +104,11 @@ export class UserRepository extends Repository<User> {
 
   async checkCredentials(credentialsDto: CredentialsDto): Promise<User> {
     const { email, password } = credentialsDto;
-    const user = await this.findOne(
-      { email, enabled: true },
-      { relations: ['store'] },
-    );
+    const user = await this.createQueryBuilder()
+      .leftJoinAndSelect('User.store', 'store')
+      .leftJoinAndSelect('store.avatar', 'avatar')
+      .where('User.email = :email', { email })
+      .getOne();
 
     if (user && (await user.checkPassword(password))) {
       return user;
