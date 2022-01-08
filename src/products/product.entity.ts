@@ -16,7 +16,6 @@ import {
   JoinTable,
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
-import { Order } from 'src/orders/order.entity';
 import { Category } from 'src/categories/category.entity';
 import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
 @Entity('product')

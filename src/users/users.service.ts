@@ -66,10 +66,21 @@ export class UsersService {
   }
 
   async findUserMe(userId: string): Promise<User> {
-    const user = await this.userRepository.findOne(userId, {
-      select: ['email', 'firstName', 'lastName', 'role', 'id', 'profileImage'],
-      relations: ['store', 'files'],
-    });
+    const user = await this.userRepository
+      .createQueryBuilder()
+      .where('User.id = :id', { id: userId })
+      .select([
+        'User.email',
+        'User.firstName',
+        'User.lastName',
+        'User.role',
+        'User.id',
+        'User.profileImage',
+      ])
+      .leftJoinAndSelect('User.files', 'files')
+      .leftJoinAndSelect('User.store', 'store')
+      .innerJoinAndSelect('store.avatar', 'avatar')
+      .getOne();
 
     if (!user) throw new NotFoundException('Usuário não encontrado');
 

@@ -52,7 +52,9 @@ export class StoresService {
   }
 
   findAll() {
-    return this.storeRepository.find();
+    return this.storeRepository.find({
+      join: { alias: 'store', leftJoinAndSelect: { user: 'store.avatar' } },
+    });
   }
 
   findAllByIds(ids: string[]) {
@@ -60,7 +62,9 @@ export class StoresService {
   }
 
   async findOne(id: string) {
-    const store = await this.storeRepository.findOne(id);
+    const store = await this.storeRepository.findOne(id, {
+      join: { alias: 'store', leftJoinAndSelect: { user: 'store.avatar' } },
+    });
     if (!store) {
       throw new NotFoundException('Store not found');
     }
@@ -88,6 +92,7 @@ export class StoresService {
   async findOneByName(formatedName: string) {
     const store = await this.storeRepository.findOne({
       where: { formatedName: formatedName },
+      join: { alias: 'store', leftJoinAndSelect: { user: 'store.avatar' } },
     });
     if (!store) {
       throw new NotFoundException('Store not found');
@@ -114,7 +119,7 @@ export class StoresService {
     }
 
     if (files && files[1]) {
-      console.log(files)
+      console.log(files);
       const background = await this.filesService.uploadSingleFileToS3(
         files[1],
         store.name,
