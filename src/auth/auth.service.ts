@@ -66,7 +66,7 @@ export class AuthService {
     if (userDto.password !== userDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {
-      storeDto['formatedName'] = storeDto.name.replace(/ /g, '-');
+      storeDto['formatedName'] = storeDto.name.replace(/ /g, '-').toLowerCase();
 
       if (storeAvatar) {
         storeDto.avatar = storeAvatar;
