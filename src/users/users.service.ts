@@ -79,7 +79,8 @@ export class UsersService {
       ])
       .leftJoinAndSelect('User.files', 'files')
       .leftJoinAndSelect('User.store', 'store')
-      .innerJoinAndSelect('store.avatar', 'avatar')
+      .leftJoinAndSelect('store.avatar', 'avatar')
+      .leftJoinAndSelect('store.background', 'background')
       .getOne();
 
     if (!user) throw new NotFoundException('Usuário não encontrado');
