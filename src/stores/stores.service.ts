@@ -53,7 +53,13 @@ export class StoresService {
 
   findAll() {
     return this.storeRepository.find({
-      join: { alias: 'store', leftJoinAndSelect: { user: 'store.avatar' } },
+      join: {
+        alias: 'store',
+        leftJoinAndSelect: {
+          user: 'store.avatar',
+          background: 'store.background',
+        },
+      },
     });
   }
 
@@ -97,7 +103,13 @@ export class StoresService {
   async findOneByName(formatedName: string) {
     const store = await this.storeRepository.findOne({
       where: { formatedName: formatedName },
-      join: { alias: 'store', leftJoinAndSelect: { user: 'store.avatar' } },
+      join: {
+        alias: 'store',
+        leftJoinAndSelect: {
+          user: 'store.avatar',
+          background: 'store.background',
+        },
+      },
     });
     if (!store) {
       throw new NotFoundException('Store not found');
