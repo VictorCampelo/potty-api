@@ -63,7 +63,13 @@ export class StoresService {
 
   async findOne(id: string) {
     const store = await this.storeRepository.findOne(id, {
-      join: { alias: 'store', leftJoinAndSelect: { user: 'store.avatar' } },
+      join: {
+        alias: 'store',
+        leftJoinAndSelect: {
+          user: 'store.avatar',
+          background: 'store.background',
+        },
+      },
     });
     if (!store) {
       throw new NotFoundException('Store not found');
@@ -82,7 +88,6 @@ export class StoresService {
   async findStoreMe(owner_id: string) {
     const user = await this.usersService.findUserMe(owner_id);
 
-    // const store = await this.storeRepository.findOne(user.store.id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
