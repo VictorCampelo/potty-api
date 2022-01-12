@@ -21,6 +21,7 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { OrderHistoricsModule } from './order-historics/order-historics.module';
+import { PlansModule } from './plans/plans.module';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ dotenv.config();
     DashboardModule,
     CouponsModule,
     OrderHistoricsModule,
+    PlansModule,
   ],
   controllers: [AppController],
   // providers: [

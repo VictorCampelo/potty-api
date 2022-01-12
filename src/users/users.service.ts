@@ -57,7 +57,7 @@ export class UsersService {
         'zipcode',
         'logradouro',
       ],
-      relations: ['files'],
+      relations: ['files', 'plan'],
     });
 
     if (!user) throw new NotFoundException('Usuário não encontrado');

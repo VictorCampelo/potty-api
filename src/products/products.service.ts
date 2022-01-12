@@ -1,5 +1,7 @@
 import {
   forwardRef,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -11,6 +13,7 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { FilesService } from 'src/files/files.service';
 import { StoresService } from 'src/stores/stores.service';
 import { User } from 'src/users/user.entity';
+import { UsersService } from 'src/users/users.service';
 import {
   Equal,
   getConnection,
@@ -35,6 +38,7 @@ export class ProductsService {
     @Inject(forwardRef(() => StoresService))
     private readonly storesService: StoresService,
     private readonly categoriesService: CategoriesService,
+    private readonly usersService: UsersService,
   ) {}
 
   async amountSolds(
@@ -93,6 +97,22 @@ export class ProductsService {
     createProductDto: CreateProductDto,
     user: User,
   ): Promise<Product> {
+    const userWithPlan = await this.usersService.findUserById(user.id);
+    const productAmount = await this.findAll(user.storeId, {});
+    console.log(userWithPlan);
+
+    console.log(productAmount.length, userWithPlan.plan.qtd_products);
+
+    if (
+      !userWithPlan.plan ||
+      userWithPlan.plan.qtd_products <= productAmount.length
+    ) {
+      throw new HttpException(
+        "You don't have a plan or your Products limit has expired",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const store = await this.storesService.findOneByUser(user.id);
     const product = this.productRepository.create();
 

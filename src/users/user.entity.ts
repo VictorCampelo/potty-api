@@ -18,6 +18,7 @@ import * as bcrypt from 'bcrypt';
 import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
 import { Store } from 'src/stores/store.entity';
+import { Plan } from 'src/plans/entities/plan.entity';
 
 @Entity('user')
 @Unique(['email'])
@@ -109,6 +110,13 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   logradouro?: string;
+
+  @ManyToOne(() => Plan, (plan: Plan) => plan.users)
+  @JoinColumn({ name: 'plan_id' })
+  plan: Plan;
+
+  @Column({ type: 'varchar', nullable: true, name: 'plan_id' })
+  planId: string;
 
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

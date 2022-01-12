@@ -1,11 +1,12 @@
 import { CouponRepository } from './coupons.repository';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { LessThan } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { Coupon } from './entities/coupon.entity';
+import _ from 'lodash';
 
 @Injectable()
 export class CouponsService {
@@ -48,8 +49,12 @@ export class CouponsService {
     });
   }
 
-  findAll() {
-    return `This action returns all coupons`;
+  async findAll(storeId: string) {
+    return this.couponRepository.find({
+      where: {
+        storeId,
+      },
+    });
   }
 
   async findOne(code: string) {
@@ -61,16 +66,53 @@ export class CouponsService {
     });
   }
 
+  async findLocal(code: string, storeId: string) {
+    return this.couponRepository.findOne({
+      where: {
+        code,
+        storeId,
+      },
+      // relations: ['categories'],
+    });
+  }
+
   async decreaseUsedCoupon(coupon: Coupon) {
     coupon.maxUsage -= 1;
     return this.couponRepository.save(coupon);
   }
 
-  update(id: number, updateCouponDto: UpdateCouponDto) {
-    return `This action updates a #${id} coupon`;
+  async update(updateCouponDto: UpdateCouponDto, storeId: string, couponCode) {
+    const coupon = await this.findLocal(couponCode, storeId);
+
+    if (!coupon) {
+      throw new HttpException(
+        "The Coupon you're trying to update doesn't belong to your Store",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (updateCouponDto.categoriesIds) {
+      coupon.categories = await this.categoriesService.findAllByIds(
+        updateCouponDto.categoriesIds,
+      );
+
+      updateCouponDto = _.omit(updateCouponDto, 'categoriesIds');
+      await coupon.save();
+    }
+
+    return this.couponRepository.update(coupon.id, updateCouponDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} coupon`;
+  async remove(couponCode: string, storeId: string) {
+    const coupon = await this.findLocal(couponCode, storeId);
+
+    if (!coupon) {
+      throw new HttpException(
+        "The Coupon you're trying to update doesn't belong to your Store",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return this.couponRepository.delete(coupon.id);
   }
 }
