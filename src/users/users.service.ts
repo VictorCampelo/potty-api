@@ -76,6 +76,14 @@ export class UsersService {
         'User.role',
         'User.id',
         'User.profileImage',
+        'User.zipcode',
+        'User.street',
+        'User.addressNumber',
+        'User.neighborhood',
+        'User.complement',
+        'User.city',
+        'User.uf',
+        'User.logradouro',
       ])
       .leftJoinAndSelect('User.files', 'files')
       .leftJoinAndSelect('User.store', 'store')
