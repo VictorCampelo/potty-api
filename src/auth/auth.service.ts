@@ -40,24 +40,30 @@ export class AuthService {
   async signUp(createUserDto: CreateUserDto, role: UserRole): Promise<User> {
     if (createUserDto.password !== createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
-    } else {
+    }
+
+    try {
       const user = await this.userRepository.createUser(createUserDto, role);
 
-      if (
-        !(await this.emailsService.sendEmail(
-          user.email,
-          'Boa de venda - Confirme seu e-mail',
-          'email-confirmation',
-          {
-            token: user.confirmationToken,
-          },
-        ))
-      )
-        throw new HttpException(
-          'Problema no envio de e-mail',
-          HttpStatus.BAD_REQUEST,
-        );
+      await user.save();
+
+      await this.emailsService.sendEmail(
+        user.email,
+        'Boa de venda - Confirme seu e-mail',
+        'email-confirmation',
+        {
+          token: user.confirmationToken,
+        },
+      );
+
+      delete user.password;
+      delete user.salt;
       return user;
+    } catch (error) {
+      throw new HttpException(
+        `Ocorreu um erro ao cadastrar usuário: ${error.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -68,7 +74,9 @@ export class AuthService {
     const { userDto, storeDto } = createUserAndStore;
     if (userDto.password !== userDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
-    } else {
+    }
+
+    try {
       storeDto['formatedName'] = storeDto.name.replace(/ /g, '-').toLowerCase();
 
       if (storeAvatar) {
@@ -80,7 +88,33 @@ export class AuthService {
       user.store = store;
       user.storeId = store.id;
       await user.save();
+
+      await this.emailsService.sendEmail(
+        user.email,
+        'Boa de venda - Confirme seu e-mail',
+        'email-confirmation',
+        {
+          token: user.confirmationToken,
+        },
+      );
+
+      delete user.password;
+      delete user.salt;
       return user;
+    } catch (error) {
+      if (
+        error.detail &&
+        error.detail.includes('Key (email)=(') &&
+        error.detail.includes(') already exists.')
+      ) {
+        error.status = 409;
+        error.message = 'Email inserido já tem cadastro';
+      }
+
+      throw new HttpException(
+        `Ocorreu um erro ao cadastrar lojista: ${error.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 

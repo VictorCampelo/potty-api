@@ -86,20 +86,7 @@ export class UserRepository extends Repository<User> {
     user.uf = uf;
     user.logradouro = logradouro;
 
-    try {
-      await user.save();
-      delete user.password;
-      delete user.salt;
-      return user;
-    } catch (error) {
-      if (error.code === 11000) {
-        throw new ConflictException('Endereço de email já está em uso');
-      } else {
-        throw new InternalServerErrorException(
-          'Erro ao salvar o usuário no banco de dados: ' + error,
-        );
-      }
-    }
+    return user;
   }
 
   async checkCredentials(credentialsDto: CredentialsDto): Promise<User> {
