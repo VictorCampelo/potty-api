@@ -7,6 +7,7 @@ import { ProductRepository } from './products.repository';
 import { FilesModule } from 'src/files/files.module';
 import { PassportModule } from '@nestjs/passport';
 import { CategoriesModule } from 'src/categories/categories.module';
+import { UsersModule } from 'src/users/users.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProductRepository]),
@@ -14,6 +15,7 @@ import { CategoriesModule } from 'src/categories/categories.module';
     FilesModule,
     StoresModule,
     CategoriesModule,
+    UsersModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService],

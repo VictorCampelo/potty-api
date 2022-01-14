@@ -29,6 +29,9 @@ import { CredentialsDto } from './dto/credentials.dto';
 import { GetUser } from './get-user.decorator';
 
 import { multerOptions } from 'src/configs/multer.config';
+import { Role } from './role.decorator';
+import { ChangePlanDto } from './dto/change-plan-dto';
+import { RolesGuard } from './roles.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -91,9 +94,11 @@ export class AuthController {
     }
   }
 
-  @Patch(':token')
+  @Patch('/token/:token')
   async confirmEmail(@Param('token') token: string) {
     try {
+      console.log('to aqui');
+
       if (await this.authService.confirmEmail(token)) {
         return {
           message: 'Email confirmado',
@@ -137,7 +142,7 @@ export class AuthController {
     }
   }
 
-  @Patch(':id/change-password')
+  @Patch('/change-password/:id')
   @UseGuards(AuthGuard())
   async changePassword(
     @Param('id') id: string,
@@ -164,6 +169,19 @@ export class AuthController {
   getMe(@GetUser() user: User): User {
     try {
       return user;
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Patch('/plan')
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Role(UserRole.ADMIN)
+  async changeUserPlan(@Body() changePlanDto: ChangePlanDto) {
+    try {
+      console.log(changePlanDto);
+
+      return await this.authService.changeUserPlan(changePlanDto);
     } catch (error) {
       throw new ErrorHandling(error);
     }

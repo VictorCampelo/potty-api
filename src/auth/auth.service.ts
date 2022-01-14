@@ -13,6 +13,7 @@ import AWS from 'aws-sdk';
 import { ManagedUpload } from 'aws-sdk/clients/s3';
 import { randomBytes } from 'crypto';
 import { EmailsService } from 'src/emails/emails.service';
+import { PlansService } from 'src/plans/plans.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserRole } from '../users/user-roles.enum';
 import { User } from '../users/user.entity';
@@ -20,6 +21,7 @@ import { UserRepository } from '../users/users.repository';
 import { StoresService } from './../stores/stores.service';
 import { UsersService } from './../users/users.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { ChangePlanDto } from './dto/change-plan-dto';
 import { CreateUserStore } from './dto/create-user-store.dto';
 import { CredentialsDto } from './dto/credentials.dto';
 
@@ -32,6 +34,7 @@ export class AuthService {
     private readonly emailsService: EmailsService,
     private readonly storesService: StoresService,
     private readonly usersService: UsersService,
+    private readonly plansService: PlansService,
   ) {}
 
   async signUp(createUserDto: CreateUserDto, role: UserRole): Promise<User> {
@@ -155,5 +158,17 @@ export class AuthService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async changeUserPlan(changePlanDto: ChangePlanDto) {
+    const user = await this.userRepository.findOne(changePlanDto.userId);
+    const plan = await this.plansService.findOne(changePlanDto.planId);
+    user.plan = plan;
+
+    if (!user || !plan) {
+      throw new HttpException('User or Plan not found', HttpStatus.NOT_FOUND);
+    }
+
+    return user.save();
   }
 }
