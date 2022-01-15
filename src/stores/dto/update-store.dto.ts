@@ -2,6 +2,7 @@ import { ScheduleProperties } from '../types/scheduleProperties.interface';
 
 export class UpdateStoreDto {
   name: string;
+  formatedName?: string;
   CNPJ: string;
   phone: string;
   address: string;
