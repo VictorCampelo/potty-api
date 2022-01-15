@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -21,6 +22,7 @@ import { Role } from 'src/auth/role.decorator';
 import { FindMostSolds } from 'src/dashboard/dto/find-most-solds.dto';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { findOrdersDto } from './dto/find-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('orders')
@@ -81,6 +83,16 @@ export class OrdersController {
   async findOneToStore(@Param('id') orderId: string, @GetUser() user: User) {
     try {
       return await this.ordersService.findOneToStore(orderId, user.storeId);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Patch('update')
+  @Role(UserRole.OWNER)
+  async update(@Body(ValidationPipe) updateOrderDto: UpdateOrderDto) {
+    try {
+      return await this.ordersService.updateOrderSituation(updateOrderDto);
     } catch (error) {
       throw new ErrorHandling(error);
     }

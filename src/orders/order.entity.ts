@@ -46,6 +46,15 @@ export class Order extends BaseEntity {
   @Column({ nullable: false, default: false })
   status: boolean;
 
+  @Column({ nullable: false, type: 'varchar', default: 'Recebido' })
+  situation: 'Recebido' | 'Processando' | 'Concluído' | 'Cancelado';
+
+  @Column({ nullable: true, default: false })
+  requiresDelivery?: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  customerAddress?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
