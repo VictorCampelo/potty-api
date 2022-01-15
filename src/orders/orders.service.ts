@@ -21,6 +21,7 @@ import { CouponsService } from 'src/coupons/coupons.service';
 import { UsersService } from 'src/users/users.service';
 import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
 import { Coupon } from 'src/coupons/entities/coupon.entity';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -108,6 +109,13 @@ export class OrdersService {
           user,
           status: false,
           couponId: coupon && coupon.id,
+          requiresDelivery: storeOrder.delivery,
+          customerAddress: `${userInfo.street}, ${userInfo.addressNumber} - ${
+            userInfo.neighborhood
+          }, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${
+            userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''
+          } ${userInfo.logradouro ? `Logradouro: ${userInfo.logradouro}` : ''}`,
+          situation: 'Recebido',
         });
 
         let sumAmount = 0;
@@ -326,9 +334,17 @@ export class OrdersService {
       .map((p) => {
         return '  🏷️ ' + p.amount + 'x ' + p.title + '%0a';
       })
-      .join(
-        '',
-      )}%0a*Total do Pedido:* R$ ${sumAmount}%0a*Forma de Envio:* Entrega%0a*Custo do Envio:* 5,00%0a*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*%0a*Rua*: ${
+      .join('')}%0a*Total do Pedido:* R$ ${sumAmount}%0a*Forma de Envio:* ${
+      delivery ? 'Entrega' : 'Retirada em loja'
+    }%0a${
+      delivery
+        ? `*Custo do Envio:* ${
+            store.deliveryFee
+              ? `${'R$ ' + store.deliveryFee} `
+              : 'Taxa de envio não cadastrada'
+          }%0a`
+        : '%0a'
+    }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*%0a*Rua*: ${
       user.street
     }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${
       user.neighborhood
