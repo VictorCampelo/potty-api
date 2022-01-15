@@ -141,7 +141,11 @@ export class OrdersService {
             customerId: user.id,
           });
 
-          sumAmount += prod.amount * product.price;
+          sumAmount +=
+            prod.amount *
+            (product.discount
+              ? product.price * (product.discount / 100)
+              : product.price);
 
           /* CUPONS */
           if (coupon && coupon.storeId === storeOrder.storeId) {
@@ -160,7 +164,10 @@ export class OrdersService {
                   sumAmount,
                   coupon.discountValue,
                   coupon.discountPorcent,
-                  prod.amount * product.price,
+                  prod.amount *
+                    (product.discount
+                      ? product.price * (product.discount / 100)
+                      : product.price),
                 );
 
                 couponWasUsed = true;
@@ -177,7 +184,10 @@ export class OrdersService {
                 sumAmount,
                 coupon.discountValue,
                 coupon.discountPorcent,
-                prod.amount * product.price,
+                prod.amount *
+                  (product.discount
+                    ? product.price * (product.discount / 100)
+                    : product.price),
               );
 
               couponWasUsed = true;
@@ -195,7 +205,10 @@ export class OrdersService {
                   sumAmount,
                   coupon.discountValue,
                   coupon.discountPorcent,
-                  prod.amount * product.price,
+                  prod.amount *
+                    (product.discount
+                      ? product.price * (product.discount / 100)
+                      : product.price),
                 );
 
                 couponWasUsed = true;

@@ -44,8 +44,6 @@ export class ProductsController {
   @Get('category/:id')
   @Role(UserRole.OWNER)
   async findFromCategory(@Param('id') categoryId: string) {
-    console.log('test');
-
     try {
       return await this.productsService.findFromCategory(categoryId);
     } catch (error) {

@@ -98,10 +98,8 @@ export class ProductsService {
     user: User,
   ): Promise<Product> {
     const userWithPlan = await this.usersService.findUserById(user.id);
-    const productAmount = await this.findAll(user.storeId, {});
-    console.log(userWithPlan);
 
-    console.log(productAmount.length, userWithPlan.plan.qtd_products);
+    const productAmount = await this.findAll(user.storeId, {});
 
     if (
       !userWithPlan.plan ||
@@ -116,6 +114,7 @@ export class ProductsService {
     const store = await this.storesService.findOneByUser(user.id);
     const product = this.productRepository.create();
 
+    product.discount = createProductDto.discount;
     product.title = createProductDto.title;
     product.price = createProductDto.price;
     product.inventory = createProductDto.inventory;
@@ -138,10 +137,6 @@ export class ProductsService {
       product.categories = await this.categoriesService.findAllByIds(
         createProductDto.categoriesIds,
       );
-    }
-
-    if (createProductDto.discount) {
-      product.discount = createProductDto.discount / 100;
     }
 
     return product.save();
