@@ -13,6 +13,7 @@ export class UpdateStoreDto {
   instagramLink?: string;
   whatsappLink?: string;
   shedules: ScheduleProperties;
+  deliveryFee?: number;
   categoriesIds?: string[];
   avatar: Express.Multer.File;
   background: Express.Multer.File;

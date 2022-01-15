@@ -12,6 +12,7 @@ export class CreateStoreDto {
   instagramLink?: string;
   whatsappLink?: string;
   shedules?: ScheduleProperties;
+  deliveryFee?: number;
 
   @IsOptional()
   avatar?: Express.Multer.File;
