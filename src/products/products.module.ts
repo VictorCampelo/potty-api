@@ -13,6 +13,10 @@ import { FilesModule } from 'src/files/files.module';
 import { PassportModule } from '@nestjs/passport';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { UsersModule } from 'src/users/users.module';
+import { celebrate } from 'celebrate';
+import { createProductValidation } from './validations/create-product.validation';
+import { findProductsValidation } from './validations/find-products.validation';
+import { updateProductValidation } from './validations/update-product.validation';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProductRepository]),
