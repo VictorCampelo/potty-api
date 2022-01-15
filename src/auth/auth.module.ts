@@ -1,5 +1,5 @@
 import { UsersModule } from './../users/users.module';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,6 +10,15 @@ import { JwtStrategy } from './jwt.strategy';
 import { EmailsModule } from 'src/emails/emails.module';
 import { StoresModule } from 'src/stores/stores.module';
 import { PlansModule } from 'src/plans/plans.module';
+import { celebrate } from 'celebrate';
+import { parseFormDataJsonInterceptor } from 'src/interceptors/parseFormData.interceptor';
+import { createUserStoreValidation } from './validations/create-store.validation';
+import { authStoreValidation } from './validations/auth-store.validation';
+import { createUserValidation } from './validations/create-user.validation';
+import { confirmaEmailValidation } from './validations/confirm-email.validation';
+import { sendRecoverEmailValidation } from './validations/send-recover-email.validation';
+import { resetPasswordValidation } from './validations/reset-password.validation';
+import { changePasswordValidation } from './validations/change-password.validation';
 
 @Module({
   imports: [
@@ -30,4 +39,26 @@ import { PlansModule } from 'src/plans/plans.module';
   providers: [AuthService, JwtStrategy],
   exports: [JwtStrategy, PassportModule],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  async configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(
+        parseFormDataJsonInterceptor({ except: ['avatar'] }),
+        celebrate(createUserStoreValidation),
+      )
+      .forRoutes('auth/signup-store');
+    consumer.apply(celebrate(createUserValidation)).forRoutes('auth/signup');
+    consumer.apply(celebrate(authStoreValidation)).forRoutes('auth/signin');
+    consumer.apply(celebrate(confirmaEmailValidation)).forRoutes('auth/:token');
+    consumer
+      .apply(celebrate(sendRecoverEmailValidation))
+      .forRoutes('auth/send-recover-email');
+    consumer
+      .apply(celebrate(resetPasswordValidation))
+      .forRoutes('auth/reset-password/:token');
+
+    consumer
+      .apply(celebrate(changePasswordValidation))
+      .forRoutes('auth/:id/change-password');
+  }
+}
