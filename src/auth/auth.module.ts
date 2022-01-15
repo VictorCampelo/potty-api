@@ -19,6 +19,7 @@ import { confirmaEmailValidation } from './validations/confirm-email.validation'
 import { sendRecoverEmailValidation } from './validations/send-recover-email.validation';
 import { resetPasswordValidation } from './validations/reset-password.validation';
 import { changePasswordValidation } from './validations/change-password.validation';
+import { changePlanValidation } from './validations/change-plan.validation';
 
 @Module({
   imports: [
@@ -60,5 +61,7 @@ export class AuthModule implements NestModule {
     consumer
       .apply(celebrate(changePasswordValidation))
       .forRoutes('auth/:id/change-password');
+
+    consumer.apply(celebrate(changePlanValidation)).forRoutes('auth/plan');
   }
 }

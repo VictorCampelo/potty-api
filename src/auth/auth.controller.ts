@@ -170,8 +170,6 @@ export class AuthController {
   @Role(UserRole.ADMIN)
   async changeUserPlan(@Body() changePlanDto: ChangePlanDto) {
     try {
-      console.log(changePlanDto);
-
       return await this.authService.changeUserPlan(changePlanDto);
     } catch (error) {
       throw new ErrorHandling(error);
