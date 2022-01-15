@@ -84,6 +84,20 @@ export class OrdersService {
       }
 
       for (const storeOrder of createOrderDto.products) {
+        if (
+          storeOrder.delivery &&
+          (!userInfo.zipcode ||
+            !userInfo.city ||
+            !userInfo.street ||
+            !userInfo.neighborhood ||
+            !userInfo.addressNumber)
+        ) {
+          throw new HttpException(
+            'Missing some address information from Customer: zipcode, city, neighborhood, street or addressNumber',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
         const store: Store = stores.find(
           (obj) => obj.id === storeOrder.storeId,
         );
