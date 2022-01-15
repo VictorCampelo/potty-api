@@ -1,6 +1,8 @@
 import { FilesService } from './../files/files.service';
 import {
   forwardRef,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -124,6 +126,19 @@ export class StoresService {
     files: Express.Multer.File[],
   ) {
     const store = await this.findOne(id);
+
+    if (updateStoreDto.name) {
+      if (!/^[A-Za-z0-9_-]+$/g.test(updateStoreDto.name.replace(/ /g, '-'))) {
+        throw new HttpException(
+          'Nome da Loja contém caracteres inválidos',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      updateStoreDto['formatedName'] = updateStoreDto.name
+        .replace(/ /g, '-')
+        .toLowerCase();
+    }
 
     if (files && files[0]) {
       const avatar = await this.filesService.uploadSingleFileToS3(

@@ -21,6 +21,7 @@ import { CouponsService } from 'src/coupons/coupons.service';
 import { UsersService } from 'src/users/users.service';
 import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
 import { Coupon } from 'src/coupons/entities/coupon.entity';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -84,6 +85,20 @@ export class OrdersService {
       }
 
       for (const storeOrder of createOrderDto.products) {
+        if (
+          storeOrder.delivery &&
+          (!userInfo.zipcode ||
+            !userInfo.city ||
+            !userInfo.street ||
+            !userInfo.neighborhood ||
+            !userInfo.addressNumber)
+        ) {
+          throw new HttpException(
+            'Missing some address information from Customer: zipcode, city, neighborhood, street or addressNumber',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
         const store: Store = stores.find(
           (obj) => obj.id === storeOrder.storeId,
         );
@@ -94,6 +109,13 @@ export class OrdersService {
           user,
           status: false,
           couponId: coupon && coupon.id,
+          requiresDelivery: storeOrder.delivery,
+          customerAddress: `${userInfo.street}, ${userInfo.addressNumber} - ${
+            userInfo.neighborhood
+          }, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${
+            userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''
+          } ${userInfo.logradouro ? `Logradouro: ${userInfo.logradouro}` : ''}`,
+          situation: 'Recebido',
         });
 
         let sumAmount = 0;
@@ -141,7 +163,11 @@ export class OrdersService {
             customerId: user.id,
           });
 
-          sumAmount += prod.amount * product.price;
+          sumAmount +=
+            prod.amount *
+            (product.discount
+              ? product.price * (product.discount / 100)
+              : product.price);
 
           /* CUPONS */
           if (coupon && coupon.storeId === storeOrder.storeId) {
@@ -160,7 +186,10 @@ export class OrdersService {
                   sumAmount,
                   coupon.discountValue,
                   coupon.discountPorcent,
-                  prod.amount * product.price,
+                  prod.amount *
+                    (product.discount
+                      ? product.price * (product.discount / 100)
+                      : product.price),
                 );
 
                 couponWasUsed = true;
@@ -177,7 +206,10 @@ export class OrdersService {
                 sumAmount,
                 coupon.discountValue,
                 coupon.discountPorcent,
-                prod.amount * product.price,
+                prod.amount *
+                  (product.discount
+                    ? product.price * (product.discount / 100)
+                    : product.price),
               );
 
               couponWasUsed = true;
@@ -195,7 +227,10 @@ export class OrdersService {
                   sumAmount,
                   coupon.discountValue,
                   coupon.discountPorcent,
-                  prod.amount * product.price,
+                  prod.amount *
+                    (product.discount
+                      ? product.price * (product.discount / 100)
+                      : product.price),
                 );
 
                 couponWasUsed = true;
@@ -230,6 +265,7 @@ export class OrdersService {
             productsListToMsg,
             sumAmount,
             store,
+            storeOrder.delivery,
           ),
         );
 
@@ -282,6 +318,7 @@ export class OrdersService {
     productsListToMsg: IProductsToListMsg[],
     sumAmount: number,
     store: Store,
+    delivery?: boolean,
   ) {
     const paymentMethod = `${productsListToMsg.map((p) => {
       if (p.parcels > 1) {
@@ -297,9 +334,17 @@ export class OrdersService {
       .map((p) => {
         return '  🏷️ ' + p.amount + 'x ' + p.title + '%0a';
       })
-      .join(
-        '',
-      )}%0a*Total do Pedido:* R$ ${sumAmount}%0a*Forma de Envio:* Entrega%0a*Custo do Envio:* 5,00%0a*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*%0a*Rua*: ${
+      .join('')}%0a*Total do Pedido:* R$ ${sumAmount}%0a*Forma de Envio:* ${
+      delivery ? 'Entrega' : 'Retirada em loja'
+    }%0a${
+      delivery
+        ? `*Custo do Envio:* ${
+            store.deliveryFee
+              ? `${'R$ ' + store.deliveryFee} `
+              : 'Taxa de envio não cadastrada'
+          }%0a`
+        : '%0a'
+    }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*%0a*Rua*: ${
       user.street
     }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${
       user.neighborhood
@@ -425,5 +470,16 @@ income(
       skip: offset ? offset : 0,
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async updateOrderSituation(updateOrderDto: UpdateOrderDto) {
+    return this.orderRepository.update(
+      {
+        id: updateOrderDto.orderId,
+      },
+      {
+        situation: updateOrderDto.situation,
+      },
+    );
   }
 }

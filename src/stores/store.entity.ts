@@ -48,8 +48,14 @@ export class Store extends BaseEntity {
   @Column({ nullable: true, type: 'varchar', length: 45 })
   phone: string;
 
-  @Column({ nullable: true, type: 'varchar', length: 256 })
-  address?: string;
+  @Column({ nullable: true })
+  street?: string;
+
+  @Column({ nullable: true })
+  addressNumber?: number;
+
+  @Column({ nullable: true })
+  neighborhood?: string;
 
   @Column({ nullable: false, type: 'varchar', length: 45 })
   city: string;
@@ -135,6 +141,9 @@ export class Store extends BaseEntity {
 
   @Column({ nullable: false, default: 0 })
   likes: number;
+
+  @Column({ nullable: false, default: 0.0 })
+  deliveryFee: number;
 
   @OneToMany(() => Order, (order) => order.store)
   orders: Order[];

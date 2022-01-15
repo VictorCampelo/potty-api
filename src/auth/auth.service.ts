@@ -77,6 +77,13 @@ export class AuthService {
     }
 
     try {
+      if (!/^[A-Za-z0-9_-]+$/g.test(storeDto.name.replace(/ /g, '-'))) {
+        throw new HttpException(
+          'Nome da Loja contém caracteres inválidos',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       storeDto['formatedName'] = storeDto.name.replace(/ /g, '-').toLowerCase();
 
       if (storeAvatar) {
@@ -196,12 +203,18 @@ export class AuthService {
 
   async changeUserPlan(changePlanDto: ChangePlanDto) {
     const user = await this.userRepository.findOne(changePlanDto.userId);
-    const plan = await this.plansService.findOne(changePlanDto.planId);
-    user.plan = plan;
 
-    if (!user || !plan) {
-      throw new HttpException('User or Plan not found', HttpStatus.NOT_FOUND);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    const plan = await this.plansService.findOne(changePlanDto.planId);
+
+    if (!plan) {
+      throw new HttpException('Plan not found', HttpStatus.NOT_FOUND);
+    }
+
+    user.plan = plan;
 
     return user.save();
   }

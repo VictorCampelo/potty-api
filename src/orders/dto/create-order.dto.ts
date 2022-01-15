@@ -6,6 +6,7 @@ interface IProducts {
 interface IOrder {
   storeId: string;
   orderProducts: IProducts[];
+  delivery?: boolean;
 }
 
 export class CreateOrderDto {
