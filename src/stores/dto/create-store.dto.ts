@@ -1,6 +1,7 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { ScheduleProperties } from './../types/scheduleProperties.interface';
 export class CreateStoreDto {
+  @IsString()
   name: string;
   CNPJ: string;
   phone: string;
