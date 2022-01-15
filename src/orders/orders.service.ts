@@ -428,4 +428,15 @@ income(
       order: { createdAt: 'DESC' },
     });
   }
+
+  async updateOrderSituation(updateOrderDto: UpdateOrderDto) {
+    return this.orderRepository.update(
+      {
+        id: updateOrderDto.orderId,
+      },
+      {
+        situation: updateOrderDto.situation,
+      },
+    );
+  }
 }
