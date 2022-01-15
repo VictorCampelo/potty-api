@@ -230,6 +230,7 @@ export class OrdersService {
             productsListToMsg,
             sumAmount,
             store,
+            storeOrder.delivery,
           ),
         );
 
@@ -282,6 +283,7 @@ export class OrdersService {
     productsListToMsg: IProductsToListMsg[],
     sumAmount: number,
     store: Store,
+    delivery?: boolean,
   ) {
     const paymentMethod = `${productsListToMsg.map((p) => {
       if (p.parcels > 1) {
