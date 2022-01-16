@@ -1,5 +1,10 @@
 import { UsersModule } from './../users/users.module';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,7 +17,6 @@ import { StoresModule } from 'src/stores/stores.module';
 import { PlansModule } from 'src/plans/plans.module';
 import { celebrate } from 'celebrate';
 import { parseFormDataJsonInterceptor } from 'src/interceptors/parseFormData.interceptor';
-import { createUserStoreValidation } from './validations/create-store.validation';
 import { authStoreValidation } from './validations/auth-store.validation';
 import { createUserValidation } from './validations/create-user.validation';
 import { confirmaEmailValidation } from './validations/confirm-email.validation';
@@ -43,11 +47,8 @@ import { changePlanValidation } from './validations/change-plan.validation';
 export class AuthModule implements NestModule {
   async configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(
-        parseFormDataJsonInterceptor({ except: ['avatar'] }),
-        celebrate(createUserStoreValidation),
-      )
-      .forRoutes('auth/signup-store');
+      .apply(parseFormDataJsonInterceptor({ except: ['avatar'] }))
+      .forRoutes({ path: 'auth/signup-store', method: RequestMethod.POST });
     consumer.apply(celebrate(createUserValidation)).forRoutes('auth/signup');
     consumer.apply(celebrate(authStoreValidation)).forRoutes('auth/signin');
     consumer.apply(celebrate(confirmaEmailValidation)).forRoutes('auth/:token');

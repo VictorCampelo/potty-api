@@ -5,8 +5,8 @@ import {
   Param,
   Patch,
   Post,
+  Response,
   UnauthorizedException,
-  UploadedFile,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -37,17 +37,19 @@ export class AuthController {
   @Post('/signup-store')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateUserStore })
-  async createUserAndStore(
-    @UploadedFile() storeAvatar: Express.Multer.File,
-    @Body()
-    createUserAndStore: CreateUserStore,
-  ) {
+  async createUserAndStore(@Response() res) {
+    const { storeDto, userDto, avatar } = res.locals;
     try {
       const user = await this.authService.signUpOwner(
-        createUserAndStore,
-        storeAvatar,
+        {
+          storeDto,
+          userDto,
+        },
+        avatar,
       );
-      return { user: user, message: 'User and Store createds.' };
+      return res
+        .status(200)
+        .json({ user: user, message: 'User and Store createds.' });
     } catch (error) {
       if (
         error.detail &&

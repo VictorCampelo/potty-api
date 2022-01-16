@@ -36,7 +36,10 @@ export class ErrorFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       this.httpAdapterHost.reply(
         ctx.getResponse(),
-        exception.getResponse(),
+        {
+          message: exception.getResponse(),
+          status: 'error',
+        },
         exception.getStatus(),
       );
       return;
