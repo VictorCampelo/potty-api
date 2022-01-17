@@ -32,7 +32,7 @@ export class OrdersController {
     private readonly storesService: StoresService,
   ) {}
 
-  @Post('')
+  @Post()
   @Role(UserRole.USER)
   async create(
     @Body() createOrderDto: CreateOrderDto,

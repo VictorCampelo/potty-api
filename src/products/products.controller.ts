@@ -63,7 +63,7 @@ export class ProductsController {
   @Get('store/:id')
   async findAllProduct(
     @Param('id') storeId: string,
-    @Query(ValidationPipe) findProductsDto: FindProductsDto,
+    @Query() findProductsDto: FindProductsDto,
   ) {
     try {
       return await this.productsService.findAll(storeId, findProductsDto);
@@ -77,7 +77,7 @@ export class ProductsController {
   @Role(UserRole.OWNER)
   @UseInterceptors(FilesInterceptor('files', 3, multerOptions))
   async create(
-    @Body(ValidationPipe) createProductDto: CreateProductDto,
+    @Body() createProductDto: CreateProductDto,
     @GetUser() user: User,
     @UploadedFiles() images?: Express.Multer.File[],
   ) {

@@ -30,43 +30,25 @@ export class File extends BaseEntity {
   alternativeText: string;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
-  caption: string;
-
-  @Column({ nullable: true, type: 'varchar', length: 255 })
-  hash: string;
-
-  @Column({ nullable: true, type: 'varchar', length: 255 })
-  ext: string;
-
-  @Column({ nullable: true, type: 'varchar', length: 255 })
-  mime: string;
-
-  @Column({ nullable: true, type: 'varchar', length: 255 })
-  provider: string;
-
-  @Column({ nullable: true, type: 'varchar', length: 255 })
   url: string;
 
   @Column({ nullable: true, type: 'varchar', length: 255 })
   previewUrl: string;
 
-  @Column({ nullable: true, type: 'int4' })
-  width: number;
+  @Column({ nullable: true, type: 'varchar', length: 255 })
+  provider: string;
 
-  @Column({ nullable: true, type: 'int4' })
-  height: number;
+  @Column({ nullable: true, type: 'jsonb' })
+  providerMetadata: any;
+
+  @Column({ nullable: false, type: 'varchar' })
+  ext: string;
 
   @Column({ nullable: true, type: 'int4' })
   createdBy: number;
 
   @Column({ nullable: true, type: 'int4' })
   updatedBy: number;
-
-  @Column({ nullable: true, type: 'jsonb' })
-  formats: any;
-
-  @Column({ nullable: true, type: 'jsonb' })
-  providerMetadata: any;
 
   @ManyToOne(() => User, (user) => user.files)
   @JoinColumn({ name: 'user_id' })
@@ -78,9 +60,6 @@ export class File extends BaseEntity {
   @ManyToOne(() => Store, (store) => store.files)
   store: Store;
 
-  @Column({ nullable: true, type: 'simple-array' })
-  tags: string[];
-
   @CreateDateColumn()
   createdAt: Date;
 
@@ -90,3 +69,8 @@ export class File extends BaseEntity {
   @DeleteDateColumn()
   deletedAt: Date;
 }
+
+export type FileAttributes = Omit<
+  File,
+  'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
+>;

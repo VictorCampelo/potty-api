@@ -1,5 +1,10 @@
 import { StoresModule } from 'src/stores/stores.module';
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,6 +14,8 @@ import { ProductsModule } from 'src/products/products.module';
 import { CouponsModule } from 'src/coupons/coupons.module';
 import { OrderHistoricsModule } from 'src/order-historics/order-historics.module';
 import { UsersModule } from 'src/users/users.module';
+import { celebrate } from 'celebrate';
+import { createOrderValidation } from './validations/create-order.validation';
 
 @Module({
   imports: [
@@ -24,4 +31,10 @@ import { UsersModule } from 'src/users/users.module';
   providers: [OrdersService],
   exports: [OrdersService],
 })
-export class OrdersModule {}
+export class OrdersModule implements NestModule {
+  async configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(celebrate(createOrderValidation))
+      .forRoutes({ path: 'orders', method: RequestMethod.POST });
+  }
+}

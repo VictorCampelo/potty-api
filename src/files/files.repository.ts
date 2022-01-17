@@ -1,18 +1,10 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { File } from './file.entity';
+import { File, FileAttributes } from './file.entity';
 import { InternalServerErrorException } from '@nestjs/common';
-
-interface IFile {
-  name?: string;
-  filename: string;
-  url?: string;
-  tags?: string[];
-  // user: User;
-}
 
 @EntityRepository(File)
 export class FileRepository extends Repository<File> {
-  createFile(fileOnRequest: IFile): File {
+  createFile(fileOnRequest: Partial<FileAttributes>): File {
     let fileToUpload = this.create();
     fileToUpload = Object.assign(fileToUpload, fileOnRequest);
     try {
