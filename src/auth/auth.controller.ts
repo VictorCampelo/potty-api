@@ -2,11 +2,14 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
-  Response,
   UnauthorizedException,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -16,6 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { UserRole } from 'src/users/user-roles.enum';
+import { StoresService } from '../stores/stores.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 import { AuthService } from './auth.service';
@@ -37,19 +41,22 @@ export class AuthController {
   @Post('/signup-store')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateUserStore })
-  async createUserAndStore(@Response() res) {
-    const { storeDto, userDto, avatar } = res.locals;
+  async createUserAndStore(
+    @UploadedFile() storeAvatar: Express.Multer.File,
+    @Body(ValidationPipe) createUserAndStore: CreateUserStore,
+  ) {
+    const { storeDto, userDto } = JSON.parse(
+      JSON.stringify(createUserAndStore),
+    );
     try {
       const user = await this.authService.signUpOwner(
         {
-          storeDto,
-          userDto,
+          storeDto: JSON.parse(storeDto as any),
+          userDto: JSON.parse(userDto as any),
         },
-        avatar,
+        storeAvatar,
       );
-      return res
-        .status(200)
-        .json({ user: user, message: 'User and Store createds.' });
+      return { user: user, message: 'User and Store createds.' };
     } catch (error) {
       if (
         error.detail &&
@@ -65,7 +72,7 @@ export class AuthController {
   }
 
   @Post('/signup')
-  async signUp(@Body() createUserDto: CreateUserDto) {
+  async signUp(@Body(ValidationPipe) createUserDto: CreateUserDto) {
     try {
       await this.authService.signUp(createUserDto, UserRole.USER);
       return {
@@ -139,7 +146,7 @@ export class AuthController {
   @UseGuards(AuthGuard())
   async changePassword(
     @Param('id') id: string,
-    @Body() changePasswordDto: ChangePasswordDto,
+    @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
     @GetUser() user: User,
   ) {
     try {
@@ -172,6 +179,8 @@ export class AuthController {
   @Role(UserRole.ADMIN)
   async changeUserPlan(@Body() changePlanDto: ChangePlanDto) {
     try {
+      console.log(changePlanDto);
+
       return await this.authService.changeUserPlan(changePlanDto);
     } catch (error) {
       throw new ErrorHandling(error);

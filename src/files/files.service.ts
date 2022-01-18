@@ -123,8 +123,6 @@ export class FilesService {
         name: file.originalname,
         url: `${process.env.S3_URL}${fileName}`,
         filename: fileName,
-        alternativeText: file.originalname,
-        ext: extension,
       });
     } catch (error) {
       console.log(error);
