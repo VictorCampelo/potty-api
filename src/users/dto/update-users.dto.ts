@@ -51,4 +51,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   logradouro?: string;
+
+  @IsOptional()
+  profileImage: Express.Multer.File;
 }

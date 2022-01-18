@@ -159,7 +159,7 @@ export class UsersController {
   ) {
     try {
       const id = user.id;
-      return this.usersService.updateUser({ id, updateUserDto, file });
+      return await this.usersService.updateUser({ id, updateUserDto, file });
     } catch (error) {
       throw new ErrorHandling(error);
     }

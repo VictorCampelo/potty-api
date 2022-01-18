@@ -13,6 +13,7 @@ import { UserRole } from './user-roles.enum';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { FilesService } from 'src/files/files.service';
 import { getConnection } from 'typeorm';
+import _ from 'lodash';
 
 @Injectable()
 export class UsersService {
@@ -47,7 +48,6 @@ export class UsersService {
         'lastName',
         'role',
         'id',
-        'profileImage',
         'street',
         'addressNumber',
         'neighborhood',
@@ -57,7 +57,7 @@ export class UsersService {
         'zipcode',
         'logradouro',
       ],
-      relations: ['files', 'plan'],
+      relations: ['files', 'plan', 'profileImage'],
     });
 
     if (!user) throw new NotFoundException('Usuário não encontrado');
@@ -75,7 +75,6 @@ export class UsersService {
         'User.lastName',
         'User.role',
         'User.id',
-        'User.profileImage',
         'User.zipcode',
         'User.street',
         'User.addressNumber',
@@ -89,6 +88,7 @@ export class UsersService {
       .leftJoinAndSelect('User.store', 'store')
       .leftJoinAndSelect('store.avatar', 'avatar')
       .leftJoinAndSelect('store.background', 'background')
+      .leftJoinAndSelect('User.profileImage', 'profileImage')
       .getOne();
 
     if (!user) throw new NotFoundException('Usuário não encontrado');
@@ -112,14 +112,20 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('user not found');
     }
+
     user = Object.assign(user, updateUserRequestDto.updateUserDto);
+
     if (updateUserRequestDto.file && user) {
-      file = await this.filesService.createFiles([updateUserRequestDto.file]);
+      // file = await this.filesService.createFiles([updateUserRequestDto.file]);
+      file = await this.filesService.uploadSingleFileToS3(
+        updateUserRequestDto.file,
+        user.id,
+      );
+      await this.filesService.saveFile(file);
       user.profileImage = file;
     }
-    user = await this.userRepository.save(user);
-    await this.filesService.saveFile(file);
-    return user;
+
+    return this.userRepository.save(user);
   }
 
   async addUserPic(user: User, newProfileImage: Express.Multer.File) {
