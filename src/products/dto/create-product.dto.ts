@@ -5,7 +5,7 @@ import { Transform } from 'class-transformer';
 export class CreateProductDto {
   title: string;
 
-  @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
+  @Transform(({ value }) => parseInt(value))
   @IsInt()
   @Min(0)
   price: number;
@@ -14,7 +14,7 @@ export class CreateProductDto {
 
   tags?: string[];
 
-  @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
+  @Transform(({ value }) => parseInt(value))
   @IsInt()
   @Min(0)
   inventory: number;
@@ -23,14 +23,14 @@ export class CreateProductDto {
 
   categoriesIds?: string[];
 
-  @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
+  @Transform(({ value }) => parseInt(value))
   @IsInt()
   @Min(0)
   @Max(100)
   @IsOptional()
   discount?: number;
 
-  @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
+  @Transform(({ value }) => parseInt(value))
   @IsOptional()
   @IsInt()
   @Min(1)
