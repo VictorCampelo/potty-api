@@ -23,13 +23,14 @@ export class CreateProductDto {
 
   categoriesIds?: string[];
 
-  // @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
+  @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
   @IsInt()
   @Min(0)
   @Max(100)
   @IsOptional()
   discount?: number;
 
+  @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
   @IsOptional()
   @IsInt()
   @Min(1)
