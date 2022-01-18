@@ -6,6 +6,8 @@ export class CreateProductDto {
   title: string;
 
   @Transform((value) => (Number.isNaN(+value) ? 0 : +value))
+  @IsInt()
+  @Min(0)
   price: number;
 
   description?: string;
