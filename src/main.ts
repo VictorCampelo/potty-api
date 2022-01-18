@@ -17,7 +17,7 @@ async function bootstrap() {
     dsn: process.env.SENTRY_DNS,
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.enableCors();
 
   app.use(json({ limit: '500mb' }));
