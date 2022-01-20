@@ -133,7 +133,7 @@ export class ProductsService {
       );
     }
 
-    if (createProductDto.categoriesIds) {
+    if (createProductDto.categoriesIds.length) {
       product.categories = await this.categoriesService.findAllByIds(
         createProductDto.categoriesIds,
       );
