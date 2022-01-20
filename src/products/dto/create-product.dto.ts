@@ -21,6 +21,7 @@ export class CreateProductDto {
 
   files?: Express.Multer.File[];
 
+  @IsOptional()
   categoriesIds?: string[];
 
   @Transform(({ value }) => parseInt(value))
