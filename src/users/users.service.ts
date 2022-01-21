@@ -4,6 +4,8 @@ import {
   Injectable,
   UnprocessableEntityException,
   NotFoundException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from './users.repository';
@@ -33,8 +35,19 @@ export class UsersService {
 
   //TODO criar dtos para owner
   async createOwnerUser(createUserDto: CreateUserDto): Promise<User> {
+    const existentEmailUser = await this.userRepository.findOne({
+      where: {
+        email: createUserDto.email,
+      },
+    });
+
     if (createUserDto.password != createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('Passwords dont match');
+    } else if (existentEmailUser) {
+      throw new HttpException(
+        'E-mail de usuário já está em uso',
+        HttpStatus.BAD_REQUEST,
+      );
     } else {
       return this.userRepository.createUser(createUserDto, UserRole.OWNER);
     }
