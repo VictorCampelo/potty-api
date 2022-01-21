@@ -42,7 +42,7 @@ export class StoresService {
       await this.filesService.saveFile(avatar);
     }
 
-    return this.storeRepository.save(store);
+    return store;
   }
 
   async save(store: Store) {

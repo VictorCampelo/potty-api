@@ -94,6 +94,8 @@ export class AuthService {
       const user = await this.usersService.createOwnerUser(userDto);
       user.store = store;
       user.storeId = store.id;
+
+      await store.save();
       await user.save();
 
       await this.emailsService.sendEmail(
