@@ -31,6 +31,19 @@ export class StoresService {
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
     const store = await this.storeRepository.createStore(createStoreDto);
 
+    const storeNameAlreadyExists = await this.storeRepository.findOne({
+      where: {
+        formatedName: store.formatedName,
+      },
+    });
+
+    if (storeNameAlreadyExists) {
+      throw new HttpException(
+        'Já existe uma Loja com esse nome',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     if (createStoreDto.avatar) {
       const avatar = await this.filesService.uploadSingleFileToS3(
         createStoreDto.avatar,
@@ -42,7 +55,7 @@ export class StoresService {
       await this.filesService.saveFile(avatar);
     }
 
-    return this.storeRepository.save(store);
+    return store;
   }
 
   async save(store: Store) {
