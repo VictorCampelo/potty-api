@@ -133,7 +133,10 @@ export class ProductsService {
       );
     }
 
-    if (createProductDto.categoriesIds.length) {
+    if (
+      createProductDto.categoriesIds.length &&
+      createProductDto.categoriesIds[0].length > 0
+    ) {
       product.categories = await this.categoriesService.findAllByIds(
         createProductDto.categoriesIds,
       );
