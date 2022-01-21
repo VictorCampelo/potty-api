@@ -11,19 +11,6 @@ export class StoreRepository extends Repository<Store> {
     super();
   }
   async createStore(createStoreDto: CreateStoreDto): Promise<Store> {
-    const storeNameAlreadyExists = await this.findOne({
-      where: {
-        name: createStoreDto.name,
-      },
-    });
-
-    if (storeNameAlreadyExists) {
-      throw new HttpException(
-        'Já existe uma Loja com esse nome',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const createStore = _.omit(createStoreDto, 'files');
 
     return this.create(createStore);
