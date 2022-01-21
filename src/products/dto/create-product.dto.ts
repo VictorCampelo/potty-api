@@ -24,7 +24,7 @@ export class CreateProductDto {
   @IsOptional()
   @Transform(({ value }) =>
     typeof value === 'string'
-      ? value.replace(']', '').replace('[', '').split(',')
+      ? value.replace(']', '').replace('[', '').replace('"', '').split(',')
       : value,
   )
   categoriesIds?: string[];
