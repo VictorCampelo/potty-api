@@ -166,7 +166,7 @@ export class OrdersService {
           sumAmount +=
             prod.amount *
             (product.discount
-              ? product.price * (product.discount / 100)
+              ? product.price - product.price * (product.discount / 100)
               : product.price);
 
           /* CUPONS */
