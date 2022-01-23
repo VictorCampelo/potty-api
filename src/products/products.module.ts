@@ -3,14 +3,14 @@ import { Module } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductRepository } from './products.repository';
 import { FilesModule } from 'src/files/files.module';
 import { PassportModule } from '@nestjs/passport';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { UsersModule } from 'src/users/users.module';
+import { Product } from './product.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ProductRepository]),
+    TypeOrmModule.forFeature([Product]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     FilesModule,
     StoresModule,

@@ -21,19 +21,19 @@ import {
   MoreThan,
   MoreThanOrEqual,
   Not,
+  Repository,
 } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductsDto } from './dto/find-products.dto';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
-import { ProductRepository } from './products.repository';
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(ProductRepository)
-    private readonly productRepository: ProductRepository,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
     private readonly filesService: FilesService,
     @Inject(forwardRef(() => StoresService))
     private readonly storesService: StoresService,
