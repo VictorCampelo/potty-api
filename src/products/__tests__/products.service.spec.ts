@@ -6,6 +6,7 @@ import { FilesService } from 'src/files/files.service';
 import { StoresService } from 'src/stores/stores.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UsersService } from 'src/users/users.service';
+import Util from './util/util';
 
 describe('ProductsService', () => {
   let service: ProductsService;
@@ -50,20 +51,19 @@ describe('ProductsService', () => {
 
   describe('find products', () => {
     it('should find products by its IDs and storeId', async () => {
-      const product = new Product();
-      product.id = '1';
-      product.storeId = '2';
-      mockRepository.findByIds.mockReturnValue([product]);
+      const storeId = '1';
+      const product1 = Util.giveMeAValidProduct('1', storeId);
+      const product2 = Util.giveMeAValidProduct('2', storeId);
+      mockRepository.findByIds.mockReturnValueOnce([product1, product2]);
 
       const spy = jest.spyOn(service, 'findProductstByIdsAndStoreId');
       const productsFound = await service.findProductstByIdsAndStoreId(
-        [product.id],
-        product.storeId,
+        [product1.id, product2.storeId],
+        storeId,
       );
 
       expect(spy).toHaveBeenCalled();
-
-      expect(productsFound).toMatchObject([product]);
+      expect(productsFound).toMatchObject([product1, product2]);
     });
   });
 });
