@@ -5,6 +5,33 @@ import { Product } from 'src/products/product.entity';
 import { Order } from 'src/orders/order.entity';
 
 export default class Util {
+  static giveMeAValidCreateOrderWithDiscountPayload(): CreateOrderDto {
+    const payload: CreateOrderDto = {
+      products: [
+        {
+          storeId: '1',
+          orderProducts: [
+            {
+              productId: '3',
+              amount: 3,
+            },
+          ],
+        },
+        {
+          storeId: '2',
+          orderProducts: [
+            {
+              productId: '4',
+              amount: 2,
+            },
+          ],
+        },
+      ],
+    };
+
+    return payload;
+  }
+
   static giveMeAValidCreateOrderPayload(): CreateOrderDto {
     const payload: CreateOrderDto = {
       products: [

@@ -16,7 +16,7 @@ describe('OrdersService', () => {
   let ordersService: OrdersService;
 
   const OrdersMockedRepository = {
-    create: jest.fn().mockReturnValue(Util.giveMeAValidCreatedOrder('1')),
+    create: jest.fn(),
     save: jest.fn(),
     find: jest.fn(),
     findOne: jest.fn(),
@@ -24,20 +24,13 @@ describe('OrdersService', () => {
   };
 
   const ProductsMockedService = {
-    findProductstByIdsAndStoreId: jest
-      .fn()
-      .mockReturnValue([
-        Util.giveMeAValidProduct('1', '1', 10, 15, 'Geladeira'),
-        Util.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
-      ]),
+    findProductstByIdsAndStoreId: jest.fn(),
     saveProducts: jest.fn(),
     saveAll: jest.fn(),
   };
 
   const StoresMockedService = {
-    findAllByIds: jest
-      .fn()
-      .mockReturnValue([Util.giveMeAValidStore('1', '86981834269')]),
+    findAllByIds: jest.fn(),
     saveAll: jest.fn(),
   };
 
@@ -54,7 +47,7 @@ describe('OrdersService', () => {
   };
 
   const UsersMockedService = {
-    findUserById: jest.fn().mockReturnValue(Util.giveMeAValidUser()),
+    findUserById: jest.fn(),
   };
 
   beforeAll(async () => {
@@ -104,22 +97,59 @@ describe('OrdersService', () => {
   });
 
   describe('create order', () => {
+    /* --- global mocks */
+    OrdersMockedRepository.create
+      // .mockReturnValue(Util.giveMeAValidCreatedOrder('1'))
+      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('1'))
+      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('2'))
+      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('3'));
+    UsersMockedService.findUserById.mockReturnValue(Util.giveMeAValidUser());
+    /* global mocks --- */
     it('should create a simple order', async () => {
+      /* --- mocks */
+      ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([
+        Util.giveMeAValidProduct('1', '1', 10, 15, 'Cadeira'),
+        Util.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
+      ]);
+      StoresMockedService.findAllByIds.mockReturnValue([
+        Util.giveMeAValidStore('1', '86981834269'),
+      ]);
+      /* mocks --- */
+
       /* - main test - */
+
       const createOrder = await ordersService.create(
         Util.giveMeAValidCreateOrderPayload(),
         Util.giveMeAValidUser(),
       );
 
-      console.log(createOrder);
-
       /* - main test - */
 
-      expect(createOrder).toEqual({
-        messages: [
-          "https://api.whatsapp.com/send?phone=5586981834269&text=🛍️ *Novo pedido!* 🛍️%0a%0a*Nome do Cliente:* Rodrigo Brito%0a%0a*Itens do Pedido:*%0a  🏷️ 3x Geladeira%0a%0a*Total do Pedido:* R$ 30%0a*Forma de Envio:* Retirada em loja%0a%0a*Forma de pagamento:* À vista: 'Geladeira'%0a%0a*Endereço do Cliente:*%0a*Rua*: Rua Jornalista Helder Feitosa%0a*Número:* 1131%0a*Bairro:* Ininga%0a*Cidade:* Teresina - PI",
-        ],
+      expect(createOrder).toMatchObject({
         orders: [{ amount: 30, id: '1' }],
+      });
+    });
+
+    it('should creater order with discount', async () => {
+      ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([
+        Util.giveMeAValidProduct('3', '1', 10, 15, 'Geladeira', 20),
+        Util.giveMeAValidProduct('4', '2', 10, 15, 'Cafeteira', 80),
+      ]);
+      StoresMockedService.findAllByIds.mockReturnValue([
+        Util.giveMeAValidStore('1', '86981834269'),
+        Util.giveMeAValidStore('2', '86981818181'),
+      ]);
+
+      const createOrder = await ordersService.create(
+        Util.giveMeAValidCreateOrderWithDiscountPayload(),
+        Util.giveMeAValidUser(),
+      );
+
+      expect(createOrder).toMatchObject({
+        orders: [
+          { id: '2', amount: 24 },
+          { id: '3', amount: 4 },
+        ],
       });
     });
   });
