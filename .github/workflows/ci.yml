@@ -18,7 +18,7 @@ jobs:
         node-version: 16.13.1
         cache: 'npm'
     - run: npm i
-    - run: npm test
+    # - run: npm test
 
   deploy_dev:
     if: contains( github.ref, 'dev')
