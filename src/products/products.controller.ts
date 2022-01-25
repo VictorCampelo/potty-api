@@ -52,9 +52,12 @@ export class ProductsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(
+    @Param('id') id: string,
+    @Query(ValidationPipe) query: FindProductsDto,
+  ) {
     try {
-      return await this.productsService.findOne(id);
+      return await this.productsService.findOne(id, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }
