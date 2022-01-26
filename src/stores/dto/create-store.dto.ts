@@ -4,7 +4,8 @@ export class CreateStoreDto {
   name: string;
   CNPJ: string;
   phone: string;
-  address: string;
+  addressNumber: number;
+  zipcode: string;
   city: string;
   state: string;
   description: string;
