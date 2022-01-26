@@ -52,6 +52,9 @@ export class Store extends BaseEntity {
   street?: string;
 
   @Column({ nullable: true })
+  zipcode?: string;
+
+  @Column({ nullable: true })
   addressNumber?: number;
 
   @Column({ nullable: true })
