@@ -6,9 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -20,6 +22,7 @@ import { ErrorHandling } from 'src/configs/error-handling';
 import { multerOptions } from 'src/configs/multer.config';
 import { UserRole } from 'src/users/user-roles.enum';
 import { User } from 'src/users/user.entity';
+import { FindStoreDto } from './dto/find-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { StoresService } from './stores.service';
 
@@ -130,6 +133,15 @@ export class StoresController {
         store: store,
         message: 'Sucessfuly added one like to the Store.',
       };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Get('search')
+  async findOnSearch(@Query(ValidationPipe) query: FindStoreDto) {
+    try {
+      return await this.storesService.findOnSearch(query);
     } catch (error) {
       throw new ErrorHandling(error);
     }
