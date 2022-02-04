@@ -17,6 +17,8 @@ import { Store } from './store.entity';
 import { StoreRepository } from './stores.repository';
 import * as _ from 'lodash';
 import { CategoriesService } from 'src/categories/categories.service';
+import { getRepository } from 'typeorm';
+import { FindStoreDto } from './dto/find-store.dto';
 
 @Injectable()
 export class StoresService {
@@ -212,5 +214,34 @@ export class StoresService {
     });
 
     return this.storeRepository.addLike(user, store);
+  }
+
+  async findOnSearch(findStoreDto: FindStoreDto) {
+    const store = await getRepository(Store)
+      .createQueryBuilder('store')
+      .leftJoinAndSelect('store.products', 'p')
+      .leftJoinAndSelect('p.categories', 'pc')
+      .leftJoinAndSelect('store.categories', 'sc')
+      .leftJoinAndSelect('store.productCategories', 'c')
+      .where('city LIKE :parameter', {
+        parameter: `%${findStoreDto.parameter}%`,
+      })
+      .orWhere('store.name LIKE :parameter', {
+        parameter: `%${findStoreDto.parameter}%`,
+      })
+      .orWhere('p.title LIKE :parameter', {
+        parameter: `%${findStoreDto.parameter}%`,
+      })
+      .orWhere('p.description LIKE :parameter', {
+        parameter: `%${findStoreDto.parameter}%`,
+      })
+      .orWhere('c.name LIKE :parameter', {
+        parameter: `%${findStoreDto.parameter}%`,
+      })
+      .skip(findStoreDto.skip)
+      .take(findStoreDto.take)
+      .getMany();
+
+    return store;
   }
 }
