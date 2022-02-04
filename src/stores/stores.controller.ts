@@ -59,7 +59,7 @@ export class StoresController {
     }
   }
 
-  @Get(':name')
+  @Get('find/:name') //! from :name to find/:name
   async findOneByName(@Param('name') name: string) {
     try {
       return await this.storesService.findOneByName(name);
@@ -112,7 +112,7 @@ export class StoresController {
     }
   }
 
-  @Delete(':id')
+  @Delete('delete/:id') //! from :id to delete/:id
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async remove(@Param('id') id: string) {
