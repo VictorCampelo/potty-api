@@ -469,13 +469,16 @@ income(
     });
   }
 
-  async findOneToStore(id: string, storeId: string) {
-    return this.orderRepository.findOne(id, {
-      where: {
-        storeId,
+  async findOneToStore({ id, orderNumber }, storeId: string) {
+    return this.orderRepository.findOne(
+      { id, orderNumber },
+      {
+        where: {
+          storeId,
+        },
+        relations: ['orderHistorics', 'orderHistorics.product'],
       },
-      relations: ['orderHistorics', 'orderHistorics.product'],
-    });
+    );
   }
 
   async findAllOrderByUser(
