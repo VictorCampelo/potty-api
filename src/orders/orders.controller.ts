@@ -78,11 +78,17 @@ export class OrdersController {
     }
   }
 
-  @Get('store/:id')
+  @Get('store/order')
   @Role(UserRole.OWNER)
-  async findOneToStore(@Param('id') orderId: string, @GetUser() user: User) {
+  async findOneToStore(
+    @Query() findOrderDto: { id: string; orderNumber: string },
+    @GetUser() user: User,
+  ) {
     try {
-      return await this.ordersService.findOneToStore(orderId, user.storeId);
+      return await this.ordersService.findOneToStore(
+        findOrderDto,
+        user.storeId,
+      );
     } catch (error) {
       throw new ErrorHandling(error);
     }
