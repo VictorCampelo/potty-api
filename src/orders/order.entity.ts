@@ -23,6 +23,9 @@ export class Order extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @PrimaryGeneratedColumn('increment')
+  orderNumber: number;
+
   @Column({ type: 'varchar', nullable: true, name: 'user_id' })
   userId: string;
 
