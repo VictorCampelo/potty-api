@@ -217,9 +217,12 @@ export class StoresService {
   }
 
   async findOnSearch(findStoreDto: FindStoreDto) {
-    const store = await getRepository(Store)
+    return getRepository(Store)
       .createQueryBuilder('store')
+      .leftJoinAndSelect('store.avatar', 'avatar')
+      .leftJoinAndSelect('store.background', 'background')
       .leftJoinAndSelect('store.products', 'p')
+      .leftJoinAndSelect('p.files', 'files')
       .leftJoinAndSelect('p.categories', 'pc')
       .leftJoinAndSelect('store.categories', 'sc')
       .leftJoinAndSelect('store.productCategories', 'c')
@@ -241,7 +244,5 @@ export class StoresService {
       .skip(findStoreDto.skip)
       .take(findStoreDto.take)
       .getMany();
-
-    return store;
   }
 }

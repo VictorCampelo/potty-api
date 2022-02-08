@@ -1,16 +1,14 @@
-import { findOrdersDto } from './dto/find-order.dto';
 import { OrderHistoricsService } from './../order-historics/order-historics.service';
 import { StoresService } from 'src/stores/stores.service';
 import {
   Injectable,
-  UnauthorizedException,
   NotFoundException,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsService } from 'src/products/products.service';
-import { getConnection, Repository } from 'typeorm';
+import { getConnection, getManager, Repository } from 'typeorm';
 import { CreateOrderDto, IProductsToListMsg } from './dto/create-order.dto';
 import { Order } from './order.entity';
 import { User } from 'src/users/user.entity';
@@ -360,16 +358,42 @@ export class OrdersService {
     limit?: number,
     offset?: number,
   ) {
-    return this.orderRepository.find({
-      where: {
-        storeId,
-        status: confirmed,
-      },
-      relations: ['orderHistorics', 'orderHistorics.product'],
-      take: limit,
-      skip: offset,
-      order: { createdAt: 'DESC' },
-    });
+    if (!limit) {
+      limit = 10;
+    }
+    if (!offset) {
+      offset = 0;
+    }
+
+    return getManager().query(
+      `
+      select
+	      o.*,
+	      oh.product_qtd::integer
+      from
+	      "order" o
+      left join 
+        (select
+		        sum(oh2."productQtd") as product_qtd,
+		        oh2."orderId"
+	        from
+		        order_historic oh2
+	        group by
+		        oh2."orderId") as oh
+      on 
+	      oh."orderId" = o.id
+      where
+	      o.store_id = $1
+      and
+        o.status = $2
+      order by
+          "createdAt" DESC
+      limit $3
+      offset $4
+
+    `,
+      [storeId, confirmed, limit, offset],
+    );
   }
 
   async confirmOrder(orderId: string, storeId: string) {
