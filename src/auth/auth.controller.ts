@@ -97,8 +97,6 @@ export class AuthController {
   @Patch('/token/:token')
   async confirmEmail(@Param('token') token: string) {
     try {
-      console.log('to aqui');
-
       if (await this.authService.confirmEmail(token)) {
         return {
           message: 'Email confirmado',

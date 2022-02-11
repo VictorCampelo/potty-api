@@ -4,14 +4,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrderHistoricDto } from './dto/create-order-historic.dto';
 import { UpdateOrderHistoricDto } from './dto/update-order-historic.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import camelcaseKeys from 'camelcase-keys';
 
 @Injectable()
 export class OrderHistoricsService {
   constructor(
-    @InjectRepository(OrderHistoricRepository)
-    private readonly orderHistoricRepository: OrderHistoricRepository,
+    @InjectRepository(OrderHistoric)
+    private readonly orderHistoricRepository: Repository<OrderHistoric>,
   ) {}
   create(createOrderHistoricDto: CreateOrderHistoricDto) {
     return this.orderHistoricRepository.create(createOrderHistoricDto);
@@ -84,17 +84,17 @@ export class OrderHistoricsService {
 
     let query = `
     select
-      "productId",
+      "product_id",
       sum("productQtd") as qtd,
       p.title
     from
-      "order-historic" oh
+      "order_historic" oh
     inner join (select id, title from product where store_id = $1) as p on
-      p.id = oh."productId"
+      p.id = oh."product_id"
     where
       oh."updatedAt" >= $2 and oh."updatedAt" <= $3
     group by
-      "productId",
+      "product_id",
       p.title 
     `;
 
@@ -132,6 +132,10 @@ export class OrderHistoricsService {
         storeId,
       },
     });
+  }
+
+  async findOrderHistoric(orderId: string) {
+    return this.orderHistoricRepository.find({ where: { orderId } });
   }
 
   update(id: number, updateOrderHistoricDto: UpdateOrderHistoricDto) {

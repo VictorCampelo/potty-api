@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   BaseEntity,
   Column,
+  JoinColumn,
 } from 'typeorm';
 import { Order } from 'src/orders/order.entity';
 
@@ -15,14 +16,11 @@ export class OrderHistoric extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  orderId!: string;
-
   @Column({ nullable: false })
   storeId!: string;
 
-  @Column()
-  productId!: string;
+  // @Column()
+  // productId!: string;
 
   @Column({ nullable: false })
   productQtd: number;
@@ -37,10 +35,18 @@ export class OrderHistoric extends BaseEntity {
   customerId: string;
 
   @ManyToOne(() => Order, (order) => order.orderHistorics)
-  order!: Order;
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
+
+  @Column({ name: 'order_id', type: 'varchar', nullable: false })
+  orderId: string;
 
   @ManyToOne(() => Product, (product) => product.orderHistorics)
-  product!: Product;
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
+
+  @Column({ name: 'product_id', type: 'varchar', nullable: false })
+  productId: string;
 
   @CreateDateColumn()
   createdAt: Date;

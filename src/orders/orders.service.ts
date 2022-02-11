@@ -375,13 +375,13 @@ export class OrdersService {
       left join 
         (select
 		        sum(oh2."productQtd") as product_qtd,
-		        oh2."orderId"
+		        oh2."order_id"
 	        from
 		        order_historic oh2
 	        group by
-		        oh2."orderId") as oh
+		        oh2."order_id") as oh
       on 
-	      oh."orderId" = o.id
+	      oh."order_id" = o.id
       where
 	      o.store_id = $1
       and
@@ -469,16 +469,17 @@ income(
     });
   }
 
-  async findOneToStore({ id, orderNumber }, storeId: string) {
-    return this.orderRepository.findOne(
-      { id, orderNumber },
-      {
-        where: {
-          storeId,
-        },
-        relations: ['orderHistorics', 'orderHistorics.product'],
+  async findOneToStore(id: string, storeId: string) {
+    return this.orderRepository.findOne(id, {
+      where: {
+        storeId,
       },
-    );
+      relations: [
+        'orderHistorics',
+        'orderHistorics.product',
+        'orderHistorics.product.files',
+      ],
+    });
   }
 
   async findAllOrderByUser(

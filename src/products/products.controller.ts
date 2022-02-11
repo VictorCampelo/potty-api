@@ -32,6 +32,17 @@ import { multerOptions } from 'src/configs/multer.config';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Get('related')
+  async findRelatedProducts(
+    @Query() relatedDto: { categoryId: string; productName: string },
+  ) {
+    try {
+      return await this.productsService.findRelated(relatedDto);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
   @Get('promoted')
   async findWithDiscount() {
     try {

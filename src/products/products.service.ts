@@ -302,6 +302,32 @@ export class ProductsService {
     });
   }
 
+  async findRelated({
+    categoryId,
+    productName,
+  }: {
+    categoryId: string;
+    productName: string;
+  }) {
+    const products = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.categories', 'categories')
+      .leftJoinAndSelect('product.files', 'files')
+      .where('categories.id = :id', { id: categoryId })
+      .orWhere('product.title LIKE :title', { title: `%${productName}%` })
+      .getMany();
+
+    const productsWithDifferentCategories = products.filter((product) =>
+      product.categories.every((category) => category.id !== categoryId),
+    );
+
+    const productsByCategory = products.filter(
+      (product) => !productsWithDifferentCategories.includes(product),
+    );
+
+    return { productsByCategory, productsWithDifferentCategories };
+  }
+
   async findFromCategory(categoryId: string) {
     return this.productRepository
       .createQueryBuilder('product')
