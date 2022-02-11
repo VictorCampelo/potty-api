@@ -80,15 +80,9 @@ export class OrdersController {
 
   @Get('store/order')
   @Role(UserRole.OWNER)
-  async findOneToStore(
-    @Query() findOrderDto: { id: string; orderNumber: string },
-    @GetUser() user: User,
-  ) {
+  async findOneToStore(@Query() id: string, @GetUser() user: User) {
     try {
-      return await this.ordersService.findOneToStore(
-        findOrderDto,
-        user.storeId,
-      );
+      return await this.ordersService.findOneToStore(id, user.storeId);
     } catch (error) {
       throw new ErrorHandling(error);
     }
