@@ -134,6 +134,10 @@ export class OrderHistoricsService {
     });
   }
 
+  async findOrderHistoric(orderId: string) {
+    return this.orderHistoricRepository.find({ where: { orderId } });
+  }
+
   update(id: number, updateOrderHistoricDto: UpdateOrderHistoricDto) {
     return `This action updates a #${id} orderHistoric`;
   }
