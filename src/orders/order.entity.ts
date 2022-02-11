@@ -12,6 +12,8 @@ import {
   Column,
   OneToMany,
   JoinColumn,
+  BeforeInsert,
+  Unique,
 } from 'typeorm';
 
 @Entity('order')
@@ -23,8 +25,8 @@ export class Order extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @PrimaryGeneratedColumn('increment')
-  orderNumber: number;
+  @Column({ nullable: true, unique: true })
+  orderNumber: string;
 
   @Column({ type: 'varchar', nullable: true, name: 'user_id' })
   userId: string;
@@ -63,4 +65,14 @@ export class Order extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  generateOrderNumber() {
+    this.orderNumber = (Math.floor(Math.random() * 999999999) + 1).toString();
+
+    if (this.orderNumber.length < 9) {
+      this.orderNumber =
+        '0'.repeat(9 - this.orderNumber.length) + this.orderNumber;
+    }
+  }
 }
