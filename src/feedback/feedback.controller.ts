@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
@@ -20,6 +21,7 @@ import { User } from 'src/users/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { StoresService } from 'src/stores/stores.service';
+import { FindFeedbackDto } from './dto/find-feedback.dto';
 
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('feedback')
@@ -30,22 +32,16 @@ export class FeedbackController {
     private readonly productsService: ProductsService,
   ) {}
 
-  @Post(':storeId/:orderHash')
+  @Post(':storeId')
   @Role(UserRole.USER)
   async create(
     @GetUser() user: User,
     @Body() createFeedbackDto: CreateFeedbackDto,
     @Param('storeId') storeId: string,
-    @Param('orderHash') orderHash: string,
   ) {
     try {
       const store = await this.storesService.findOne(storeId);
-      return await this.feedbackService.create(
-        createFeedbackDto,
-        orderHash,
-        user,
-        store,
-      );
+      return await this.feedbackService.create(createFeedbackDto, user, store);
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -62,9 +58,12 @@ export class FeedbackController {
   }
 
   @Get('fromProduct/:id')
-  async fromProduct(@Param('id') productId: string) {
+  async fromProduct(
+    @Param('id') productId: string,
+    @Query() findFeedbackDto: FindFeedbackDto,
+  ) {
     try {
-      return await this.feedbackService.fromProduct(productId);
+      return await this.feedbackService.fromProduct(productId, findFeedbackDto);
     } catch (error) {
       throw new ErrorHandling(error);
     }

@@ -217,7 +217,9 @@ export class StoresService {
   }
 
   async findOnSearch(findStoreDto: FindStoreDto) {
-    return getRepository(Store)
+    const productsFound = [];
+    const storesFound = [];
+    const searchResults = await getRepository(Store)
       .createQueryBuilder('store')
       .leftJoinAndSelect('store.avatar', 'avatar')
       .leftJoinAndSelect('store.background', 'background')
@@ -226,23 +228,31 @@ export class StoresService {
       .leftJoinAndSelect('p.categories', 'pc')
       .leftJoinAndSelect('store.categories', 'sc')
       .leftJoinAndSelect('store.productCategories', 'c')
-      .where('city LIKE :parameter', {
+      .where('city ILIKE :parameter', {
         parameter: `%${findStoreDto.parameter}%`,
       })
-      .orWhere('store.name LIKE :parameter', {
+      .orWhere('store.name ILIKE :parameter', {
         parameter: `%${findStoreDto.parameter}%`,
       })
-      .orWhere('p.title LIKE :parameter', {
+      .orWhere('p.title ILIKE :parameter', {
         parameter: `%${findStoreDto.parameter}%`,
       })
-      .orWhere('p.description LIKE :parameter', {
+      .orWhere('p.description ILIKE :parameter', {
         parameter: `%${findStoreDto.parameter}%`,
       })
-      .orWhere('c.name LIKE :parameter', {
+      .orWhere('c.name ILIKE :parameter', {
         parameter: `%${findStoreDto.parameter}%`,
       })
       .skip(findStoreDto.skip)
       .take(findStoreDto.take)
       .getMany();
+
+    searchResults.forEach((result) => {
+      const { products, ...store } = result;
+      productsFound.push(...products);
+      storesFound.push(store);
+    });
+
+    return { productsFound, storesFound };
   }
 }

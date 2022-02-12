@@ -134,6 +134,10 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
+    if (!user.enabled) {
+      throw new HttpException('Need e-mail activation', HttpStatus.FORBIDDEN);
+    }
+
     const jwtPayload = {
       id: user.id,
       role: user.role,
@@ -148,10 +152,28 @@ export class AuthService {
   async confirmEmail(confirmationToken: string) {
     const result = await this.userRepository.update(
       { confirmationToken }, //busca o usuário pelo token
-      { confirmationToken: null },
+      { confirmationToken: null, enabled: true },
     );
     if (result.affected === 0) throw new NotFoundException('Token inválido');
     return result;
+  }
+
+  async sendEmailConfirmation(email: string): Promise<void> {
+    const user = await this.userRepository.findOne({ email });
+
+    if (!user)
+      throw new NotFoundException('Não há usuário cadastrado com esse email.');
+
+    user.confirmationToken = randomBytes(32).toString('hex');
+    await user.save();
+    await this.emailsService.sendEmail(
+      user.email,
+      'Boa de venda - Confirme seu e-mail',
+      'email-confirmation',
+      {
+        token: user.confirmationToken,
+      },
+    );
   }
 
   async sendRecoverPasswordEmail(email: string): Promise<void> {

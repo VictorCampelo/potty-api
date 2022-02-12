@@ -110,6 +110,21 @@ export class AuthController {
     }
   }
 
+  @Post('/send-confirmation-email')
+  async sendEmailConfirmation(
+    @Body('email') email: string,
+  ): Promise<{ message: string }> {
+    try {
+      await this.authService.sendEmailConfirmation(email);
+      return {
+        message:
+          'Foi enviado um email com instruções para ativação da sua conta',
+      };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
   @Post('/send-recover-email')
   async sendRecoverPasswordEmail(
     @Body('email') email: string,
