@@ -134,6 +134,10 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
+    if (!user.enabled) {
+      throw new HttpException('Need e-mail activation', HttpStatus.FORBIDDEN);
+    }
+
     const jwtPayload = {
       id: user.id,
       role: user.role,
