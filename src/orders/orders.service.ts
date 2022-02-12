@@ -501,12 +501,17 @@ income(
   }
 
   async updateOrderSituation(updateOrderDto: UpdateOrderDto) {
+    const confirm =
+      updateOrderDto.situation !== 'Cancelado' &&
+      updateOrderDto.situation !== 'Recebido';
+
     return this.orderRepository.update(
       {
         id: updateOrderDto.orderId,
       },
       {
         situation: updateOrderDto.situation,
+        status: confirm,
       },
     );
   }
