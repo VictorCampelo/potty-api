@@ -27,17 +27,24 @@ export class FeedbackService {
     private ordersService: OrdersService,
   ) {}
   async create(createFeedbackDto: CreateFeedbackDto, user: User, store: Store) {
-    console.log(user);
-
     const orders = await this.ordersService.findAllOrderByUser(user.id, true);
     let product: Product;
+
     orders.forEach((order) => {
-      order.orderHistorics.forEach((oh) => {
-        if (oh.productId === createFeedbackDto.productId) {
-          product = oh.product;
-          return;
-        }
-      });
+      if (order.id === createFeedbackDto.orderId) {
+        // if (order.situation !== 'Concluído') {
+        //   throw new HttpException(
+        //     'To give a feedback the Order needs to be concluded.',
+        //     HttpStatus.FORBIDDEN,
+        //   );
+        // }
+        order.orderHistorics.forEach((oh) => {
+          if (oh.productId === createFeedbackDto.productId) {
+            product = oh.product;
+            return;
+          }
+        });
+      }
     });
 
     if (!product || product.storeId !== store.id) {
@@ -47,19 +54,22 @@ export class FeedbackService {
       );
     }
 
-    // const alreadyGaveFeedback = await this.feedbackRepository
-    //   .createQueryBuilder('feedback')
-    //   .leftJoinAndSelect('feedback.user', 'user')
-    //   .leftJoinAndSelect('feedback.product', 'product')
-    //   .where('user.id = :userId', { userId: user.id })
-    //   .andWhere('product.id = :productId', { productId: product.id })
-    //   .getOne();
+    const alreadyGaveFeedback = await this.feedbackRepository
+      .createQueryBuilder('feedback')
+      .leftJoinAndSelect('feedback.user', 'user')
+      .leftJoinAndSelect('feedback.product', 'product')
+      .where('user.id = :userId', { userId: user.id })
+      .andWhere('product.id = :productId', { productId: product.id })
+      .andWhere('feedback.orderId = :orderId', {
+        orderId: createFeedbackDto.orderId,
+      })
+      .getOne();
 
-    // if (alreadyGaveFeedback)
-    //   throw new HttpException(
-    //     'You already gave a feedback to this Product.',
-    //     HttpStatus.BAD_REQUEST,
-    //   );
+    if (alreadyGaveFeedback)
+      throw new HttpException(
+        'You already gave a feedback to this Product.',
+        HttpStatus.BAD_REQUEST,
+      );
 
     store.sumStars += createFeedbackDto.star;
     store.sumFeedbacks += 1;
@@ -72,6 +82,7 @@ export class FeedbackService {
     const feedbackToCreate = this.feedbackRepository.create({
       comment: createFeedbackDto.comment,
       star: createFeedbackDto.star,
+      orderId: createFeedbackDto.orderId,
       product,
       user,
     });

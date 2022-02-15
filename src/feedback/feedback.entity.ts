@@ -16,6 +16,9 @@ export class Feedback extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ nullable: true, type: 'varchar' })
+  orderId: string;
+
   @Column({ nullable: false, default: 0 })
   star: number;
 

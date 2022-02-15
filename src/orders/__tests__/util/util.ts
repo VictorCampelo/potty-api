@@ -3,9 +3,23 @@ import { Store } from 'src/stores/store.entity';
 import { User } from 'src/users/user.entity';
 import { Product } from 'src/products/product.entity';
 import { Order } from 'src/orders/order.entity';
+import { Coupon } from 'src/coupons/entities/coupon.entity';
+import { Category } from 'src/categories/category.entity';
 
+export enum CouponRange {
+  category = 'category',
+  store = 'store',
+  first_buy = 'first-buy',
+}
+
+export enum CouponDiscountType {
+  money = 'money',
+  percentage = 'percentage',
+}
 export default class Util {
-  static giveMeAValidCreateOrderWithDiscountPayload(): CreateOrderDto {
+  static giveMeAValidCreateOrderWithDiscountPayload(
+    coupon?: string,
+  ): CreateOrderDto {
     const payload: CreateOrderDto = {
       products: [
         {
@@ -27,12 +41,13 @@ export default class Util {
           ],
         },
       ],
+      couponCode: coupon,
     };
 
     return payload;
   }
 
-  static giveMeAValidCreateOrderPayload(): CreateOrderDto {
+  static giveMeAValidCreateOrderPayload(coupon?: string): CreateOrderDto {
     const payload: CreateOrderDto = {
       products: [
         {
@@ -45,6 +60,7 @@ export default class Util {
           ],
         },
       ],
+      couponCode: coupon,
     };
 
     return payload;
@@ -87,6 +103,10 @@ export default class Util {
     product.inventory = inventory;
     product.title = title;
     product.discount = discount;
+    product.categories = [
+      this.giveMeAValidCategory('1', 'Calçados'),
+      this.giveMeAValidCategory('2', 'Bebidas'),
+    ];
     return product;
   }
 
@@ -94,5 +114,45 @@ export default class Util {
     const order = new Order();
     order.id = id;
     return order;
+  }
+
+  static giveMeAValidCoupon(
+    code = 'cupom',
+    isExpired = false,
+    maxUsage = 100,
+    storeId = '1',
+    range = CouponRange.category,
+    categoriesIds = ['1'],
+    type = CouponDiscountType.money,
+    discount = 5,
+  ): Coupon {
+    const coupon = new Coupon();
+    coupon.code = code;
+    coupon.isExpired = isExpired;
+    coupon.maxUsage = maxUsage;
+    coupon.storeId = storeId;
+    coupon.range = range;
+    coupon.type = type;
+    if (type === CouponDiscountType.money) {
+      coupon.discountValue = discount;
+    } else {
+      coupon.discountPorcent = discount / 100;
+    }
+    // ToDo: validar qdo for tipo Money e não tiver valor (cadastro do cupom)
+    categoriesIds.forEach((ctgId) => {
+      if (!coupon.categories) {
+        coupon.categories = [Util.giveMeAValidCategory(ctgId)];
+      }
+      coupon.categories.push(this.giveMeAValidCategory(ctgId));
+    });
+
+    return coupon;
+  }
+
+  static giveMeAValidCategory(id = '1', name = 'batata'): Category {
+    const ctg = new Category();
+    ctg.id = id;
+    ctg.name = name;
+    return ctg;
   }
 }

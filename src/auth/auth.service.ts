@@ -53,6 +53,7 @@ export class AuthService {
         'email-confirmation',
         {
           token: user.confirmationToken,
+          tokenDigits: user.confirmationTokenDigits,
         },
       );
 
@@ -104,6 +105,7 @@ export class AuthService {
         'email-confirmation',
         {
           token: user.confirmationToken,
+          tokenDigits: user.confirmationTokenDigits,
         },
       );
 
@@ -149,13 +151,38 @@ export class AuthService {
     return { user, jwtToken };
   }
 
-  async confirmEmail(confirmationToken: string) {
-    const result = await this.userRepository.update(
-      { confirmationToken }, //busca o usuário pelo token
-      { confirmationToken: null, enabled: true },
-    );
-    if (result.affected === 0) throw new NotFoundException('Token inválido');
-    return result;
+  async confirmEmail({
+    tokenUrl,
+    tokenDigits,
+  }: {
+    tokenUrl: string;
+    tokenDigits: string;
+  }) {
+    if (tokenUrl) {
+      const result = await this.userRepository.update(
+        { confirmationToken: tokenUrl }, //busca o usuário pelo token
+        {
+          confirmationToken: null,
+          confirmationTokenDigits: null,
+          enabled: true,
+        },
+      );
+
+      if (result.affected === 0) throw new NotFoundException('Token inválido');
+      return result;
+    } else {
+      const result = await this.userRepository.update(
+        { confirmationTokenDigits: tokenDigits }, //busca o usuário pelo token
+        {
+          confirmationToken: null,
+          confirmationTokenDigits: null,
+          enabled: true,
+        },
+      );
+
+      if (result.affected === 0) throw new NotFoundException('Token inválido');
+      return result;
+    }
   }
 
   async sendEmailConfirmation(email: string): Promise<void> {
@@ -165,6 +192,16 @@ export class AuthService {
       throw new NotFoundException('Não há usuário cadastrado com esse email.');
 
     user.confirmationToken = randomBytes(32).toString('hex');
+    user.confirmationTokenDigits = (
+      Math.floor(Math.random() * 999999) + 1
+    ).toString();
+
+    if (user.confirmationTokenDigits.length < 6) {
+      user.confirmationTokenDigits =
+        '0'.repeat(6 - user.confirmationTokenDigits.length) +
+        user.confirmationTokenDigits;
+    }
+
     await user.save();
     await this.emailsService.sendEmail(
       user.email,
@@ -172,6 +209,7 @@ export class AuthService {
       'email-confirmation',
       {
         token: user.confirmationToken,
+        tokenDigits: user.confirmationTokenDigits,
       },
     );
   }

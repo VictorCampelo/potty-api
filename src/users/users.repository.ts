@@ -86,6 +86,16 @@ export class UserRepository extends Repository<User> {
     user.uf = uf;
     user.logradouro = logradouro;
 
+    user.confirmationTokenDigits = (
+      Math.floor(Math.random() * 999999) + 1
+    ).toString();
+
+    if (user.confirmationTokenDigits.length < 6) {
+      user.confirmationTokenDigits =
+        '0'.repeat(6 - user.confirmationTokenDigits.length) +
+        user.confirmationTokenDigits;
+    }
+
     return user;
   }
 
