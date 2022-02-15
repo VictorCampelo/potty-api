@@ -1,4 +1,5 @@
 import { CreateFeedbackDto } from 'src/feedback/dto/create-feedback.dto';
+import { Feedback } from 'src/feedback/feedback.entity';
 import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
 import { Order } from 'src/orders/order.entity';
 import { Product } from 'src/products/product.entity';
@@ -6,40 +7,51 @@ import { Store } from 'src/stores/store.entity';
 import { User } from 'src/users/user.entity';
 
 export default class Util {
-  static giveMeAValidUser(): User {
+  static giveMeAValidUser(id = '1'): User {
     const user = new User();
-    user.id = '1';
+    user.id = id;
     return user;
   }
 
-  static giveMeAValidStore(): Store {
+  static giveMeAValidStore(id = '1'): Store {
     const store = new Store();
-    store.id = '1';
+    store.id = id;
     return store;
   }
 
-  static giveMeAValidProduct(): Product {
+  static giveMeAValidProduct(id = '1'): Product {
     const product = new Product();
-    product.id = '1';
-    product.storeId = '1';
+    product.id = id;
+    product.storeId = id;
     return product;
   }
 
-  static giveMeAValidOrder(): Order {
+  static giveMeAValidOrder(id = '1', historicsId = '1'): Order {
     const order = new Order();
-    order.id = '1';
-    order.orderHistorics = [this.giveMeAValidOrderHistoric()];
+    order.id = id;
+    order.orderHistorics = [this.giveMeAValidOrderHistoric(historicsId)];
     return order;
   }
 
-  static giveMeAValidOrderHistoric(): OrderHistoric {
+  static giveMeAValidOrderHistoric(id = '1'): OrderHistoric {
     const orderHistoric = new OrderHistoric();
-    orderHistoric.product = this.giveMeAValidProduct();
-    orderHistoric.productId = this.giveMeAValidProduct().id;
+    orderHistoric.product = this.giveMeAValidProduct(id);
+    orderHistoric.productId = this.giveMeAValidProduct(id).id;
     return orderHistoric;
   }
 
-  static giveMeAValidCreateFeedbackDto(): CreateFeedbackDto {
-    return { orderId: '1', productId: '1', star: 5, comment: 'Perfeito' };
+  static giveMeAValidCreateFeedbackDto(
+    orderId = '1',
+    productId = '1',
+    star = 5,
+    comment = 'Interessante',
+  ): CreateFeedbackDto {
+    return { orderId, productId, star, comment };
+  }
+
+  static giveMeAValidFeedback(id = '1'): Feedback {
+    const feedback = new Feedback();
+    feedback.id = id;
+    return feedback;
   }
 }

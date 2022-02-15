@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { OrdersService } from 'src/orders/orders.service';
@@ -13,6 +14,12 @@ describe('FeedbacksService', () => {
   const mockRepository = {
     create: jest.fn(),
     save: jest.fn(),
+    createQueryBuilder: jest.fn(() => ({
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      getOne: jest.fn().mockReturnThis(),
+    })),
   };
 
   const ProductsMockedService = {
@@ -43,10 +50,78 @@ describe('FeedbacksService', () => {
   });
 
   describe('Feedbacks Service', () => {
+    it('should not find the Product because create payload is invalid', async () => {
+      OrdersMockedService.findAllOrderByUser.mockReturnValue([
+        Util.giveMeAValidOrder('1'), //orderId = 1
+      ]);
+
+      await expect(
+        service.create(
+          Util.giveMeAValidCreateFeedbackDto('2', '1'), // orderId=2
+          Util.giveMeAValidUser('1'),
+          Util.giveMeAValidStore('1'),
+        ),
+      ).rejects.toThrowError(new Error('Product not bought by this User'));
+    });
+
+    it('should give an error because the User has already registered a feedback', async () => {
+      OrdersMockedService.findAllOrderByUser.mockReturnValue([
+        Util.giveMeAValidOrder(),
+      ]);
+
+      const createQueryBuilder: any = {
+        leftJoinAndSelect: jest.fn().mockImplementation(() => {
+          return createQueryBuilder;
+        }),
+        where: jest.fn().mockImplementation(() => {
+          return createQueryBuilder;
+        }),
+        andWhere: jest.fn().mockImplementation(() => {
+          return createQueryBuilder;
+        }),
+        getOne: jest.fn().mockImplementationOnce(() => {
+          return Util.giveMeAValidFeedback();
+        }),
+      };
+
+      jest
+        .spyOn(mockRepository, 'createQueryBuilder')
+        .mockImplementation(() => createQueryBuilder);
+
+      await expect(
+        service.create(
+          Util.giveMeAValidCreateFeedbackDto(),
+          Util.giveMeAValidUser(),
+          Util.giveMeAValidStore(),
+        ),
+      ).rejects.toThrowError(
+        new Error('You already gave a feedback to this Product.'),
+      );
+    });
+
     it('should create a Feedback', async () => {
       OrdersMockedService.findAllOrderByUser.mockReturnValue([
         Util.giveMeAValidOrder(),
       ]);
+
+      const createQueryBuilder: any = {
+        leftJoinAndSelect: jest.fn().mockImplementation(() => {
+          return createQueryBuilder;
+        }),
+        where: jest.fn().mockImplementation(() => {
+          return createQueryBuilder;
+        }),
+        andWhere: jest.fn().mockImplementation(() => {
+          return createQueryBuilder;
+        }),
+        getOne: jest.fn().mockImplementationOnce(() => {
+          return false;
+        }),
+      };
+
+      jest
+        .spyOn(mockRepository, 'createQueryBuilder')
+        .mockImplementation(() => createQueryBuilder);
 
       mockRepository.save.mockReturnValue({
         id: '1',
