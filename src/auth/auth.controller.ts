@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UnauthorizedException,
   UploadedFile,
   UploadedFiles,
@@ -94,10 +95,12 @@ export class AuthController {
     }
   }
 
-  @Patch('/token/:token')
-  async confirmEmail(@Param('token') token: string) {
+  @Patch('/token')
+  async confirmEmail(
+    @Query() activateEmailQuery: { tokenUrl: string; tokenDigits: string },
+  ) {
     try {
-      if (await this.authService.confirmEmail(token)) {
+      if (await this.authService.confirmEmail(activateEmailQuery)) {
         return {
           message: 'Email confirmado',
         };

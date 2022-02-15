@@ -13,6 +13,7 @@ import {
   JoinColumn,
   ManyToOne,
   ManyToMany,
+  BeforeInsert,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { File } from 'src/files/file.entity';
@@ -50,8 +51,14 @@ export class User extends BaseEntity {
   @Column({ nullable: true, type: 'varchar', length: 64 })
   confirmationToken: string;
 
+  @Column({ nullable: true, type: 'varchar', length: 6 })
+  confirmationTokenDigits: string;
+
   @Column({ nullable: true, type: 'varchar', length: 64 })
   recoverToken: string;
+
+  @Column({ nullable: true, type: 'varchar', length: 6 })
+  recoverTokenDigits: string;
 
   @Column({ nullable: false, type: 'boolean', default: false })
   hasAcceptedTerms: boolean;
