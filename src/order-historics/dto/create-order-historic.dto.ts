@@ -14,4 +14,6 @@ export class CreateOrderHistoricDto {
   customerId!: string;
 
   productParcels?: number;
+
+  paymentMethod: string;
 }

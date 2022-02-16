@@ -16,6 +16,8 @@ export class UpdateStoreDto {
   shedules: ScheduleProperties;
   deliveryFee?: number;
   categoriesIds?: string[];
-  avatar: Express.Multer.File;
-  background: Express.Multer.File;
+  avatar?: Express.Multer.File;
+  background?: Express.Multer.File;
+
+  paymentMethods?: string[];
 }

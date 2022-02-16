@@ -59,7 +59,7 @@ export class StoresController {
     }
   }
 
-  @Get('find/:name') //! from :name to find/:name
+  @Get('find/:name')
   async findOneByName(@Param('name') name: string) {
     try {
       return await this.storesService.findOneByName(name);

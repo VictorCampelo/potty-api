@@ -19,6 +19,7 @@ import * as _ from 'lodash';
 import { CategoriesService } from 'src/categories/categories.service';
 import { getRepository } from 'typeorm';
 import { FindStoreDto } from './dto/find-store.dto';
+import { PaymentsService } from 'src/payments/payments.service';
 
 @Injectable()
 export class StoresService {
@@ -28,6 +29,7 @@ export class StoresService {
     private usersService: UsersService,
     private filesService: FilesService,
     private categoriesService: CategoriesService,
+    private paymentsService: PaymentsService,
   ) {}
 
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
@@ -80,8 +82,10 @@ export class StoresService {
     });
   }
 
-  findAllByIds(ids: string[]) {
-    return this.storeRepository.findByIds(ids);
+  async findAllByIds(ids: string[]) {
+    return this.storeRepository.findByIds(ids, {
+      relations: ['paymentMethods'],
+    });
   }
 
   async findOne(id: string) {
@@ -140,7 +144,37 @@ export class StoresService {
     updateStoreDto: UpdateStoreDto,
     files: Express.Multer.File[],
   ) {
+    const storeCheck = await this.storeRepository.findOne({
+      where: { formatedName: updateStoreDto.formatedName },
+    });
+
+    if (storeCheck) {
+      throw new HttpException(
+        'Store URL name already taken',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+
     const store = await this.findOne(id);
+
+    if (updateStoreDto.paymentMethods.length) {
+      const lowerPms = updateStoreDto.paymentMethods.map((pm) => {
+        return pm.toLowerCase();
+      });
+
+      const paymentsFound = await this.paymentsService.findByName(lowerPms);
+
+      store.paymentMethods = paymentsFound;
+
+      if (!paymentsFound.length) {
+        throw new HttpException(
+          'Payment methods not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      updateStoreDto = _.omit(updateStoreDto, 'paymentMethods');
+    }
 
     if (updateStoreDto.name) {
       if (!/^[A-Za-z0-9_-]+$/g.test(updateStoreDto.name.replace(/ /g, '-'))) {

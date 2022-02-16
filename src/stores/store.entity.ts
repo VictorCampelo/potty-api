@@ -23,7 +23,7 @@ import { Category } from 'src/categories/category.entity';
 import { User } from 'src/users/user.entity';
 import { Order } from 'src/orders/order.entity';
 import { defaultSchedules } from './dto/create-store.dto';
-import AWS from 'aws-sdk';
+import { Payment } from 'src/payments/entities/payments.entity';
 
 @Entity('store')
 @Unique(['name'])
@@ -150,6 +150,10 @@ export class Store extends BaseEntity {
 
   @OneToMany(() => Order, (order) => order.store)
   orders: Order[];
+
+  @ManyToMany(() => Payment, (payment) => payment.store)
+  @JoinTable({ name: 'store_payment' })
+  paymentMethods: Payment[];
 
   @BeforeInsert()
   setId() {

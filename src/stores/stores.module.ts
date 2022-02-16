@@ -7,6 +7,7 @@ import { StoreRepository } from './stores.repository';
 import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { CategoriesModule } from 'src/categories/categories.module';
+import { PaymentsModule } from 'src/payments/payments.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CategoriesModule } from 'src/categories/categories.module';
     UsersModule,
     FilesModule,
     CategoriesModule,
+    PaymentsModule,
   ],
   controllers: [StoresController],
   providers: [StoresService],

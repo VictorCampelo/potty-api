@@ -28,6 +28,7 @@ export default class Util {
             {
               productId: '3',
               amount: 3,
+              paymentMethod: 'boleto',
             },
           ],
         },
@@ -37,6 +38,7 @@ export default class Util {
             {
               productId: '4',
               amount: 2,
+              paymentMethod: 'pix',
             },
           ],
         },
@@ -56,6 +58,7 @@ export default class Util {
             {
               productId: '2',
               amount: 3,
+              paymentMethod: 'visa',
             },
           ],
         },
