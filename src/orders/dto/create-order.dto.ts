@@ -1,6 +1,7 @@
 interface IProducts {
   productId: string;
   amount: number;
+  paymentMethod: string;
   parcels?: number;
 }
 interface IOrder {
@@ -18,4 +19,5 @@ export interface IProductsToListMsg {
   amount: number;
   title: string;
   parcels?: number;
+  paymentMethod: string;
 }
