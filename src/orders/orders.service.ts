@@ -101,6 +101,37 @@ export class OrdersService {
           (obj) => obj.id === storeOrder.storeId,
         );
 
+        let acceptedPayments = [];
+        store.paymentMethods &&
+          store.paymentMethods.forEach((pm) => {
+            if (!acceptedPayments) acceptedPayments = [pm.methodName];
+            else acceptedPayments.push(pm.methodName);
+          });
+
+        createOrderDto.products.forEach((storeProducts) => {
+          if (storeProducts.storeId === store.id) {
+            storeProducts.orderProducts.forEach((orderHistoric) => {
+              if (!acceptedPayments.includes(orderHistoric.paymentMethod)) {
+                throw new HttpException(
+                  `Store ${store.name} doesnt accept ${orderHistoric.paymentMethod} as a payment method`,
+                  HttpStatus.BAD_REQUEST,
+                );
+              }
+
+              const paymentInput = store.paymentMethods.find(
+                (method) => method.methodName === orderHistoric.paymentMethod,
+              );
+
+              if (orderHistoric.parcels && !paymentInput.allowParcels) {
+                throw new HttpException(
+                  `Method ${paymentInput.methodName.toUpperCase()} doesnt accept parcels`,
+                  HttpStatus.BAD_REQUEST,
+                );
+              }
+            });
+          }
+        });
+
         const order = this.orderRepository.create({
           id: uuidv4(),
           store,
@@ -158,6 +189,7 @@ export class OrdersService {
             productQtd: prod.amount,
             productPrice: product.price,
             productParcels: prod.parcels,
+            paymentMethod: prod.paymentMethod,
             customerId: user.id,
           });
 
@@ -246,6 +278,7 @@ export class OrdersService {
             amount: prod.amount,
             title: product.title,
             parcels: prod.parcels,
+            paymentMethod: prod.paymentMethod,
           });
 
           // order.amount =
@@ -320,9 +353,17 @@ export class OrdersService {
   ) {
     const paymentMethod = `${productsListToMsg.map((p) => {
       if (p.parcels > 1) {
-        return " '" + p.title + "' parcelado em " + p.parcels + ' vezes';
+        return (
+          " '" +
+          p.paymentMethod.toUpperCase() +
+          ' - ' +
+          p.title +
+          "' parcelado em " +
+          p.parcels +
+          ' vezes'
+        );
       } else {
-        return " À vista: '" + p.title + "'";
+        return ' ' + p.paymentMethod.toUpperCase() + " '" + p.title + "'";
       }
     })}`;
 

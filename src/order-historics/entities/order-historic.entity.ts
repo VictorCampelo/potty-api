@@ -25,6 +25,9 @@ export class OrderHistoric extends BaseEntity {
   @Column({ nullable: false })
   productQtd: number;
 
+  @Column({ nullable: false })
+  paymentMethod: string;
+
   @Column({ nullable: false, type: 'float' })
   productPrice: number;
 
