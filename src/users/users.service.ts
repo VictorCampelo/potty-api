@@ -183,4 +183,12 @@ export class UsersService {
       .where('role != :role', { role: 'ADMIN' })
       .execute();
   }
+
+  async findByEmail(email: string) {
+    return this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
+  }
 }
