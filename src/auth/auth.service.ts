@@ -280,4 +280,18 @@ export class AuthService {
 
     return user.save();
   }
+
+  async findByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      return 'Email available';
+    } else {
+      throw new HttpException('Email taken', HttpStatus.EXPECTATION_FAILED);
+    }
+  }
 }
