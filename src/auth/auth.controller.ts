@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -185,6 +186,16 @@ export class AuthController {
   getMe(@GetUser() user: User): User {
     try {
       return user;
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Post('/checkEmail')
+  @HttpCode(200)
+  async checkEmail(@Body() emailDto: { email: string }) {
+    try {
+      return { message: await this.authService.findByEmail(emailDto.email) };
     } catch (error) {
       throw new ErrorHandling(error);
     }
