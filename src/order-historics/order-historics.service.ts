@@ -48,9 +48,9 @@ export class OrderHistoricsService {
       date_trunc('week', oh."updatedAt"::date) as weekly,
       sum((oh."productQtd" * oh."productPrice")) as income
     from
-      "order_historic" oh
+      "order-historic" oh
     inner join 
-      product p on p.id = oh."product_id"
+      product p on p.id = oh."productId"
     where 
       p.store_id = $1
     AND
