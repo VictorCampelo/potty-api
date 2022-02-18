@@ -406,7 +406,7 @@ export class OrdersService {
       offset = 0;
     }
 
-    return getManager().query(
+    const query = await getManager().query(
       `
       select
 	      o.*,
@@ -435,6 +435,10 @@ export class OrdersService {
     `,
       [storeId, confirmed, limit, offset],
     );
+
+    const amountResults = await this.orderRepository.createQueryBuilder('order').leftJoinAndSelect('order.store', 'store').where('store.id = :storeId', { storeId }).getCount()
+
+    return { results: query, totalOrders: amountResults }
   }
 
   async confirmOrder(orderId: string, storeId: string) {
