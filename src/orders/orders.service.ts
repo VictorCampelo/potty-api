@@ -436,9 +436,13 @@ export class OrdersService {
       [storeId, confirmed, limit, offset],
     );
 
-    const amountResults = await this.orderRepository.createQueryBuilder('order').leftJoinAndSelect('order.store', 'store').where('store.id = :storeId', { storeId }).getCount()
+    const amountResults = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.store', 'store')
+      .where('store.id = :storeId', { storeId })
+      .getCount();
 
-    return { results: query, totalOrders: amountResults }
+    return { results: query, totalOrders: amountResults };
   }
 
   async confirmOrder(orderId: string, storeId: string) {
