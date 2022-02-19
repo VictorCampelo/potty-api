@@ -30,8 +30,6 @@ export class PlansController {
   @Role(UserRole.ADMIN)
   async create(@Body() createPlanDto: CreatePlanDto) {
     try {
-      console.log('test');
-
       return await this.plansService.create(createPlanDto);
     } catch (error) {
       throw new ErrorHandling(error);
