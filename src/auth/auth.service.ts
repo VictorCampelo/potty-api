@@ -307,13 +307,14 @@ export class AuthService {
     });
 
     if (!user) {
+      const newPassword = randomBytes(16).toString('hex');
       this.signUp(
         {
           email: req.user.email,
           firstName: req.user.firstName,
           lastName: req.user.lastName,
-          password: randomBytes(16).toString('hex'),
-          passwordConfirmation: randomBytes(16).toString('hex'),
+          password: newPassword,
+          passwordConfirmation: newPassword,
         },
         UserRole.USER,
       );
