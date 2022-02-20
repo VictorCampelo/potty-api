@@ -25,9 +25,6 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
-    };
-    const payload = {
-      user,
       accessToken,
     };
 
@@ -35,6 +32,6 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       return false;
     }
 
-    done(null, payload);
+    done(null, user);
   }
 }
