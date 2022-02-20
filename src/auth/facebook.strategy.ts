@@ -31,6 +31,10 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       accessToken,
     };
 
+    if (!user.email) {
+      return false;
+    }
+
     done(null, payload);
   }
 }

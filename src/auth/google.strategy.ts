@@ -31,6 +31,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       picture: photos[0].value,
       accessToken,
     };
+
+    if (!user.email) {
+      return false;
+    }
+
     done(null, user);
   }
 }
