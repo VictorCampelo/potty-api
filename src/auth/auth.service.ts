@@ -295,7 +295,7 @@ export class AuthService {
     }
   }
 
-  async socialsLogin(req, service: string) {
+  async socialsLogin(req, service: string, isStore: boolean) {
     if (!req.user) {
       return `No user from ${service}`;
     }
@@ -307,6 +307,14 @@ export class AuthService {
     });
 
     if (!user) {
+      if (isStore) {
+        return {
+          email: req.user.email,
+          firstName: req.user.firstName,
+          lastName: req.user.lastName,
+        };
+      }
+
       const newPassword = randomBytes(16).toString('hex');
       this.signUp(
         {
