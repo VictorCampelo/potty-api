@@ -23,6 +23,8 @@ import { CouponsModule } from './coupons/coupons.module';
 import { OrderHistoricsModule } from './order-historics/order-historics.module';
 import { PlansModule } from './plans/plans.module';
 import { PaymentsModule } from './payments/payments.module';
+import { GoogleStrategy } from './auth/google.strategy';
+import { FacebookStrategy } from './auth/facebook.strategy';
 
 dotenv.config();
 
@@ -53,5 +55,6 @@ dotenv.config();
   //     useClass: LoggerInterceptor,
   //   },
   // ],
+  providers: [GoogleStrategy, FacebookStrategy],
 })
 export class AppModule {}
