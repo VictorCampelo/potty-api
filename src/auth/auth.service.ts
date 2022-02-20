@@ -295,14 +295,38 @@ export class AuthService {
     }
   }
 
-  googleLogin(req) {
+  async socialsLogin(req, service: string) {
     if (!req.user) {
-      return 'No user from google';
+      return `No user from ${service}`;
     }
 
-    return {
-      message: 'User information from google',
-      user: req.user,
-    };
+    const user = await this.userRepository.findOne({
+      where: {
+        email: req.user.email,
+      },
+    });
+
+    if (!user) {
+      this.signUp(
+        {
+          email: req.user.email,
+          firstName: req.user.firstName,
+          lastName: req.user.lastName,
+          password: randomBytes(16).toString('hex'),
+          passwordConfirmation: randomBytes(16).toString('hex'),
+        },
+        UserRole.USER,
+      );
+    } else {
+      const jwtPayload = {
+        id: user.id,
+        role: user.role,
+        storeId: user.store && user.store.id ? user.store.id : null,
+      };
+
+      const jwtToken = this.jwtService.sign(jwtPayload);
+
+      return { user, jwtToken };
+    }
   }
 }

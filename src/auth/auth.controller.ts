@@ -234,10 +234,7 @@ export class AuthController {
   @UseGuards(AuthGuard('facebook'))
   async facebookLoginRedirect(@Req() req): Promise<any> {
     console.log(req);
-    return {
-      statusCode: HttpStatus.OK,
-      data: req,
-    };
+    return this.authService.socialsLogin(req, 'facebook');
   }
 
   @Get('google')
@@ -250,6 +247,6 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req) {
     // For now, we'll just show the user object
-    return this.authService.googleLogin(req);
+    return this.authService.socialsLogin(req, 'google');
   }
 }
