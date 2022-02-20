@@ -226,27 +226,33 @@ export class AuthController {
   // }
   @Get('facebook')
   @UseGuards(AuthGuard('facebook'))
-  async facebookLogin(): Promise<any> {
+  async facebookLogin(@Query() socials: { isStore: boolean }): Promise<any> {
+    console.log(socials, 'f1');
     return HttpStatus.OK;
   }
 
   @Get('facebook/redirect')
   @UseGuards(AuthGuard('facebook'))
-  async facebookLoginRedirect(@Req() req): Promise<any> {
-    console.log(req);
-    return this.authService.socialsLogin(req, 'facebook');
+  async facebookLoginRedirect(
+    @Req() req,
+    @Query() socials: { isStore: boolean },
+  ): Promise<any> {
+    console.log(socials, 'f2');
+    return this.authService.socialsLogin(req, 'facebook', socials.isStore);
   }
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() _req) {
+  async googleAuth(@Req() _req, @Query() socials: { isStore: boolean }) {
+    console.log(socials, 'g1');
     // Guard redirects
   }
 
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req) {
+  async googleAuthRedirect(@Req() req, @Query() socials: { isStore: boolean }) {
+    console.log(socials, 'g2');
     // For now, we'll just show the user object
-    return this.authService.socialsLogin(req, 'google');
+    return this.authService.socialsLogin(req, 'google', socials.isStore);
   }
 }
