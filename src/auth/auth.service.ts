@@ -294,4 +294,15 @@ export class AuthService {
       throw new HttpException('Email taken', HttpStatus.EXPECTATION_FAILED);
     }
   }
+
+  googleLogin(req) {
+    if (!req.user) {
+      return 'No user from google';
+    }
+
+    return {
+      message: 'User information from google',
+      user: req.user,
+    };
+  }
 }
