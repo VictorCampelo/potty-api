@@ -1,12 +1,12 @@
-import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 // All values from a application/x-www-form-urlencoded request are always strings.
 export class CreateProductDto {
   title: string;
 
-  @Transform(({ value }) => parseInt(value))
-  @IsInt()
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
   @Min(0)
   price: number;
 

@@ -351,19 +351,20 @@ export class OrdersService {
     store: Store,
     delivery?: boolean,
   ) {
+    const formatedAmount = sumAmount.toFixed(2).toString().replace('.', ',');
     const paymentMethod = `${productsListToMsg.map((p) => {
       if (p.parcels > 1) {
         return (
-          " '" +
+          '%0a - ' +
           p.paymentMethod.toUpperCase() +
-          ' - ' +
+          " - '" +
           p.title +
           "' parcelado em " +
           p.parcels +
           ' vezes'
         );
       } else {
-        return ' ' + p.paymentMethod.toUpperCase() + " '" + p.title + "'";
+        return '%0a - ' + p.paymentMethod.toUpperCase() + " '" + p.title + "'";
       }
     })}`;
 
@@ -373,23 +374,28 @@ export class OrdersService {
       .map((p) => {
         return '  🏷️ ' + p.amount + 'x ' + p.title + '%0a';
       })
-      .join('')}%0a*Total do Pedido:* R$ ${sumAmount}%0a*Forma de Envio:* ${
+      .join(
+        '',
+      )}%0a*Total do Pedido:* R$ ${formatedAmount}%0a*Forma de Envio:* ${
       delivery ? 'Entrega' : 'Retirada em loja'
     }%0a${
       delivery
         ? `*Custo do Envio:* ${
             store.deliveryFee
-              ? `${'R$ ' + store.deliveryFee} `
+              ? `${
+                  'R$ ' +
+                  store.deliveryFee.toFixed(2).toString().replace('.', ',')
+                } `
               : 'Taxa de envio não cadastrada'
           }%0a`
         : '%0a'
-    }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*%0a*Rua*: ${
-      user.street
+    }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*${
+      user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
     }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${
       user.neighborhood
     }%0a*Cidade:* ${user.city} - ${user.uf}${
-      user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
-    }${user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''}`;
+      user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''
+    }`;
     return `https://api.whatsapp.com/send?phone=55${store.phone}&text=${text}`;
   }
 
