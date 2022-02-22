@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  Redirect,
   Req,
   UnauthorizedException,
   UploadedFile,
@@ -35,6 +36,8 @@ import { multerOptions } from 'src/configs/multer.config';
 import { Role } from './role.decorator';
 import { ChangePlanDto } from './dto/change-plan-dto';
 import { RolesGuard } from './roles.guard';
+import { Response } from 'express';
+import { Res } from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
@@ -226,33 +229,40 @@ export class AuthController {
   // }
   @Get('facebook')
   @UseGuards(AuthGuard('facebook'))
-  async facebookLogin(@Query() socials: { isStore: boolean }): Promise<any> {
-    console.log(socials, 'f1');
+  async facebookAuth(): Promise<any> {
     return HttpStatus.OK;
-  }
-
-  @Get('facebook/redirect')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLoginRedirect(
-    @Req() req,
-    @Query() socials: { isStore: boolean },
-  ): Promise<any> {
-    console.log(socials, 'f2');
-    return this.authService.socialsLogin(req, 'facebook', socials.isStore);
   }
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() _req, @Query() socials: { isStore: boolean }) {
-    console.log(socials, 'g1');
+  async googleAuth(@Req() _req) {
     // Guard redirects
+  }
+
+  @Get('facebook/redirect')
+  @UseGuards(AuthGuard('facebook'))
+  async facebookRedirect(@Req() req, @Res() res: Response): Promise<any> {
+    const url = await this.authService.socialsLogin(req, 'facebook');
+    if (typeof url !== 'string') {
+      res.redirect(
+        `https://www.boadevenda.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=&${url.lastName}&facebookId=${url.id}`,
+      );
+    } else {
+      res.redirect(url);
+    }
   }
 
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req, @Query() socials: { isStore: boolean }) {
-    console.log(socials, 'g2');
+  async googleRedirect(@Req() req, @Res() res: Response) {
     // For now, we'll just show the user object
-    return this.authService.socialsLogin(req, 'google', socials.isStore);
+    const url = await this.authService.socialsLogin(req, 'google');
+    if (typeof url !== 'string') {
+      res.redirect(
+        `https://www.boadevenda.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=&${url.lastName}&googleId=${url.id}`,
+      );
+    } else {
+      res.redirect(url);
+    }
   }
 }

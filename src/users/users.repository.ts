@@ -66,6 +66,8 @@ export class UserRepository extends Repository<User> {
       city,
       uf,
       logradouro,
+      googleId,
+      facebookId,
     } = createUserDto;
 
     const user = this.create();
@@ -85,6 +87,8 @@ export class UserRepository extends Repository<User> {
     user.city = city;
     user.uf = uf;
     user.logradouro = logradouro;
+    user.googleId = googleId;
+    user.facebookId = facebookId;
 
     user.confirmationTokenDigits = (
       Math.floor(Math.random() * 999999) + 1
