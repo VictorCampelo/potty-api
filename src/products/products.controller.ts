@@ -27,6 +27,7 @@ import { User } from 'src/users/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { multerOptions } from 'src/configs/multer.config';
+import { FindPromotedDto } from './dto/find-promoted.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -44,9 +45,9 @@ export class ProductsController {
   }
 
   @Get('promoted')
-  async findWithDiscount() {
+  async findWithDiscount(@Query() findPromotedDto: FindPromotedDto) {
     try {
-      return await this.productsService.findWithDiscount();
+      return await this.productsService.findWithDiscount(findPromotedDto);
     } catch (error) {
       throw new ErrorHandling(error);
     }
