@@ -220,7 +220,7 @@ export class AuthService {
     if (!user)
       throw new NotFoundException('Não há usuário cadastrado com esse email.');
 
-    user.recoverToken = randomBytes(32).toString('hex');
+    user.recoverToken = (Math.floor(Math.random() * 999999) + 1).toString();
     await user.save();
     await this.emailsService.sendEmail(
       user.email,
