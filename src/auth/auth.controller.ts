@@ -245,7 +245,7 @@ export class AuthController {
     const url = await this.authService.socialsLogin(req, 'facebook');
     if (typeof url !== 'string') {
       res.redirect(
-        `https://www.boadevenda.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=&${url.lastName}&facebookId=${url.id}`,
+        `https://www.boadevenda.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=${url.lastName}&facebookId=${url.id}`,
       );
     } else {
       res.redirect(url);
@@ -259,7 +259,7 @@ export class AuthController {
     const url = await this.authService.socialsLogin(req, 'google');
     if (typeof url !== 'string') {
       res.redirect(
-        `https://www.boadevenda.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=&${url.lastName}&googleId=${url.id}`,
+        `https://www.boadevenda.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=${url.lastName}&googleId=${url.id}`,
       );
     } else {
       res.redirect(url);
