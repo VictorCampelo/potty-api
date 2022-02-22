@@ -25,6 +25,7 @@ import {
 } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductsDto } from './dto/find-products.dto';
+import { FindPromotedDto } from './dto/find-promoted.dto';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
@@ -293,11 +294,14 @@ export class ProductsService {
     return this.productRepository.softDelete(id);
   }
 
-  async findWithDiscount() {
+  async findWithDiscount(findPromotedDto: FindPromotedDto) {
     return this.productRepository.find({
       where: {
         discount: MoreThan(0),
       },
+      take: findPromotedDto.limit,
+      skip: findPromotedDto.offset,
+      relations: ['files'],
       order: { discount: 'DESC' },
     });
   }
