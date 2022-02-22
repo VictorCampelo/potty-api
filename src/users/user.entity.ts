@@ -125,6 +125,12 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', nullable: true, name: 'plan_id' })
   planId: string;
 
+  @Column({ nullable: true })
+  googleId?: string;
+
+  @Column({ nullable: true })
+  facebookId?: string;
+
   async checkPassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);
     return hash === this.password;

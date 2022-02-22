@@ -295,37 +295,31 @@ export class AuthService {
     }
   }
 
-  async socialsLogin(req, service: string, isStore: boolean) {
+  async socialsLogin(req, service: string) {
     if (!req.user) {
-      return `No user from ${service}`;
+      return `https://www.boadevenda.com.br/404`;
     }
 
+    const whereSocial =
+      service === 'google'
+        ? {
+            googleId: req.user.id,
+          }
+        : {
+            facebookId: req.user.id,
+          };
+
     const user = await this.userRepository.findOne({
-      where: {
-        email: req.user.email,
-      },
+      where: whereSocial,
     });
 
     if (!user) {
-      if (isStore) {
-        return {
-          email: req.user.email,
-          firstName: req.user.firstName,
-          lastName: req.user.lastName,
-        };
-      }
-
-      const newPassword = randomBytes(16).toString('hex');
-      this.signUp(
-        {
-          email: req.user.email,
-          firstName: req.user.firstName,
-          lastName: req.user.lastName,
-          password: newPassword,
-          passwordConfirmation: newPassword,
-        },
-        UserRole.USER,
-      );
+      return {
+        id: req.user.id,
+        email: req.user.email,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+      };
     } else {
       const jwtPayload = {
         id: user.id,
@@ -335,7 +329,7 @@ export class AuthService {
 
       const jwtToken = this.jwtService.sign(jwtPayload);
 
-      return { user, jwtToken };
+      return `https://www.boadevenda.com.br/login?accessToken=${jwtToken}`;
     }
   }
 }

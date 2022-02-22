@@ -82,4 +82,10 @@ export class CreateUserDto {
 
   @IsOptional()
   logradouro?: string;
+
+  @IsOptional()
+  googleId?: string;
+
+  @IsOptional()
+  facebookId?: string;
 }

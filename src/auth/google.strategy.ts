@@ -12,7 +12,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: process.env.GOOGLE_OAUTH_CLIENT_ID,
       clientSecret: process.env.GOOGLE_OAUTH_SECRET_KEY,
-      callbackURL: 'https://api-dev.boadevenda.com.br/auth/google/redirect',
+      callbackURL: process.env.GOOGLE_REDIRECT_URL,
       scope: ['email', 'profile'],
     });
   }
@@ -23,13 +23,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    const { name, emails, photos } = profile;
+    const { id, name, emails, photos } = profile;
     const user = {
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
       picture: photos[0].value,
       accessToken,
+      id,
     };
 
     if (!user.email) {
