@@ -25,6 +25,7 @@ import { PlansModule } from './plans/plans.module';
 import { PaymentsModule } from './payments/payments.module';
 import { GoogleStrategy } from './auth/google.strategy';
 import { FacebookStrategy } from './auth/facebook.strategy';
+import { BuyerhistoryModule } from './buyerhistory/buyerhistory.module';
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ dotenv.config();
     OrderHistoricsModule,
     PlansModule,
     PaymentsModule,
+    BuyerhistoryModule,
   ],
   controllers: [AppController],
   // providers: [

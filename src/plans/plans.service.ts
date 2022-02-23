@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BuyerhistoryService } from 'src/buyerhistory/buyerhistory.service';
 import { EmailsService } from 'src/emails/emails.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
@@ -15,6 +16,7 @@ export class PlansService {
     private readonly plansRepository: Repository<Plan>,
     private usersService: UsersService,
     private emailsService: EmailsService,
+    private buyerhistoryService: BuyerhistoryService,
   ) {}
 
   async create(createPlanDto: CreatePlanDto) {
@@ -48,6 +50,12 @@ export class PlansService {
 
       user.save();
 
+      await this.buyerhistoryService.create({
+        paymentMethod: webhookRequestDto.trans_paymentmethod.toString(),
+        accountStatus: 'Paga',
+        user,
+      });
+
       await this.emailsService.sendEmail(
         user.email,
         'Boa de venda - Parabéns! Seu plano já está ativado',
@@ -60,6 +68,12 @@ export class PlansService {
 
       return user;
     } else if (trans_status === 1) {
+      await this.buyerhistoryService.create({
+        paymentMethod: webhookRequestDto.trans_paymentmethod.toString(),
+        accountStatus: 'Aberta',
+        user,
+      });
+
       await this.emailsService.sendEmail(
         user.email,
         'Boa de venda - Solicitação de compra de Plano',
@@ -72,6 +86,12 @@ export class PlansService {
       );
       return;
     } else if (trans_status === 4) {
+      await this.buyerhistoryService.create({
+        paymentMethod: webhookRequestDto.trans_paymentmethod.toString(),
+        accountStatus: 'Cancelada',
+        user,
+      });
+
       await this.emailsService.sendEmail(
         user.email,
         'Boa de venda - Compra cancelada',
