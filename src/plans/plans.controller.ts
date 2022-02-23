@@ -10,6 +10,7 @@ import {
   HttpStatus,
   HttpException,
   HttpCode,
+  ValidationPipe,
 } from '@nestjs/common';
 import { PlansService } from './plans.service';
 import { CreatePlanDto } from './dto/create-plan.dto';
@@ -28,7 +29,7 @@ export class PlansController {
   @Post()
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.ADMIN)
-  async create(@Body() createPlanDto: CreatePlanDto) {
+  async create(@Body(ValidationPipe) createPlanDto: CreatePlanDto) {
     try {
       return await this.plansService.create(createPlanDto);
     } catch (error) {
