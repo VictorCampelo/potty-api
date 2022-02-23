@@ -108,7 +108,7 @@ export class ProductsService {
     ) {
       throw new HttpException(
         "You don't have a plan or your Products limit has expired",
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 

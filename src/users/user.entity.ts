@@ -20,6 +20,7 @@ import { File } from 'src/files/file.entity';
 import { Order } from 'src/orders/order.entity';
 import { Store } from 'src/stores/store.entity';
 import { Plan } from 'src/plans/entities/plan.entity';
+import { BuyerHistory } from 'src/buyerhistory/entities/buyerhistory.entity';
 
 @Entity('user')
 @Unique(['email'])
@@ -124,6 +125,9 @@ export class User extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: true, name: 'plan_id' })
   planId: string;
+
+  @OneToMany(() => BuyerHistory, (bh) => bh.user)
+  buyerhistories: BuyerHistory[];
 
   @Column({ nullable: true })
   googleId?: string;

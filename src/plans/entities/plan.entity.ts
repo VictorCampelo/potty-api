@@ -16,6 +16,12 @@ export class Plan {
   @Column({ nullable: false, type: 'varchar', length: 255 })
   name: string;
 
+  @Column({ nullable: false, type: 'varchar', length: 20 })
+  nickname: string;
+
+  @Column({ nullable: false, type: 'varchar', length: 255 })
+  url: string;
+
   @Column({ nullable: false, type: 'integer' })
   code: number;
 

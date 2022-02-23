@@ -6,6 +6,7 @@ import { Plan } from './entities/plan.entity';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from 'src/users/users.module';
 import { EmailsModule } from 'src/emails/emails.module';
+import { BuyerhistoryModule } from 'src/buyerhistory/buyerhistory.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EmailsModule } from 'src/emails/emails.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     UsersModule,
     EmailsModule,
+    BuyerhistoryModule,
   ],
   controllers: [PlansController],
   providers: [PlansService],
