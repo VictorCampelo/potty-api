@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -88,4 +89,10 @@ export class CreateUserDto {
 
   @IsOptional()
   facebookId?: string;
+
+  @IsOptional()
+  @Matches(/mensal|trimestral|anual/, {
+    message: 'Invalid Plan ',
+  })
+  chosenPlan: string;
 }

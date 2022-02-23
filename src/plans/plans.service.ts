@@ -119,6 +119,14 @@ export class PlansService {
     return this.plansRepository.findOne(id);
   }
 
+  async findByNickname(nickname: string) {
+    return this.plansRepository.findOne({
+      where: {
+        nickname,
+      },
+    });
+  }
+
   update(id: number, updatePlanDto: UpdatePlanDto) {
     return `This action updates a #${id} plan`;
   }

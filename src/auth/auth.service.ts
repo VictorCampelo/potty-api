@@ -2,15 +2,12 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  Logger,
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import AWS from 'aws-sdk';
-import { ManagedUpload } from 'aws-sdk/clients/s3';
 import { randomBytes } from 'crypto';
 import { EmailsService } from 'src/emails/emails.service';
 import { PlansService } from 'src/plans/plans.service';
@@ -71,7 +68,7 @@ export class AuthService {
   async signUpOwner(
     createUserAndStore: CreateUserStore,
     storeAvatar: Express.Multer.File,
-  ): Promise<User> {
+  ): Promise<{ user: User; planUrl: string } | User> {
     const { userDto, storeDto } = createUserAndStore;
     if (userDto.password !== userDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
@@ -111,6 +108,13 @@ export class AuthService {
 
       delete user.password;
       delete user.salt;
+
+      if (userDto.chosenPlan) {
+        const plan = await this.plansService.findByNickname(userDto.chosenPlan);
+
+        return { user, planUrl: plan ? plan.url : 'Plan not found' };
+      }
+
       return user;
     } catch (error) {
       if (
