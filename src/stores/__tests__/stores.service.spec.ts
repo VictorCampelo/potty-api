@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { StoresService } from '../stores.service';
 import { StoreRepository } from '../stores.repository';
 import Util from './util/util';
 import { UsersService } from 'src/users/users.service';
 import { FilesService } from 'src/files/files.service';
 import { CategoriesService } from 'src/categories/categories.service';
+import { PaymentsService } from 'src/payments/payments.service';
 
-describe('PlansService', () => {
+describe('StoresService', () => {
   let service: StoresService;
 
   const mockRepository = {
@@ -27,6 +27,7 @@ describe('PlansService', () => {
         UsersService,
         FilesService,
         CategoriesService,
+        PaymentsService,
       ],
     })
       .overrideProvider(StoreRepository)
@@ -36,6 +37,8 @@ describe('PlansService', () => {
       .overrideProvider(FilesService)
       .useValue({})
       .overrideProvider(CategoriesService)
+      .useValue({})
+      .overrideProvider(PaymentsService)
       .useValue({})
       .compile();
     service = module.get<StoresService>(StoresService);

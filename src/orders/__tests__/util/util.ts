@@ -5,6 +5,7 @@ import { Product } from 'src/products/product.entity';
 import { Order } from 'src/orders/order.entity';
 import { Coupon } from 'src/coupons/entities/coupon.entity';
 import { Category } from 'src/categories/category.entity';
+import { Payment } from 'src/payments/entities/payments.entity';
 
 export enum CouponRange {
   category = 'category',
@@ -69,10 +70,26 @@ export default class Util {
     return payload;
   }
 
-  static giveMeAValidStore(id: string, phone: string): Store {
+  static giveMeAValidStore(
+    id: string,
+    phone: string,
+    paymentMethods?: string[],
+    name = 'minha loja',
+  ): Store {
     const store = new Store();
+    store.name = name;
     store.id = id;
     store.phone = phone;
+    if (paymentMethods) {
+      paymentMethods.forEach((p) => {
+        if (store.paymentMethods) {
+          store.paymentMethods.push(this.giveMeAValidPaymentMethod(p));
+        } else {
+          store.paymentMethods = [this.giveMeAValidPaymentMethod(p)];
+        }
+      });
+    }
+    // store.paymentMethods = [this.giveMeAValidPaymentMethod()];
     return store;
   }
 
@@ -157,5 +174,12 @@ export default class Util {
     ctg.id = id;
     ctg.name = name;
     return ctg;
+  }
+
+  static giveMeAValidPaymentMethod(methodName = 'visa') {
+    const payment = new Payment();
+    payment.id = '1';
+    payment.methodName = methodName;
+    return payment;
   }
 }

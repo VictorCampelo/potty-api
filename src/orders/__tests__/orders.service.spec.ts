@@ -116,7 +116,7 @@ describe('OrdersService', () => {
         Util.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
       ]);
       StoresMockedService.findAllByIds.mockReturnValue([
-        Util.giveMeAValidStore('1', '86981834269'),
+        Util.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
       ]);
       /* mocks --- */
 
@@ -140,8 +140,8 @@ describe('OrdersService', () => {
         Util.giveMeAValidProduct('4', '2', 10, 15, 'Cafeteira', 80),
       ]);
       StoresMockedService.findAllByIds.mockReturnValue([
-        Util.giveMeAValidStore('1', '86981834269'),
-        Util.giveMeAValidStore('2', '86981818181'),
+        Util.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
+        Util.giveMeAValidStore('2', '86981818181', ['visa', 'pix', 'boleto']),
       ]);
 
       const createOrder = await ordersService.create(
@@ -205,8 +205,8 @@ describe('OrdersService', () => {
       OrdersHistoricsMockedService.findCustomerHistory.mockReturnValue(false);
 
       StoresMockedService.findAllByIds.mockReturnValue([
-        Util.giveMeAValidStore('1', '86981834269'),
-        Util.giveMeAValidStore('2', '86981818181'),
+        Util.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
+        Util.giveMeAValidStore('2', '86981818181', ['visa', 'pix', 'boleto']),
       ]);
 
       ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([

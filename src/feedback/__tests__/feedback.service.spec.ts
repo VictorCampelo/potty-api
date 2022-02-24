@@ -6,7 +6,7 @@ import { ProductsService } from 'src/products/products.service';
 import { StoresService } from 'src/stores/stores.service';
 import { Feedback } from '../feedback.entity';
 import { FeedbackService } from '../feedback.service';
-import Util from './Util/Util';
+import Util from './Util/util';
 
 describe('FeedbacksService', () => {
   let service: FeedbackService;

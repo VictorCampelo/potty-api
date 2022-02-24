@@ -1,5 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { BuyerhistoryService } from 'src/buyerhistory/buyerhistory.service';
+import { EmailsService } from 'src/emails/emails.service';
+import { UsersService } from 'src/users/users.service';
 import { Plan } from '../entities/plan.entity';
 import { PlansService } from '../plans.service';
 import Util from './util/util';
@@ -17,9 +20,19 @@ describe('PlansService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PlansService,
+        UsersService,
+        EmailsService,
+        BuyerhistoryService,
         { provide: getRepositoryToken(Plan), useValue: mockRepository },
       ],
-    }).compile();
+    })
+      .overrideProvider(UsersService)
+      .useValue({})
+      .overrideProvider(EmailsService)
+      .useValue({})
+      .overrideProvider(BuyerhistoryService)
+      .useValue({})
+      .compile();
     service = module.get<PlansService>(PlansService);
   });
 
