@@ -3,12 +3,18 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { OrderHistoricsService } from 'src/order-historics/order-historics.service';
 import { ProductsService } from 'src/products/products.service';
+import CouponUtils from 'src/shared/tests/utils/coupon';
+import { CouponDiscountType, CouponRange } from 'src/shared/tests/utils/dto';
+import OrderUtils from 'src/shared/tests/utils/order';
+import PayloadUtils from 'src/shared/tests/utils/payload';
+import ProductUtils from 'src/shared/tests/utils/product';
+import StoreUtils from 'src/shared/tests/utils/store';
+import UserUtils from 'src/shared/tests/utils/user';
 import { StoresService } from 'src/stores/stores.service';
 import { UsersService } from 'src/users/users.service';
 import { createConnections, getConnection } from 'typeorm';
 import { Order } from '../order.entity';
 import { OrdersService } from '../orders.service';
-import Util, { CouponDiscountType, CouponRange } from './util/util';
 
 jest.setTimeout(10000);
 
@@ -100,31 +106,31 @@ describe('OrdersService', () => {
     /* --- global mocks */
     OrdersMockedRepository.create
       // .mockReturnValue(Util.giveMeAValidCreatedOrder('1'))
-      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('1'))
-      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('2'))
-      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('3'))
-      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('4'))
-      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('5'))
-      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('6'))
-      .mockReturnValueOnce(Util.giveMeAValidCreatedOrder('7'));
-    UsersMockedService.findUserById.mockReturnValue(Util.giveMeAValidUser());
+      .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('1'))
+      .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('2'))
+      .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('3'))
+      .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('4'))
+      .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('5'))
+      .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('6'))
+      .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('7'));
+    UsersMockedService.findUserById.mockReturnValue(UserUtils.giveMeAValidUser());
     /* global mocks --- */
     it('should create a simple order', async () => {
       /* --- mocks */
       ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([
-        Util.giveMeAValidProduct('1', '1', 10, 15, 'Cadeira'),
-        Util.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
+        ProductUtils.giveMeAValidProduct('1', '1', 10, 15, 'Cadeira'),
+        ProductUtils.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
       ]);
       StoresMockedService.findAllByIds.mockReturnValue([
-        Util.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
+        StoreUtils.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
       ]);
       /* mocks --- */
 
       /* - main test - */
 
       const createOrder = await ordersService.create(
-        Util.giveMeAValidCreateOrderPayload(),
-        Util.giveMeAValidUser(),
+        PayloadUtils.giveMeAValidCreateOrderPayload(),
+        UserUtils.giveMeAValidUser(),
       );
 
       /* - main test - */
@@ -136,17 +142,17 @@ describe('OrdersService', () => {
 
     it('should creater order with discount', async () => {
       ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([
-        Util.giveMeAValidProduct('3', '1', 10, 15, 'Geladeira', 20),
-        Util.giveMeAValidProduct('4', '2', 10, 15, 'Cafeteira', 80),
+        ProductUtils.giveMeAValidProduct('3', '1', 10, 15, 'Geladeira', 20),
+        ProductUtils.giveMeAValidProduct('4', '2', 10, 15, 'Cafeteira', 80),
       ]);
       StoresMockedService.findAllByIds.mockReturnValue([
-        Util.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
-        Util.giveMeAValidStore('2', '86981818181', ['visa', 'pix', 'boleto']),
+        StoreUtils.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
+        StoreUtils.giveMeAValidStore('2', '86981818181', ['visa', 'pix', 'boleto']),
       ]);
 
       const createOrder = await ordersService.create(
-        Util.giveMeAValidCreateOrderWithDiscountPayload(),
-        Util.giveMeAValidUser(),
+        PayloadUtils.giveMeAValidCreateOrderWithDiscountPayload(),
+        UserUtils.giveMeAValidUser(),
       );
 
       expect(createOrder).toMatchObject({
@@ -158,8 +164,8 @@ describe('OrdersService', () => {
     });
 
     it('should make an order using coupon', async () => {
-      const cupom = Util.giveMeAValidCoupon('cupom', false, 100, '1');
-      const cupom2 = Util.giveMeAValidCoupon(
+      const cupom = CouponUtils.giveMeAValidCoupon('cupom', false, 100, '1');
+      const cupom2 = CouponUtils.giveMeAValidCoupon(
         'cupom2',
         false,
         100,
@@ -169,7 +175,7 @@ describe('OrdersService', () => {
         CouponDiscountType.money,
         15,
       );
-      const cupom3 = Util.giveMeAValidCoupon(
+      const cupom3 = CouponUtils.giveMeAValidCoupon(
         'cupom3',
         false,
         100,
@@ -179,7 +185,7 @@ describe('OrdersService', () => {
         CouponDiscountType.money,
         10,
       );
-      const cupom4 = Util.giveMeAValidCoupon(
+      const cupom4 = CouponUtils.giveMeAValidCoupon(
         'cupom3',
         false,
         100,
@@ -205,25 +211,25 @@ describe('OrdersService', () => {
       OrdersHistoricsMockedService.findCustomerHistory.mockReturnValue(false);
 
       StoresMockedService.findAllByIds.mockReturnValue([
-        Util.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
-        Util.giveMeAValidStore('2', '86981818181', ['visa', 'pix', 'boleto']),
+        StoreUtils.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
+        StoreUtils.giveMeAValidStore('2', '86981818181', ['visa', 'pix', 'boleto']),
       ]);
 
       ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([
-        Util.giveMeAValidProduct('1', '1', 10, 15, 'Cadeira'),
-        Util.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
+        ProductUtils.giveMeAValidProduct('1', '1', 10, 15, 'Cadeira'),
+        ProductUtils.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
       ]);
 
       const createOrder = await ordersService.create(
-        Util.giveMeAValidCreateOrderPayload('cupom'),
-        Util.giveMeAValidUser(),
+        PayloadUtils.giveMeAValidCreateOrderPayload('cupom'),
+        UserUtils.giveMeAValidUser(),
       );
 
       expect(createOrder).toMatchObject({ orders: [{ id: '4', amount: 25 }] });
 
       const createOrderWithCouponForStore = await ordersService.create(
-        Util.giveMeAValidCreateOrderPayload('cupom2'),
-        Util.giveMeAValidUser(),
+        PayloadUtils.giveMeAValidCreateOrderPayload('cupom2'),
+        UserUtils.giveMeAValidUser(),
       );
 
       expect(createOrderWithCouponForStore).toMatchObject({
@@ -231,8 +237,8 @@ describe('OrdersService', () => {
       });
 
       const createOrderWithCouponForFirstBuy = await ordersService.create(
-        Util.giveMeAValidCreateOrderPayload('cupom3'),
-        Util.giveMeAValidUser(),
+        PayloadUtils.giveMeAValidCreateOrderPayload('cupom3'),
+        UserUtils.giveMeAValidUser(),
       );
 
       expect(createOrderWithCouponForFirstBuy).toMatchObject({
@@ -240,8 +246,8 @@ describe('OrdersService', () => {
       });
 
       const OrderCouponFirstBuyAndPercentage = await ordersService.create(
-        Util.giveMeAValidCreateOrderPayload('cupom4'),
-        Util.giveMeAValidUser(),
+        PayloadUtils.giveMeAValidCreateOrderPayload('cupom4'),
+        UserUtils.giveMeAValidUser(),
       );
 
       expect(OrderCouponFirstBuyAndPercentage).toMatchObject({
@@ -254,36 +260,56 @@ describe('OrdersService', () => {
 
       await expect(
         ordersService.create(
-          Util.giveMeAValidCreateOrderPayload('cupomtest'),
-          Util.giveMeAValidUser(),
+          PayloadUtils.giveMeAValidCreateOrderPayload('cupomtest'),
+          UserUtils.giveMeAValidUser(),
         ),
       ).rejects.toThrowError(new Error('Coupon not found'));
     });
 
     it('should not accept expired cupoun', async () => {
-      const cupom = Util.giveMeAValidCoupon('cupom', true, 0);
+      const cupom = CouponUtils.giveMeAValidCoupon('cupom', true, 0);
       CouponsMockedService.findOne.mockReturnValue(cupom);
       CouponsMockedService.checkCoupom.mockReturnValue(false);
 
       await expect(
         ordersService.create(
-          Util.giveMeAValidCreateOrderPayload('cupomtest'),
-          Util.giveMeAValidUser(),
+          PayloadUtils.giveMeAValidCreateOrderPayload('cupomtest'),
+          UserUtils.giveMeAValidUser(),
         ),
       ).rejects.toThrowError(new Error('Invalid Coupon'));
     });
 
     it('should not accept coupon already used too many times', async () => {
-      const cupom = Util.giveMeAValidCoupon('cupom', false, 0);
+      const cupom = CouponUtils.giveMeAValidCoupon('cupom', false, 0);
       CouponsMockedService.findOne.mockReturnValue(cupom);
       CouponsMockedService.checkCoupom.mockReturnValue(cupom);
 
       await expect(
         ordersService.create(
-          Util.giveMeAValidCreateOrderPayload('cupomtest'),
-          Util.giveMeAValidUser(),
+          PayloadUtils.giveMeAValidCreateOrderPayload('cupomtest'),
+          UserUtils.giveMeAValidUser(),
         ),
       ).rejects.toThrowError(new Error('Coupon exceeded maximum usage'));
     });
+
+    it('shoud not accept a payment method', async () => {
+
+      ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([
+        ProductUtils.giveMeAValidProduct('1', '1', 10, 15, 'Cadeira'),
+        ProductUtils.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
+      ]);
+      StoresMockedService.findAllByIds.mockReturnValue([
+        StoreUtils.giveMeAValidStore('1', '86981834269', ['test']),
+      ]);
+      /* mocks --- */
+
+      /* - main test - */
+
+      await expect(ordersService.create(
+        PayloadUtils.giveMeAValidCreateOrderPayload(),
+        UserUtils.giveMeAValidUser(),
+      )).rejects.toThrowError(new Error('Store minha loja doesnt accept visa as a payment method'));
+
+    })
   });
 });

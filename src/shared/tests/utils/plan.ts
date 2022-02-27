@@ -1,6 +1,6 @@
-import { Plan } from 'src/plans/entities/plan.entity';
+import { Plan } from "src/plans/entities/plan.entity";
 
-export default class Util {
+export default class PlanUtils {
   static giveMeAValidPlan(): Plan {
     const plan = new Plan();
     plan.name = 'Plano Teste 1.0';

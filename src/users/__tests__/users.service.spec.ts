@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FilesService } from 'src/files/files.service';
+import UserUtils from 'src/shared/tests/utils/user';
 import { UserRepository } from '../users.repository';
 import { UsersService } from '../users.service';
-import Util from './util/util';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -34,7 +34,7 @@ describe('UsersService', () => {
 
   describe('findUserById', () => {
     it('should find a User by id', async () => {
-      const user = Util.giveMeAValidUser('1');
+      const user = UserUtils.giveMeAValidUser('1');
 
       mockRepository.findOne.mockReturnValue(user);
       const foundUser = await service.findUserById('1');
