@@ -30,7 +30,7 @@ export class StoresService {
     private filesService: FilesService,
     private categoriesService: CategoriesService,
     private paymentsService: PaymentsService,
-  ) {}
+  ) { }
 
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
     const store = await this.storeRepository.createStore(createStoreDto);
@@ -157,7 +157,7 @@ export class StoresService {
 
     const store = await this.findOne(id);
 
-    if (updateStoreDto.paymentMethods.length) {
+    if (updateStoreDto.paymentMethods && updateStoreDto.paymentMethods.length) {
       const lowerPms = updateStoreDto.paymentMethods.map((pm) => {
         return pm.toLowerCase();
       });
@@ -210,6 +210,7 @@ export class StoresService {
 
       await this.filesService.saveFile(background);
     }
+
 
     if (updateStoreDto.categoriesIds) {
       store.categories = await this.categoriesService.findAllByIdsTypeStore(
