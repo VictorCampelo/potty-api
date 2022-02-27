@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { StoresService } from '../stores.service';
 import { StoreRepository } from '../stores.repository';
-import Util from './util/util';
 import { UsersService } from 'src/users/users.service';
 import { FilesService } from 'src/files/files.service';
 import { CategoriesService } from 'src/categories/categories.service';
+import { PaymentsService } from 'src/payments/payments.service';
+import StoreUtils from 'src/shared/tests/utils/store';
 
-describe('PlansService', () => {
+describe('StoresService', () => {
   let service: StoresService;
 
   const mockRepository = {
@@ -27,6 +27,7 @@ describe('PlansService', () => {
         UsersService,
         FilesService,
         CategoriesService,
+        PaymentsService,
       ],
     })
       .overrideProvider(StoreRepository)
@@ -36,6 +37,8 @@ describe('PlansService', () => {
       .overrideProvider(FilesService)
       .useValue({})
       .overrideProvider(CategoriesService)
+      .useValue({})
+      .overrideProvider(PaymentsService)
       .useValue({})
       .compile();
     service = module.get<StoresService>(StoresService);
@@ -47,8 +50,8 @@ describe('PlansService', () => {
 
   describe('findAllByIds', () => {
     it('should all Stores by ids', async () => {
-      const store1 = Util.giveMeAValidStore('1');
-      const store2 = Util.giveMeAValidStore('2');
+      const store1 = StoreUtils.giveMeAValidStore('1', '123123123');
+      const store2 = StoreUtils.giveMeAValidStore('2', '123123456');
       mockRepository.findByIds.mockReturnValue([store1, store2]);
       const foundStores = await service.findAllByIds(['1', '2']);
 
