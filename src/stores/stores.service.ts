@@ -294,6 +294,8 @@ export class StoresService {
   async findFromCategory(categoryId: string) {
     return this.storeRepository.createQueryBuilder('stores')
       .innerJoinAndSelect('stores.categories', 'categories')
+      .leftJoinAndSelect('stores.avatar', 'avatar')
+      .leftJoinAndSelect('stores.background', 'background')
       .where('categories.id = :category', {
         category: categoryId,
       })
