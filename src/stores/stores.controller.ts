@@ -28,7 +28,7 @@ import { StoresService } from './stores.service';
 
 @Controller('stores')
 export class StoresController {
-  constructor(private readonly storesService: StoresService) {}
+  constructor(private readonly storesService: StoresService) { }
 
   @Get()
   async findAll() {
@@ -55,6 +55,16 @@ export class StoresController {
     try {
       return await this.storesService.findStoreMe(user.id);
     } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Get('categories/:categoryId')
+  async findByCategory(@Param('categoryId') catId: string) {
+    try {
+      return this.storesService.findFromCategory(catId)
+    } catch (error) {
+
       throw new ErrorHandling(error);
     }
   }

@@ -290,4 +290,14 @@ export class StoresService {
 
     return { productsFound, storesFound };
   }
+
+  async findFromCategory(categoryId: string) {
+    return this.storeRepository.createQueryBuilder('stores')
+      .innerJoinAndSelect('stores.categories', 'categories')
+      .where('categories.id = :category', {
+        category: categoryId,
+      })
+      .getMany();
+  }
+
 }
