@@ -17,7 +17,7 @@ export class PlansService {
     private usersService: UsersService,
     private emailsService: EmailsService,
     private buyerhistoryService: BuyerhistoryService,
-  ) {}
+  ) { }
 
   async create(createPlanDto: CreatePlanDto) {
     const plan = this.plansRepository.create(createPlanDto);
@@ -125,6 +125,10 @@ export class PlansService {
         nickname,
       },
     });
+  }
+
+  async publicFindByNickname(nickname: string) {
+    return this.plansRepository.createQueryBuilder().where('Plan.nickname = :nickname', { nickname: nickname }).select(['Plan.id', 'Plan.url', 'Plan.name', 'Plan.nickname']).getOne()
   }
 
   update(id: number, updatePlanDto: UpdatePlanDto) {
