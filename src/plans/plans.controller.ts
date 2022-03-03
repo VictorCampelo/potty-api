@@ -24,7 +24,7 @@ import { WebhookRequestDto } from './dto/webhook-request.dto';
 
 @Controller('plans')
 export class PlansController {
-  constructor(private readonly plansService: PlansService) {}
+  constructor(private readonly plansService: PlansService) { }
 
   @Post()
   @UseGuards(AuthGuard(), RolesGuard)
@@ -59,6 +59,11 @@ export class PlansController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.plansService.findOne(id);
+  }
+
+  @Get('find/:nickname')
+  async findByNickname(@Param('nickname') nickname: string) {
+    return this.plansService.publicFindByNickname(nickname);
   }
 
   @Patch(':id')
