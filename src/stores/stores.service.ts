@@ -95,6 +95,7 @@ export class StoresService {
         leftJoinAndSelect: {
           user: 'store.avatar',
           background: 'store.background',
+          categories: 'store.categories'
         },
       },
     });
