@@ -4,6 +4,8 @@ import {
   forwardRef,
   Inject,
   NotFoundException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -22,7 +24,7 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
     @Inject(forwardRef(() => StoresService))
     private readonly storesService: StoresService,
-  ) {}
+  ) { }
   async create(
     createCategoryDto: CreateCategoryDto,
     typeOfCategory: string,
@@ -35,6 +37,20 @@ export class CategoriesService {
       category.storeProductsId = storeId;
     }
     return this.categoryRepository.save(category);
+  }
+
+  async updateCategory(updateCategoryDto: UpdateCategoryDto, id: string) {
+    const category = await this.categoryRepository.findOne(id, {
+      where: {
+        type: 'store'
+      }
+    })
+
+    if (!category) {
+      throw new HttpException('Category not found', HttpStatus.NOT_FOUND)
+    }
+
+    return this.categoryRepository.update(category.id, updateCategoryDto)
   }
 
   async findAll(): Promise<Category[]> {
@@ -115,5 +131,9 @@ export class CategoriesService {
       throw new NotFoundException('category Not found');
     }
     return this.categoryRepository.delete(category[0].id);
+  }
+
+  async deleteStoreCategory(id: string) {
+    return this.categoryRepository.delete(id)
   }
 }

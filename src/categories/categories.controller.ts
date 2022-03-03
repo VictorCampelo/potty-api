@@ -22,7 +22,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 const productsByCategory = 'products/:storeId/category/:categoryId';
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(private readonly categoriesService: CategoriesService) { }
 
   @Get()
   async findAllPublicCategories() {
@@ -39,6 +39,28 @@ export class CategoriesController {
   async createPublicCategory(@Body() createCategoryDto: CreateCategoryDto) {
     try {
       return await this.categoriesService.create(createCategoryDto, 'store');
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Patch('update/:categoryId')
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Role(UserRole.ADMIN)
+  async updateCategory(@Body() updateCategoryDto: UpdateCategoryDto, @Param('categoryId') id: string) {
+    try {
+      return await this.categoriesService.updateCategory(updateCategoryDto, id);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Delete('delete/:categoryId')
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Role(UserRole.ADMIN)
+  async deleteCategory(@Param('categoryId') id: string) {
+    try {
+      return this.categoriesService.deleteStoreCategory(id)
     } catch (error) {
       throw new ErrorHandling(error);
     }
