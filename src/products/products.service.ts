@@ -338,6 +338,7 @@ export class ProductsService {
     return this.productRepository
       .createQueryBuilder('product')
       .innerJoinAndSelect('product.categories', 'categories')
+      .leftJoinAndSelect('product.files', 'files')
       .where('categories.id = :category', {
         category: categoryId,
       })
