@@ -92,7 +92,13 @@ export class Store extends BaseEntity {
   })
   facebookLink: string;
 
-  instagram_link: string;
+  @Column({
+    nullable: true,
+    type: 'varchar',
+    length: 45,
+    name: 'instagram_link',
+  })
+  instagramLink: string;
 
   @Column({
     nullable: true,
