@@ -23,7 +23,7 @@ export class UsersService {
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
     private filesService: FilesService,
-  ) {}
+  ) { }
 
   async createAdminUser(createUserDto: CreateUserDto): Promise<User> {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
@@ -101,6 +101,7 @@ export class UsersService {
       .leftJoinAndSelect('User.store', 'store')
       .leftJoinAndSelect('store.avatar', 'avatar')
       .leftJoinAndSelect('store.background', 'background')
+      .leftJoinAndSelect('store.paymentMethods', 'paymentMethods')
       .leftJoinAndSelect('User.profileImage', 'profileImage')
       .getOne();
 
