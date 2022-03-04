@@ -40,7 +40,7 @@ export class ProductsService {
     private readonly storesService: StoresService,
     private readonly categoriesService: CategoriesService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   async amountSolds(
     storeId: string,
@@ -295,15 +295,17 @@ export class ProductsService {
   }
 
   async findWithDiscount(findPromotedDto: FindPromotedDto) {
+    // const store = await this.storesService.findOne()
     return this.productRepository.find({
       where: {
         discount: MoreThan(0),
       },
       take: findPromotedDto.limit,
       skip: findPromotedDto.offset,
-      relations: ['files'],
+      relations: ['files', 'store'],
       order: { discount: 'DESC' },
     });
+
   }
 
   async findRelated({
