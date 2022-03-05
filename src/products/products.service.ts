@@ -355,7 +355,9 @@ export class ProductsService {
     return this.productRepository
       .createQueryBuilder('product')
       .innerJoinAndSelect('product.orderHistorics', 'historic')
+      .leftJoin('product.files', 'files')
       .select('product')
+      .addSelect('json_agg(files)', 'files')
       .addSelect('sum(historic.productQtd)', 'qtd')
       .where('product.store_id = :id', { id: storeId })
       .andWhere('product.sumOrders > 0')
@@ -368,6 +370,6 @@ export class ProductsService {
       .skip(offset)
       .take(limit)
       .groupBy('product.id')
-      .getRawMany();
+      .getRawMany()
   }
 }
