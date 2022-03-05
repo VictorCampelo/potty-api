@@ -13,7 +13,7 @@ export class DashboardService {
     private readonly feedbackService: FeedbackService,
     private readonly productsService: ProductsService,
     private readonly historicService: OrderHistoricsService,
-  ) {}
+  ) { }
 
   async mostSolds(storeId: string, findMostSolds: FindMostSolds) {
     return this.historicService.amountSolds(
@@ -49,6 +49,7 @@ export class DashboardService {
 
   async amountSold(storeId: string, findAmountSold: FindMostSolds) {
     const { start, end, limit, offset } = findAmountSold;
+
     const products = await this.productsService.productsSold(
       storeId,
       start,
@@ -57,8 +58,12 @@ export class DashboardService {
       offset,
     );
 
+
     let totalAmount = 0;
     products.forEach((p) => {
+      if (!p.files[0]) {
+        p.files = []
+      }
       totalAmount += parseInt(p.qtd);
     });
 

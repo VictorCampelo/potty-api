@@ -21,7 +21,7 @@ import { GetUser } from 'src/auth/get-user.decorator';
 @UseGuards(AuthGuard(), RolesGuard)
 @Role(UserRole.OWNER)
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(private readonly dashboardService: DashboardService) { }
   @Get('mostSolds')
   async findMostSoldsProducts(
     @Query(ValidationPipe) query: FindMostSolds,
@@ -58,13 +58,14 @@ export class DashboardController {
     }
   }
 
-  @Get('amountSoldProducts/:id')
+  @Get('amountSoldProducts')
   async findAmountSoldProducts(
-    @Param('id') storeId: string,
-    @Body(ValidationPipe) query: FindMostSolds,
+    // @Param('id') storeId: string,
+    @Query(ValidationPipe) query: FindMostSolds,
+    @GetUser() user: User,
   ) {
     try {
-      return await this.dashboardService.amountSold(storeId, query);
+      return await this.dashboardService.amountSold(user.storeId, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }
