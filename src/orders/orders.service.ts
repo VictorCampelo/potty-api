@@ -31,7 +31,7 @@ export class OrdersService {
     private readonly couponsService: CouponsService,
     private readonly historicsService: OrderHistoricsService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   async create(
     createOrderDto: CreateOrderDto,
@@ -139,11 +139,9 @@ export class OrdersService {
           status: false,
           couponId: coupon && coupon.id,
           requiresDelivery: storeOrder.delivery,
-          customerAddress: `${userInfo.street}, ${userInfo.addressNumber} - ${
-            userInfo.neighborhood
-          }, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${
-            userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''
-          } ${userInfo.logradouro ? `Logradouro: ${userInfo.logradouro}` : ''}`,
+          customerAddress: `${userInfo.street}, ${userInfo.addressNumber} - ${userInfo.neighborhood
+            }, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''
+            } ${userInfo.logradouro ? `Logradouro: ${userInfo.logradouro}` : ''}`,
           situation: 'Recebido',
         });
 
@@ -217,9 +215,9 @@ export class OrdersService {
                   coupon.discountValue,
                   coupon.discountPorcent,
                   prod.amount *
-                    (product.discount
-                      ? product.price * (product.discount / 100)
-                      : product.price),
+                  (product.discount
+                    ? product.price * (product.discount / 100)
+                    : product.price),
                 );
 
                 couponWasUsed = true;
@@ -237,9 +235,9 @@ export class OrdersService {
                 coupon.discountValue,
                 coupon.discountPorcent,
                 prod.amount *
-                  (product.discount
-                    ? product.price * (product.discount / 100)
-                    : product.price),
+                (product.discount
+                  ? product.price * (product.discount / 100)
+                  : product.price),
               );
 
               couponWasUsed = true;
@@ -258,9 +256,9 @@ export class OrdersService {
                   coupon.discountValue,
                   coupon.discountPorcent,
                   prod.amount *
-                    (product.discount
-                      ? product.price * (product.discount / 100)
-                      : product.price),
+                  (product.discount
+                    ? product.price * (product.discount / 100)
+                    : product.price),
                 );
 
                 couponWasUsed = true;
@@ -368,40 +366,31 @@ export class OrdersService {
       }
     })}`;
 
-    const text = `🛍️ *Novo pedido!* 🛍️%0a%0a*Nome do Cliente:* ${
-      user.firstName
-    } ${user.lastName}%0a%0a*Itens do Pedido:*%0a${productsListToMsg
-      .map((p) => {
-        return '  🏷️ ' + p.amount + 'x ' + p.title + '%0a';
-      })
-      .join(
-        '',
-      )}%0a*Total do Pedido:* R$ ${formatedAmount}%0a*Forma de Envio:* ${
-      delivery ? 'Entrega' : 'Retirada em loja'
-    }%0a${
-      delivery
-        ? `*Custo do Envio:* ${
-            store.deliveryFee
-              ? `${
-                  'R$ ' +
-                  store.deliveryFee.toFixed(2).toString().replace('.', ',')
-                } `
-              : 'Taxa de envio não cadastrada'
-          }%0a`
+    const text = `🛍️ *Novo pedido!* 🛍️%0a%0a*Nome do Cliente:* ${user.firstName
+      } ${user.lastName}%0a%0a*Itens do Pedido:*%0a${productsListToMsg
+        .map((p) => {
+          return '  🏷️ ' + p.amount + 'x ' + p.title + '%0a';
+        })
+        .join(
+          '',
+        )}%0a*Total do Pedido:* R$ ${formatedAmount}%0a*Forma de Envio:* ${delivery ? 'Entrega' : 'Retirada em loja'
+      }%0a${delivery
+        ? `*Custo do Envio:* ${store.deliveryFee
+          ? `${'R$ ' +
+          store.deliveryFee.toFixed(2).toString().replace('.', ',')
+          } `
+          : 'Taxa de envio não cadastrada'
+        }%0a`
         : '%0a'
-    }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*${
-      user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
-    }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${
-      user.neighborhood
-    }%0a*Cidade:* ${user.city} - ${user.uf}${
-      user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''
-    }`;
+      }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*${user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
+      }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${user.neighborhood
+      }%0a*Cidade:* ${user.city} - ${user.uf}${user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''
+      }`;
     return `https://api.whatsapp.com/send?phone=55${store.phone}&text=${text}`;
   }
 
   async fillAllOrderByStatus(
     storeId: string,
-    confirmed: boolean,
     limit?: number,
     offset?: number,
   ) {
@@ -411,6 +400,8 @@ export class OrdersService {
     if (!offset) {
       offset = 0;
     }
+
+
 
     const query = await getManager().query(
       `
@@ -431,24 +422,23 @@ export class OrdersService {
 	      oh."order_id" = o.id
       where
 	      o.store_id = $1
-      and
-        o.status = $2
       order by
           "createdAt" DESC
-      limit $3
-      offset $4
+      limit $2
+      offset $3
 
     `,
-      [storeId, confirmed, limit, offset],
+      [storeId, limit, offset],
     );
 
-    const amountResults = await this.orderRepository
+
+    const total = await this.orderRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.store', 'store')
       .where('store.id = :storeId', { storeId })
       .getCount();
+    return { results: query, totalOrders: total };
 
-    return { results: query, totalOrders: amountResults };
   }
 
   async confirmOrder(orderId: string, storeId: string) {
