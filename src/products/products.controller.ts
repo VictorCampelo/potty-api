@@ -28,10 +28,11 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { multerOptions } from 'src/configs/multer.config';
 import { FindPromotedDto } from './dto/find-promoted.dto';
+import { UniqueUpdateDto } from './dto/unique-update.dto';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Get('related')
   async findRelatedProducts(
@@ -108,6 +109,7 @@ export class ProductsController {
     }
   }
 
+
   @Patch('details/:id')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
@@ -149,6 +151,35 @@ export class ProductsController {
       return {
         product: product,
         message: 'Product images sucessfully updated.',
+      };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @Patch('update/:id')
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Role(UserRole.OWNER)
+  @UseInterceptors(
+    FilesInterceptor('files', 3, {
+      storage: memoryStorage(),
+    }),
+  )
+  async updateProduct(
+    @Param('id') id: string,
+    @Body() uniqueUpdateDto: UniqueUpdateDto,
+    @UploadedFiles() images: Express.Multer.File[],
+  ) {
+    try {
+      uniqueUpdateDto.product_id = id;
+      uniqueUpdateDto.files = images;
+      const product = await this.productsService.updateProduct(
+        uniqueUpdateDto,
+      );
+
+      return {
+        product: product,
+        message: 'Product sucessfully updated.',
       };
     } catch (error) {
       throw new ErrorHandling(error);

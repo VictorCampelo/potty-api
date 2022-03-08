@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import camelcaseKeys from 'camelcase-keys';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { CategoriesService } from 'src/categories/categories.service';
 import { FilesService } from 'src/files/files.service';
 import { StoresService } from 'src/stores/stores.service';
@@ -26,6 +26,7 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductsDto } from './dto/find-products.dto';
 import { FindPromotedDto } from './dto/find-promoted.dto';
+import { UniqueUpdateDto } from './dto/unique-update.dto';
 import { UpdateProductImagesDto } from './dto/update-product-images.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
@@ -288,6 +289,67 @@ export class ProductsService {
     }
 
     return product.save();
+  }
+
+  async updateProduct(updateProductDto: UniqueUpdateDto) {
+    const product = await this.findOne(updateProductDto.product_id, {
+      store: true,
+      files: true,
+    });
+
+    if (!product) {
+      throw new NotFoundException(
+        "The product_id sent doesn't matches any product on the database.",
+      );
+    }
+
+    if (updateProductDto.categoriesIds) {
+
+      product.categories = await this.categoriesService.findAllByIds(
+        updateProductDto.categoriesIds,
+      );
+
+      updateProductDto = _.omit(updateProductDto, 'categoriesIds');
+
+    }
+
+    if (updateProductDto.toBeDeleted) {
+      await this.filesService.remove(updateProductDto.toBeDeleted, product.files);
+    }
+
+    if (updateProductDto.files) {
+
+      if (product.files) {
+        if (product.files.length + updateProductDto.files.length <= 3) {
+          const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
+            updateProductDto.files,
+            `${product.store.name}/${product.title}`,
+          );
+
+
+
+          uploadedFiles.forEach(f => {
+            product.files.push(f)
+          })
+
+        }
+      } else {
+        const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
+          updateProductDto.files,
+          `${product.store.name}/${product.title}`,
+        );
+        product.files = [];
+        product.files.push(...uploadedFiles);
+      }
+      updateProductDto = _.omit(updateProductDto, ['files', 'product_id', 'toBeDeleted'])
+    }
+
+    //save files/categories
+    await product.save()
+
+    //then update other fields
+    return this.productRepository.update({ id: product.id }, updateProductDto)
+
   }
 
   async remove(id: string) {
