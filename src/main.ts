@@ -30,6 +30,7 @@ async function bootstrap() {
     .addTag('users')
     .addTag('admin')
     .addTag('owner')
+    .addTag('dashboard')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
       'Bearer',

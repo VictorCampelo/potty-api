@@ -30,7 +30,7 @@ export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly storesService: StoresService,
-  ) {}
+  ) { }
 
   @Post('')
   @Role(UserRole.USER)
@@ -69,7 +69,6 @@ export class OrdersController {
     try {
       return await this.ordersService.fillAllOrderByStatus(
         user.storeId,
-        query.confirmed,
         query.limit,
         query.offset,
       );

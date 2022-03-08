@@ -1,20 +1,47 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 import { ScheduleProperties } from './../types/scheduleProperties.interface';
 export class CreateStoreDto {
+  @ApiProperty()
   name: string;
+
+  @ApiProperty()
   CNPJ: string;
+
+  @ApiProperty()
   phone: string;
+
+  @ApiProperty()
   addressNumber: number;
+
+  @ApiProperty()
   zipcode: string;
+
+  @ApiProperty()
   city: string;
+
+  @ApiProperty()
   state: string;
+
+  @ApiProperty()
   description: string;
+
+  @ApiProperty()
   facebookLink?: string;
+
+  @ApiProperty()
   instagramLink?: string;
+
+  @ApiProperty()
   whatsappLink?: string;
+
+  @ApiProperty()
   shedules?: ScheduleProperties;
+
+  @ApiProperty()
   deliveryFee?: number;
 
+  @ApiProperty()
   @IsOptional()
   avatar?: Express.Multer.File;
 }
