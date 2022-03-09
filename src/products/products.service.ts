@@ -305,7 +305,7 @@ export class ProductsService {
     }
 
     if (updateProductDto.toBeDeleted) {
-      await this.filesService.remove(updateProductDto.toBeDeleted, product.files);
+      await this.filesService.remove(updateProductDto.toBeDeleted);
       //fetch again
       product = await this.findOne(updateProductDto.product_id, {
         store: true,
