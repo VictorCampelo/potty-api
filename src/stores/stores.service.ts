@@ -149,13 +149,15 @@ export class StoresService {
 
     if (updateStoreDto.schedules) {
       const days = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom']
+      for (const day in updateStoreDto.schedules) {
 
-      days.forEach(day => {
+        if (!days.includes(day)) throw new HttpException(`Invalid day: ${day}. Try seg, ter, qua, qui, sex, sab or dom.`, HttpStatus.BAD_REQUEST)
+
         if (updateStoreDto.schedules[day]) {
           if (!/^[0-9]{2}:[0-9]{2}$/g.test(updateStoreDto.schedules[day][0]) || !/^[0-9]{2}:[0-9]{2}$/g.test(updateStoreDto.schedules[day][1]))
             throw new HttpException(`Invalid schedule format: ${updateStoreDto.schedules[day]} at day '${day}'`, HttpStatus.BAD_REQUEST)
         }
-      })
+      }
     }
 
     const storeCheck = await this.storeRepository.findOne({
