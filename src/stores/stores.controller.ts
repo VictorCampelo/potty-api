@@ -99,7 +99,7 @@ export class StoresController {
   @ApiConsumes('multipart/form-data')
   async update(
     @GetUser() user: User,
-    @Body() updateStoreDto: { storeDto: UpdateStoreDto },
+    @Body(ValidationPipe) updateStoreDto: { storeDto: UpdateStoreDto },
     @UploadedFiles()
     {
       avatar,
