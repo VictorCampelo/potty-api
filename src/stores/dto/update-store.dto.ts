@@ -13,7 +13,7 @@ export class UpdateStoreDto {
   facebookLink?: string;
   instagramLink?: string;
   whatsappLink?: string;
-  shedules: ScheduleProperties;
+  schedules: ScheduleProperties;
   deliveryFee?: number;
   categoriesIds?: string[];
   avatar?: Express.Multer.File;
