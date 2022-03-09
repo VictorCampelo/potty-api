@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  HttpCode,
   HttpException,
   HttpStatus,
   Inject,
@@ -292,7 +293,7 @@ export class ProductsService {
   }
 
   async updateProduct(updateProductDto: UniqueUpdateDto) {
-    const product = await this.findOne(updateProductDto.product_id, {
+    let product = await this.findOne(updateProductDto.product_id, {
       store: true,
       files: true,
     });
@@ -303,36 +304,38 @@ export class ProductsService {
       );
     }
 
-    if (updateProductDto.categoriesIds) {
+    if (updateProductDto.toBeDeleted) {
+      await this.filesService.remove(updateProductDto.toBeDeleted, product.files);
+      //fetch again
+      product = await this.findOne(updateProductDto.product_id, {
+        store: true,
+        files: true,
+      });
 
+    }
+
+    if (product.files.length + updateProductDto.files.length > 3) throw new HttpException('Product can only have 3 images', HttpStatus.BAD_REQUEST)
+
+    if (updateProductDto.categoriesIds) {
       product.categories = await this.categoriesService.findAllByIds(
         updateProductDto.categoriesIds,
       );
 
       updateProductDto = _.omit(updateProductDto, 'categoriesIds');
-
     }
 
-    if (updateProductDto.toBeDeleted) {
-      await this.filesService.remove(updateProductDto.toBeDeleted, product.files);
-    }
 
     if (updateProductDto.files) {
-
       if (product.files) {
-        if (product.files.length + updateProductDto.files.length <= 3) {
-          const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
-            updateProductDto.files,
-            `${product.store.name}/${product.title}`,
-          );
+        const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
+          updateProductDto.files,
+          `${product.store.name}/${product.title}`,
+        );
 
+        uploadedFiles.forEach(f => {
+          product.files.push(f)
+        })
 
-
-          uploadedFiles.forEach(f => {
-            product.files.push(f)
-          })
-
-        }
       } else {
         const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
           updateProductDto.files,
