@@ -146,6 +146,18 @@ export class StoresService {
     updateStoreDto: UpdateStoreDto,
     files: Express.Multer.File[],
   ) {
+
+    if (updateStoreDto.schedules) {
+      const days = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom']
+
+      days.forEach(day => {
+        if (updateStoreDto.schedules[day]) {
+          if (!/^[0-9]{2}:[0-9]{2}$/g.test(updateStoreDto.schedules[day][0]) || !/^[0-9]{2}:[0-9]{2}$/g.test(updateStoreDto.schedules[day][1]))
+            throw new HttpException(`Invalid schedule format: ${updateStoreDto.schedules[day]} at day '${day}'`, HttpStatus.BAD_REQUEST)
+        }
+      })
+    }
+
     const storeCheck = await this.storeRepository.findOne({
       where: { formatedName: updateStoreDto.formatedName },
     });
