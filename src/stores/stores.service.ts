@@ -300,7 +300,11 @@ export class StoresService {
 
     searchResults.forEach((result) => {
       const { products, ...store } = result;
-      productsFound.push(...products);
+      const prod = products.find(p => p.storeId === store.id);
+      prod['storeName'] = store.name;
+      prod['storeFormatedName'] = store.formatedName;
+      // productsFound.push(...products);
+      productsFound.push(prod)
       storesFound.push(store);
     });
 
