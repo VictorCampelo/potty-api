@@ -34,7 +34,7 @@ export class UsersService {
   }
 
   //TODO criar dtos para owner
-  async createOwnerUser(createUserDto: CreateUserDto): Promise<User> {
+  async createOwnerUser(createUserDto: CreateUserDto, fromEduzz = false): Promise<User> {
     const existentEmailUser = await this.userRepository.findOne({
       where: {
         email: createUserDto.email,
@@ -49,7 +49,7 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     } else {
-      return this.userRepository.createUser(createUserDto, UserRole.OWNER);
+      return this.userRepository.createUser(createUserDto, UserRole.OWNER, fromEduzz);
     }
   }
 

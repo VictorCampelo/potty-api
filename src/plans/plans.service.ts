@@ -9,7 +9,6 @@ import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 import { WebhookRequestDto } from './dto/webhook-request.dto';
 import { Plan } from './entities/plan.entity';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class PlansService {
@@ -44,7 +43,7 @@ export class PlansService {
     );
     let generatedPassword = '';
     if (!user) {
-      generatedPassword = crypto.randomBytes(14).toString('hex');
+      generatedPassword = Math.random().toString(36).slice(-14)
       user = await this.usersService.createOwnerUser(
         {
           email: webhookRequestDto.cus_email,
@@ -52,7 +51,7 @@ export class PlansService {
           lastName: webhookRequestDto.cus_name.split(' ')[1] || '',
           password: generatedPassword,
           passwordConfirmation: generatedPassword
-        } as CreateUserDto)
+        } as CreateUserDto, true)
 
     }
     //fatura paga

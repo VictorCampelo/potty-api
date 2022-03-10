@@ -52,6 +52,7 @@ export class UserRepository extends Repository<User> {
   async createUser(
     createUserDto: CreateUserDto,
     role: UserRole,
+    fromEduzz?: boolean
   ): Promise<User> {
     const {
       email,
@@ -75,8 +76,6 @@ export class UserRepository extends Repository<User> {
     user.firstName = firstName;
     user.lastName = lastName;
     user.role = role;
-    user.enabled = false;
-    user.confirmationToken = crypto.randomBytes(32).toString('hex');
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
     user.zipcode = zipcode;
@@ -89,6 +88,14 @@ export class UserRepository extends Repository<User> {
     user.logradouro = logradouro;
     user.googleId = googleId;
     user.facebookId = facebookId;
+
+    if (fromEduzz) {
+      user.enabled = true;
+      return user;
+    }
+
+    user.enabled = false;
+    user.confirmationToken = crypto.randomBytes(32).toString('hex');
 
     user.confirmationTokenDigits = (
       Math.floor(Math.random() * 999999) + 1
