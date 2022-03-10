@@ -301,14 +301,46 @@ export class StoresService {
     searchResults.forEach((result) => {
       const { products, ...store } = result;
       const prod = products.find(p => p.storeId === store.id);
-      prod['storeName'] = store.name;
-      prod['storeFormatedName'] = store.formatedName;
-      // productsFound.push(...products);
-      productsFound.push(prod)
-      storesFound.push(store);
+      if (prod) {
+        prod['storeName'] = store.name;
+        prod['storeFormatedName'] = store.formatedName;
+        // productsFound.push(...products);
+        productsFound.push(prod)
+        storesFound.push(store);
+      }
     });
 
     return { productsFound, storesFound };
+  }
+
+  async findOnSearchProduct(storeId: string, findStoreDto: FindStoreDto) {
+    const searchResults = await getRepository(Store)
+      .createQueryBuilder('store')
+      .leftJoinAndSelect('store.avatar', 'avatar')
+      .leftJoinAndSelect('store.background', 'background')
+      .leftJoinAndSelect('store.products', 'p')
+      .leftJoinAndSelect('p.files', 'files')
+      .leftJoinAndSelect('p.categories', 'pc')
+      .leftJoinAndSelect('store.categories', 'sc')
+      .leftJoinAndSelect('store.productCategories', 'c')
+      .where('store.id = :id', {
+        id: storeId
+      })
+      .andWhere('p.title ILIKE :parameter', {
+        parameter: `%${findStoreDto.parameter}%`,
+      })
+      .skip(findStoreDto.skip)
+      .take(findStoreDto.take)
+      .getMany();
+
+
+    let results = []
+    searchResults.forEach(result => {
+      const { products } = result
+      results.push(...products)
+    })
+
+    return results;
   }
 
   async findFromCategory(categoryId: string) {
