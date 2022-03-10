@@ -2,12 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuyerhistoryService } from 'src/buyerhistory/buyerhistory.service';
 import { EmailsService } from 'src/emails/emails.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 import { WebhookRequestDto } from './dto/webhook-request.dto';
 import { Plan } from './entities/plan.entity';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class PlansService {
@@ -37,12 +39,21 @@ export class PlansService {
       throw new HttpException('Plan not found', HttpStatus.NOT_FOUND);
     }
 
-    const user = await this.usersService.findByEmail(
+    let user = await this.usersService.findByEmail(
       webhookRequestDto.cus_email,
     );
-
+    let generatedPassword = '';
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      generatedPassword = crypto.randomBytes(14).toString('hex');
+      user = await this.usersService.createOwnerUser(
+        {
+          email: webhookRequestDto.cus_email,
+          firstName: webhookRequestDto.cus_name.split(' ')[0],
+          lastName: webhookRequestDto.cus_name.split(' ')[1] || '',
+          password: generatedPassword,
+          passwordConfirmation: generatedPassword
+        } as CreateUserDto)
+
     }
     //fatura paga
     if (trans_status === 3) {
@@ -56,15 +67,28 @@ export class PlansService {
         user,
       });
 
-      await this.emailsService.sendEmail(
-        user.email,
-        'Boa de venda - Parabéns! Seu plano já está ativado',
-        'plan-activated',
-        {
-          planName: plan.name,
-          planValue: plan.price,
-        },
-      );
+      if (!generatedPassword) {
+        await this.emailsService.sendEmail(
+          user.email,
+          'Boa de venda - Parabéns! Seu plano já está ativado',
+          'plan-activated',
+          {
+            planName: plan.name,
+            planValue: plan.price,
+          },
+        );
+      } else {
+        await this.emailsService.sendEmail(
+          user.email,
+          'Boa de venda - Parabéns! Seu plano já está ativado',
+          'plan-activated-created-user',
+          {
+            planName: plan.name,
+            planValue: plan.price,
+            generatedPassword
+          },
+        );
+      }
 
       return user;
     } else if (trans_status === 1) {

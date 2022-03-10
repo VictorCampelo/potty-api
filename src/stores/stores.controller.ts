@@ -156,4 +156,13 @@ export class StoresController {
       throw new ErrorHandling(error);
     }
   }
+
+  @Get('searchProducts/:storeId')
+  async findOnSearchProducts(@Param('storeId') storeId: string, @Query(ValidationPipe) query: FindStoreDto) {
+    try {
+      return await this.storesService.findOnSearchProduct(storeId, query);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
 }
