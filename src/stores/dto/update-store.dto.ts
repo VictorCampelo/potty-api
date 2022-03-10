@@ -1,4 +1,5 @@
-import { ScheduleProperties } from '../types/scheduleProperties.interface';
+import { Matches } from 'class-validator';
+import { DispatchTypes, ScheduleProperties } from '../types/scheduleProperties.interface';
 
 export class UpdateStoreDto {
   name: string;
@@ -18,6 +19,8 @@ export class UpdateStoreDto {
   categoriesIds?: string[];
   avatar?: Express.Multer.File;
   background?: Express.Multer.File;
+
+  dispatch?: DispatchTypes;
 
   paymentMethods?: string[];
 }
