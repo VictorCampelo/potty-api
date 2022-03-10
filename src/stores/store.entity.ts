@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { Coupon } from './../coupons/entities/coupon.entity';
-import { ScheduleProperties } from './types/scheduleProperties.interface';
+import { DispatchTypes, ScheduleProperties } from './types/scheduleProperties.interface';
 import {
   BaseEntity,
   BeforeInsert,
@@ -153,6 +153,9 @@ export class Store extends BaseEntity {
 
   @Column({ nullable: false, default: 0.0 })
   deliveryFee: number;
+
+  @Column({ type: "enum", enum: DispatchTypes, default: DispatchTypes.WITHDRAWAL })
+  dispatch: DispatchTypes
 
   @OneToMany(() => Order, (order) => order.store)
   orders: Order[];

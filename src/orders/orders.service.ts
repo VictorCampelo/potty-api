@@ -20,6 +20,7 @@ import { UsersService } from 'src/users/users.service';
 import { OrderHistoric } from 'src/order-historics/entities/order-historic.entity';
 import { Coupon } from 'src/coupons/entities/coupon.entity';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { DispatchTypes } from 'src/stores/types/scheduleProperties.interface';
 
 @Injectable()
 export class OrdersService {
@@ -83,23 +84,46 @@ export class OrdersService {
       }
 
       for (const storeOrder of createOrderDto.products) {
-        if (
-          storeOrder.delivery &&
-          (!userInfo.zipcode ||
-            !userInfo.city ||
-            !userInfo.street ||
-            !userInfo.neighborhood ||
-            !userInfo.addressNumber)
-        ) {
-          throw new HttpException(
-            'Missing some address information from Customer: zipcode, city, neighborhood, street or addressNumber',
-            HttpStatus.BAD_REQUEST,
-          );
-        }
+        // if (
+        //   storeOrder.delivery &&
+        //   (!userInfo.zipcode ||
+        //     !userInfo.city ||
+        //     !userInfo.street ||
+        //     !userInfo.neighborhood ||
+        //     !userInfo.addressNumber)
+        // ) {
+        //   throw new HttpException(
+        //     'Missing some address information from Customer: zipcode, city, neighborhood, street or addressNumber',
+        //     HttpStatus.BAD_REQUEST,
+        //   );
+        // }
 
         const store: Store = stores.find(
           (obj) => obj.id === storeOrder.storeId,
         );
+
+        if (storeOrder.delivery) {
+          if
+            (!userInfo.zipcode ||
+            !userInfo.city ||
+            !userInfo.street ||
+            !userInfo.neighborhood ||
+            !userInfo.addressNumber) {
+
+            throw new HttpException(
+              'Missing some address information from Customer: zipcode, city, neighborhood, street or addressNumber',
+              HttpStatus.BAD_REQUEST,
+            );
+          }
+
+          if (store.dispatch !== DispatchTypes.DELIVERY && store.dispatch !== DispatchTypes.ALL) {
+            throw new HttpException(`Store '${store.name}' does NOT work with Delivery.`, HttpStatus.BAD_REQUEST)
+          }
+        } else {
+          if (store.dispatch !== DispatchTypes.WITHDRAWAL && store.dispatch !== DispatchTypes.ALL) {
+            throw new HttpException(`Store '${store.name}' ONLY works with Delivery.`, HttpStatus.BAD_REQUEST)
+          }
+        }
 
         let acceptedPayments = [];
         store.paymentMethods &&

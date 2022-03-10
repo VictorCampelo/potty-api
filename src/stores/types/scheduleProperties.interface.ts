@@ -7,3 +7,9 @@ export interface ScheduleProperties {
   sab: [start: string, end: string];
   dom: [start: string, end: string];
 }
+
+export enum DispatchTypes {
+  DELIVERY = "delivery",
+  WITHDRAWAL = "withdrawal",
+  ALL = "all"
+}

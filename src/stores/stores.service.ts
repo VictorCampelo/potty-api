@@ -160,6 +160,11 @@ export class StoresService {
       }
     }
 
+    if (updateStoreDto.dispatch) {
+      if (!/^withdrawal$|^delivery$|^all$/g.test(updateStoreDto.dispatch))
+        throw new HttpException(`Invalid dispatch. Try withdrawal, delivery or all.`, HttpStatus.BAD_REQUEST)
+    }
+
     const storeCheck = await this.storeRepository.findOne({
       where: { formatedName: updateStoreDto.formatedName },
     });
