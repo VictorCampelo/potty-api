@@ -51,7 +51,7 @@ export class PlansService {
           lastName: webhookRequestDto.cus_name.split(' ')[1] || '',
           password: generatedPassword,
           passwordConfirmation: generatedPassword
-        } as CreateUserDto, true)
+        } as CreateUserDto)
 
     }
     //fatura paga
@@ -84,7 +84,9 @@ export class PlansService {
           {
             planName: plan.name,
             planValue: plan.price,
-            generatedPassword
+            userToken: user.confirmationToken,
+            userTokenDigits: user.confirmationTokenDigits,
+            generatedPassword,
           },
         );
       }
