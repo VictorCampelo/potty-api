@@ -6,6 +6,7 @@ import { Module } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { DashboardController } from './dashboard.controller';
 import { PassportModule } from '@nestjs/passport';
+import { StoresModule } from 'src/stores/stores.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PassportModule } from '@nestjs/passport';
     FeedbackModule,
     ProductsModule,
     OrderHistoricsModule,
+    StoresModule,
   ],
   controllers: [DashboardController],
   providers: [DashboardService],

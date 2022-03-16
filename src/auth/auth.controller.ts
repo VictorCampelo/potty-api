@@ -3,17 +3,14 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
   Param,
   Patch,
   Post,
   Query,
-  Redirect,
   Req,
   UnauthorizedException,
   UploadedFile,
-  UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -23,7 +20,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { UserRole } from 'src/users/user-roles.enum';
-import { StoresService } from '../stores/stores.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/user.entity';
 import { AuthService } from './auth.service';
