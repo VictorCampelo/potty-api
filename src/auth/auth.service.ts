@@ -308,9 +308,11 @@ export class AuthService {
       service === 'google'
         ? {
             googleId: req.user.id,
+            email: req.user.email,
           }
         : {
             facebookId: req.user.id,
+            email: req.user.email,
           };
 
     const user = await this.userRepository.findOne({
@@ -318,6 +320,32 @@ export class AuthService {
     });
 
     if (!user) {
+      const sellerHasAccountButNotWithSocial =
+        await this.userRepository.findOne({
+          where: {
+            email: req.user.email,
+            role: 'OWNER',
+          },
+        });
+
+      if (sellerHasAccountButNotWithSocial) {
+        sellerHasAccountButNotWithSocial[service + 'Id'] = req.user.id;
+
+        const jwtPayload = {
+          id: sellerHasAccountButNotWithSocial.id,
+          role: sellerHasAccountButNotWithSocial.role,
+          storeId:
+            sellerHasAccountButNotWithSocial.store &&
+            sellerHasAccountButNotWithSocial.store.id
+              ? sellerHasAccountButNotWithSocial.store.id
+              : null,
+        };
+
+        const jwtToken = this.jwtService.sign(jwtPayload);
+
+        return `https://www.boadevenda.com.br/login?accessToken=${jwtToken}`;
+      }
+
       return {
         id: req.user.id,
         email: req.user.email,

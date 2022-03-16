@@ -27,6 +27,7 @@
     "testdocker": "cross-env NODE_ENV=test docker-compose up --exit-code-from api"
   },
   "dependencies": {
+    "@google-analytics/data": "^2.8.0",
     "@nestjs-modules/mailer": "^1.6.0",
     "@nestjs/common": "^8.3.1",
     "@nestjs/config": "^1.0.1",

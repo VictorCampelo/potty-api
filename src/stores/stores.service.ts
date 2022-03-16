@@ -30,7 +30,7 @@ export class StoresService {
     private filesService: FilesService,
     private categoriesService: CategoriesService,
     private paymentsService: PaymentsService,
-  ) { }
+  ) {}
 
   async create(createStoreDto: CreateStoreDto): Promise<Store> {
     const store = await this.storeRepository.createStore(createStoreDto);
@@ -70,7 +70,7 @@ export class StoresService {
     return this.storeRepository.save(stores);
   }
 
-  findAll() {
+  async findAll() {
     return this.storeRepository.find({
       join: {
         alias: 'store',
@@ -96,7 +96,7 @@ export class StoresService {
           user: 'store.avatar',
           background: 'store.background',
           categories: 'store.categories',
-          paymentMethods: 'store.paymentMethods'
+          paymentMethods: 'store.paymentMethods',
         },
       },
     });
@@ -146,23 +146,34 @@ export class StoresService {
     updateStoreDto: UpdateStoreDto,
     files: Express.Multer.File[],
   ) {
-
     if (updateStoreDto.schedules) {
-      const days = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom']
+      const days = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'];
       for (const day in updateStoreDto.schedules) {
-
-        if (!days.includes(day)) throw new HttpException(`Invalid day: ${day}. Try seg, ter, qua, qui, sex, sab or dom.`, HttpStatus.BAD_REQUEST)
+        if (!days.includes(day))
+          throw new HttpException(
+            `Invalid day: ${day}. Try seg, ter, qua, qui, sex, sab or dom.`,
+            HttpStatus.BAD_REQUEST,
+          );
 
         if (updateStoreDto.schedules[day]) {
-          if (!/^[0-9]{2}:[0-9]{2}$/g.test(updateStoreDto.schedules[day][0]) || !/^[0-9]{2}:[0-9]{2}$/g.test(updateStoreDto.schedules[day][1]))
-            throw new HttpException(`Invalid schedule format: ${updateStoreDto.schedules[day]} at day '${day}'`, HttpStatus.BAD_REQUEST)
+          if (
+            !/^[0-9]{2}:[0-9]{2}$/g.test(updateStoreDto.schedules[day][0]) ||
+            !/^[0-9]{2}:[0-9]{2}$/g.test(updateStoreDto.schedules[day][1])
+          )
+            throw new HttpException(
+              `Invalid schedule format: ${updateStoreDto.schedules[day]} at day '${day}'`,
+              HttpStatus.BAD_REQUEST,
+            );
         }
       }
     }
 
     if (updateStoreDto.dispatch) {
       if (!/^withdrawal$|^delivery$|^all$/g.test(updateStoreDto.dispatch))
-        throw new HttpException(`Invalid dispatch. Try withdrawal, delivery or all.`, HttpStatus.BAD_REQUEST)
+        throw new HttpException(
+          `Invalid dispatch. Try withdrawal, delivery or all.`,
+          HttpStatus.BAD_REQUEST,
+        );
     }
 
     const storeCheck = await this.storeRepository.findOne({
@@ -231,7 +242,6 @@ export class StoresService {
 
       await this.filesService.saveFile(background);
     }
-
 
     if (updateStoreDto.categoriesIds) {
       store.categories = await this.categoriesService.findAllByIdsTypeStore(
@@ -305,12 +315,12 @@ export class StoresService {
 
     searchResults.forEach((result) => {
       const { products, ...store } = result;
-      const prod = products.find(p => p.storeId === store.id);
+      const prod = products.find((p) => p.storeId === store.id);
       if (prod) {
         prod['storeName'] = store.name;
         prod['storeFormatedName'] = store.formatedName;
         // productsFound.push(...products);
-        productsFound.push(prod)
+        productsFound.push(prod);
         storesFound.push(store);
       }
     });
@@ -329,7 +339,7 @@ export class StoresService {
       .leftJoinAndSelect('store.categories', 'sc')
       .leftJoinAndSelect('store.productCategories', 'c')
       .where('store.id = :id', {
-        id: storeId
+        id: storeId,
       })
       .andWhere('p.title ILIKE :parameter', {
         parameter: `%${findStoreDto.parameter}%`,
@@ -338,18 +348,18 @@ export class StoresService {
       .take(findStoreDto.take)
       .getMany();
 
-
-    let results = []
-    searchResults.forEach(result => {
-      const { products } = result
-      results.push(...products)
-    })
+    let results = [];
+    searchResults.forEach((result) => {
+      const { products } = result;
+      results.push(...products);
+    });
 
     return results;
   }
 
   async findFromCategory(categoryId: string) {
-    return this.storeRepository.createQueryBuilder('stores')
+    return this.storeRepository
+      .createQueryBuilder('stores')
       .innerJoinAndSelect('stores.categories', 'categories')
       .leftJoinAndSelect('stores.avatar', 'avatar')
       .leftJoinAndSelect('stores.background', 'background')
@@ -358,5 +368,4 @@ export class StoresService {
       })
       .getMany();
   }
-
 }
