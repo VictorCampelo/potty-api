@@ -12,6 +12,7 @@ import {
   Post,
   ValidationPipe,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -29,17 +30,24 @@ import { ErrorHandling } from 'src/configs/error-handling';
 import { multerOptions } from 'src/configs/multer.config';
 import { FindPromotedDto } from './dto/find-promoted.dto';
 import { UniqueUpdateDto } from './dto/unique-update.dto';
+import { Request } from 'express';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @Get('related')
   async findRelatedProducts(
-    @Query() relatedDto: { categoryId: string; productName: string },
+    @Req() request: Request,
+    @Query()
+    relatedDto: { categoryId: string; productName: string; storeId: string },
   ) {
     try {
-      return await this.productsService.findRelated(relatedDto);
+      if (request.headers.app === 'marketplace') {
+        return this.productsService.findRelatedMarketplace(relatedDto);
+      }
+
+      return this.productsService.findRelatedCatalog(relatedDto);
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -109,7 +117,6 @@ export class ProductsController {
     }
   }
 
-
   @Patch('details/:id')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
@@ -173,9 +180,7 @@ export class ProductsController {
     try {
       uniqueUpdateDto.product_id = id;
       uniqueUpdateDto.files = images;
-      const product = await this.productsService.updateProduct(
-        uniqueUpdateDto,
-      );
+      const product = await this.productsService.updateProduct(uniqueUpdateDto);
 
       return {
         product: product,
