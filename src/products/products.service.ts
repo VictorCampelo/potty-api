@@ -42,7 +42,7 @@ export class ProductsService {
     private readonly storesService: StoresService,
     private readonly categoriesService: CategoriesService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   async amountSolds(
     storeId: string,
@@ -311,10 +311,13 @@ export class ProductsService {
         store: true,
         files: true,
       });
-
     }
 
-    if (product.files.length + updateProductDto.files.length > 3) throw new HttpException('Product can only have 3 images', HttpStatus.BAD_REQUEST)
+    if (product.files.length + updateProductDto.files.length > 3)
+      throw new HttpException(
+        'Product can only have 3 images',
+        HttpStatus.BAD_REQUEST,
+      );
 
     if (updateProductDto.categoriesIds) {
       product.categories = await this.categoriesService.findAllByIds(
@@ -324,7 +327,6 @@ export class ProductsService {
       updateProductDto = _.omit(updateProductDto, 'categoriesIds');
     }
 
-
     if (updateProductDto.files) {
       if (product.files) {
         const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
@@ -332,10 +334,9 @@ export class ProductsService {
           `${product.store.name}/${product.title}`,
         );
 
-        uploadedFiles.forEach(f => {
-          product.files.push(f)
-        })
-
+        uploadedFiles.forEach((f) => {
+          product.files.push(f);
+        });
       } else {
         const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
           updateProductDto.files,
@@ -344,15 +345,18 @@ export class ProductsService {
         product.files = [];
         product.files.push(...uploadedFiles);
       }
-      updateProductDto = _.omit(updateProductDto, ['files', 'product_id', 'toBeDeleted'])
+      updateProductDto = _.omit(updateProductDto, [
+        'files',
+        'product_id',
+        'toBeDeleted',
+      ]);
     }
 
     //save files/categories
-    await product.save()
+    await product.save();
 
     //then update other fields
-    return this.productRepository.update({ id: product.id }, updateProductDto)
-
+    return this.productRepository.update({ id: product.id }, updateProductDto);
   }
 
   async remove(id: string) {
@@ -370,10 +374,9 @@ export class ProductsService {
       relations: ['files', 'store'],
       order: { discount: 'DESC' },
     });
-
   }
 
-  async findRelated({
+  async findRelatedMarketplace({
     categoryId,
     productName,
   }: {
@@ -388,15 +391,52 @@ export class ProductsService {
       .orWhere('product.title LIKE :title', { title: `%${productName}%` })
       .getMany();
 
-    const productsWithDifferentCategories = products.filter((product) =>
-      product.categories.every((category) => category.id !== categoryId),
-    );
+    // const productsWithDifferentCategories = products.filter((product) =>
+    //   product.categories.every((category) => category.id !== categoryId),
+    // );
 
-    const productsByCategory = products.filter(
-      (product) => !productsWithDifferentCategories.includes(product),
-    );
+    // const productsByCategory = products.filter(
+    //   (product) => !productsWithDifferentCategories.includes(product),
+    // );
 
-    return { productsByCategory, productsWithDifferentCategories };
+    return { productsByCategory: products };
+  }
+
+  async findRelatedCatalog({
+    categoryId,
+    productName,
+    storeId,
+  }: {
+    categoryId: string;
+    productName: string;
+    storeId: string;
+  }) {
+    const products = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.categories', 'categories')
+      .leftJoinAndSelect('product.files', 'files')
+      .leftJoinAndSelect('product.store', 'store')
+      .where('categories.id = :id', { id: categoryId })
+      .andWhere('product.store_id = :storeId', { storeId })
+      // .orWhere('product.title LIKE :title', { title: `%${productName}%` })
+      .getMany();
+
+    // const products = await this.productRepository.find({
+    //   where: {
+    //     storeId,
+    //   },
+    //   relations: ['files'],
+    // });
+
+    // const productsWithDifferentCategories = products.filter((product) =>
+    //   product.categories.every((category) => category.id !== categoryId),
+    // );
+
+    // const productsByCategory = products.filter(
+    //   (product) => !productsWithDifferentCategories.includes(product),
+    // );
+
+    return { productsByCategoryAndStore: products };
   }
 
   async findFromCategory(categoryId: string) {
@@ -435,6 +475,6 @@ export class ProductsService {
       .skip(offset)
       .take(limit)
       .groupBy('product.id')
-      .getRawMany()
+      .getRawMany();
   }
 }

@@ -18,7 +18,7 @@ export class PlansService {
     private usersService: UsersService,
     private emailsService: EmailsService,
     private buyerhistoryService: BuyerhistoryService,
-  ) { }
+  ) {}
 
   async create(createPlanDto: CreatePlanDto) {
     const plan = this.plansRepository.create(createPlanDto);
@@ -38,27 +38,23 @@ export class PlansService {
       throw new HttpException('Plan not found', HttpStatus.NOT_FOUND);
     }
 
-    let user = await this.usersService.findByEmail(
-      webhookRequestDto.cus_email,
-    );
+    let user = await this.usersService.findByEmail(webhookRequestDto.cus_email);
     let generatedPassword = '';
     if (!user) {
-      generatedPassword = Math.random().toString(36).slice(-14)
-      user = await this.usersService.createOwnerUser(
-        {
-          email: webhookRequestDto.cus_email,
-          firstName: webhookRequestDto.cus_name.split(' ')[0],
-          lastName: webhookRequestDto.cus_name.split(' ')[1] || '',
-          password: generatedPassword,
-          passwordConfirmation: generatedPassword
-        } as CreateUserDto)
-
+      generatedPassword = Math.random().toString(36).slice(-14);
+      user = await this.usersService.createOwnerUser({
+        email: webhookRequestDto.cus_email,
+        firstName: webhookRequestDto.cus_name.split(' ')[0],
+        lastName: webhookRequestDto.cus_name.split(' ')[1] || '',
+        password: generatedPassword,
+        passwordConfirmation: generatedPassword,
+      } as CreateUserDto);
     }
     //fatura paga
     if (trans_status === 3) {
       user.plan = plan;
 
-      user.save();
+      await user.save();
 
       await this.buyerhistoryService.create({
         paymentMethod: webhookRequestDto.trans_paymentmethod.toString(),
@@ -79,7 +75,7 @@ export class PlansService {
       } else {
         await this.emailsService.sendEmail(
           user.email,
-          'Boa de venda - Parabéns! Seu plano já está ativado',
+          'Boa de venda - Parabéns! Seu plano já está ativado, falta ativar sua conta',
           'plan-activated-created-user',
           {
             planName: plan.name,
@@ -153,7 +149,11 @@ export class PlansService {
   }
 
   async publicFindByNickname(nickname: string) {
-    return this.plansRepository.createQueryBuilder().where('Plan.nickname = :nickname', { nickname: nickname }).select(['Plan.id', 'Plan.url', 'Plan.name', 'Plan.nickname']).getOne()
+    return this.plansRepository
+      .createQueryBuilder()
+      .where('Plan.nickname = :nickname', { nickname: nickname })
+      .select(['Plan.id', 'Plan.url', 'Plan.name', 'Plan.nickname'])
+      .getOne();
   }
 
   update(id: number, updatePlanDto: UpdatePlanDto) {

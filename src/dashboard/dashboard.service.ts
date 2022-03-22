@@ -103,7 +103,7 @@ export class DashboardService {
       property: `properties/306671875`,
       dateRanges: [
         {
-          startDate: query.since ? query.since : '2022-03-16',
+          startDate: query.since ? query.since : '2022-03-15',
           endDate: query.until ? query.until : 'today',
         },
       ],
@@ -127,6 +127,7 @@ export class DashboardService {
     let subdomainStatistics = [];
     response.rows.forEach((row) => {
       const splitedHostnames = row.dimensionValues[0].value.split('.');
+
       if (splitedHostnames.length > 3 && splitedHostnames[0] === subdm) {
         let viewsInt = parseInt(row.metricValues[0].value);
         subdomainStatistics.push({
