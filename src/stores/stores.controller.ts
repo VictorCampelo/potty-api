@@ -7,13 +7,17 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
@@ -22,13 +26,14 @@ import { ErrorHandling } from 'src/configs/error-handling';
 import { multerOptions } from 'src/configs/multer.config';
 import { UserRole } from 'src/users/user-roles.enum';
 import { User } from 'src/users/user.entity';
+import { CreateStoreDto } from './dto/create-store.dto';
 import { FindStoreDto } from './dto/find-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { StoresService } from './stores.service';
 
 @Controller('stores')
 export class StoresController {
-  constructor(private readonly storesService: StoresService) { }
+  constructor(private readonly storesService: StoresService) {}
 
   @Get()
   async findAll() {
@@ -62,9 +67,8 @@ export class StoresController {
   @Get('categories/:categoryId')
   async findByCategory(@Param('categoryId') catId: string) {
     try {
-      return this.storesService.findFromCategory(catId)
+      return this.storesService.findFromCategory(catId);
     } catch (error) {
-
       throw new ErrorHandling(error);
     }
   }
@@ -158,9 +162,29 @@ export class StoresController {
   }
 
   @Get('searchProducts/:storeId')
-  async findOnSearchProducts(@Param('storeId') storeId: string, @Query(ValidationPipe) query: FindStoreDto) {
+  async findOnSearchProducts(
+    @Param('storeId') storeId: string,
+    @Query(ValidationPipe) query: FindStoreDto,
+  ) {
     try {
       return await this.storesService.findOnSearchProduct(storeId, query);
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
+  @UseInterceptors(FileInterceptor('avatar', multerOptions))
+  @Post('create')
+  @UseGuards(AuthGuard(), RolesGuard)
+  @Role(UserRole.OWNER)
+  async createStore(
+    @UploadedFile() storeAvatar: Express.Multer.File,
+    @Body(ValidationPipe) createStore: CreateStoreDto,
+    @GetUser() user: User,
+  ) {
+    try {
+      createStore.avatar = storeAvatar;
+      return this.storesService.create(createStore, user.id);
     } catch (error) {
       throw new ErrorHandling(error);
     }

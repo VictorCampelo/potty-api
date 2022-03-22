@@ -23,7 +23,7 @@ export class UsersService {
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
     private filesService: FilesService,
-  ) { }
+  ) {}
 
   async createAdminUser(createUserDto: CreateUserDto): Promise<User> {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
@@ -34,7 +34,10 @@ export class UsersService {
   }
 
   //TODO criar dtos para owner
-  async createOwnerUser(createUserDto: CreateUserDto, fromEduzz = false): Promise<User> {
+  async createOwnerUser(
+    createUserDto: CreateUserDto,
+    fromEduzz = false,
+  ): Promise<User> {
     const existentEmailUser = await this.userRepository.findOne({
       where: {
         email: createUserDto.email,
@@ -49,7 +52,11 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     } else {
-      return this.userRepository.createUser(createUserDto, UserRole.OWNER, fromEduzz);
+      return this.userRepository.createUser(
+        createUserDto,
+        UserRole.OWNER,
+        fromEduzz,
+      );
     }
   }
 
@@ -69,6 +76,7 @@ export class UsersService {
         'uf',
         'zipcode',
         'logradouro',
+        'storeId',
       ],
       relations: ['files', 'plan', 'profileImage'],
     });

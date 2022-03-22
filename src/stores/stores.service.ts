@@ -32,7 +32,30 @@ export class StoresService {
     private paymentsService: PaymentsService,
   ) {}
 
-  async create(createStoreDto: CreateStoreDto): Promise<Store> {
+  async create(
+    createStoreDto: CreateStoreDto,
+    userId?: string,
+  ): Promise<Store> {
+    let user: User;
+    if (userId) {
+      user = await this.usersService.findUserById(userId);
+
+      if (!user || user.role !== 'OWNER' || user.storeId) {
+        throw new HttpException('User is not valid', HttpStatus.BAD_REQUEST);
+      }
+
+      if (!/^[A-Za-z0-9_-]+$/g.test(createStoreDto.name.replace(/ /g, '-'))) {
+        throw new HttpException(
+          'Nome da Loja contém caracteres inválidos',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      createStoreDto['formatedName'] = createStoreDto.name
+        .replace(/ /g, '-')
+        .toLowerCase();
+    }
+
     const store = await this.storeRepository.createStore(createStoreDto);
 
     const storeNameAlreadyExists = await this.storeRepository.findOne({
@@ -57,6 +80,15 @@ export class StoresService {
       store.avatar = avatar;
 
       await this.filesService.saveFile(avatar);
+    }
+
+    if (user) {
+      await store.save();
+      user.store = store;
+      user.storeId = store.id;
+      await user.save();
+
+      return store;
     }
 
     return store;
