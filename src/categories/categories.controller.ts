@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -20,9 +21,11 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 const productsByCategory = 'products/:storeId/category/:categoryId';
+@ApiTags('categories')
+@ApiBearerAuth('Bearer')
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
   async findAllPublicCategories() {
@@ -47,7 +50,10 @@ export class CategoriesController {
   @Patch('update/:categoryId')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.ADMIN)
-  async updateCategory(@Body() updateCategoryDto: UpdateCategoryDto, @Param('categoryId') id: string) {
+  async updateCategory(
+    @Body() updateCategoryDto: UpdateCategoryDto,
+    @Param('categoryId') id: string,
+  ) {
     try {
       return await this.categoriesService.updateCategory(updateCategoryDto, id);
     } catch (error) {
@@ -60,7 +66,7 @@ export class CategoriesController {
   @Role(UserRole.ADMIN)
   async deleteCategory(@Param('categoryId') id: string) {
     try {
-      return this.categoriesService.deleteStoreCategory(id)
+      return this.categoriesService.deleteStoreCategory(id);
     } catch (error) {
       throw new ErrorHandling(error);
     }

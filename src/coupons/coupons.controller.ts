@@ -10,6 +10,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -20,6 +21,8 @@ import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 
+@ApiTags('coupons')
+@ApiBearerAuth('Bearer')
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('coupons')
 export class CouponsController {
