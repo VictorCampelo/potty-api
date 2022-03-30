@@ -32,11 +32,11 @@ export class OrdersService {
     private readonly couponsService: CouponsService,
     private readonly historicsService: OrderHistoricsService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   async create(
     createOrderDto: CreateOrderDto,
-    user: User,
+    user?: User,
   ): Promise<{ orders: Order[]; messages: string[] }> {
     const queryRunner = getConnection().createQueryRunner();
     await queryRunner.connect();
@@ -47,7 +47,44 @@ export class OrdersService {
       const orders: Order[] = [];
       const productsToSave = [];
 
-      const userInfo = await this.usersService.findUserById(user.id);
+      let userInfo;
+      if (user) {
+        userInfo = await this.usersService.findUserById(user.id);
+      } else {
+        userInfo = {
+          firstName: '',
+          lastName: '',
+          uf: '',
+          city: '',
+          street: '',
+          zipcode: '',
+          neighborhood: '',
+          addressNumber: 0,
+          logradouro: '',
+          complement: '',
+        };
+
+        let keys = [
+          'firstName',
+          'lastName',
+          'uf',
+          'city',
+          'street',
+          'zipcode',
+          'neighborhood',
+          'addressNumber',
+          'logradouro',
+          'complement',
+        ];
+        keys.forEach((key) => {
+          console.log(createOrderDto.guestAddress);
+
+          if (createOrderDto.guestAddress[key]) {
+            userInfo[key] = createOrderDto.guestAddress[key];
+          }
+        });
+      }
+
       const stores = await this.storesService.findAllByIds(
         createOrderDto.products.map((prod) => prod.storeId),
       );
@@ -60,6 +97,10 @@ export class OrdersService {
 
         if (!coupon) {
           throw new HttpException('Coupon not found', HttpStatus.NOT_FOUND);
+        }
+
+        if (coupon.range === 'first-buy' && !user) {
+          throw new HttpException('Invalid Coupon', HttpStatus.BAD_REQUEST);
         }
 
         if (
@@ -103,25 +144,37 @@ export class OrdersService {
         );
 
         if (storeOrder.delivery) {
-          if
-            (!userInfo.zipcode ||
+          if (
+            !userInfo.zipcode ||
             !userInfo.city ||
             !userInfo.street ||
             !userInfo.neighborhood ||
-            !userInfo.addressNumber) {
-
+            !userInfo.addressNumber
+          ) {
             throw new HttpException(
               'Missing some address information from Customer: zipcode, city, neighborhood, street or addressNumber',
               HttpStatus.BAD_REQUEST,
             );
           }
 
-          if (store.dispatch !== DispatchTypes.DELIVERY && store.dispatch !== DispatchTypes.ALL) {
-            throw new HttpException(`Store '${store.name}' does NOT work with Delivery.`, HttpStatus.BAD_REQUEST)
+          if (
+            store.dispatch !== DispatchTypes.DELIVERY &&
+            store.dispatch !== DispatchTypes.ALL
+          ) {
+            throw new HttpException(
+              `Store '${store.name}' does NOT work with Delivery.`,
+              HttpStatus.BAD_REQUEST,
+            );
           }
         } else {
-          if (store.dispatch !== DispatchTypes.WITHDRAWAL && store.dispatch !== DispatchTypes.ALL) {
-            throw new HttpException(`Store '${store.name}' ONLY works with Delivery.`, HttpStatus.BAD_REQUEST)
+          if (
+            store.dispatch !== DispatchTypes.WITHDRAWAL &&
+            store.dispatch !== DispatchTypes.ALL
+          ) {
+            throw new HttpException(
+              `Store '${store.name}' ONLY works with Delivery.`,
+              HttpStatus.BAD_REQUEST,
+            );
           }
         }
 
@@ -163,9 +216,11 @@ export class OrdersService {
           status: false,
           couponId: coupon && coupon.id,
           requiresDelivery: storeOrder.delivery,
-          customerAddress: `${userInfo.street}, ${userInfo.addressNumber} - ${userInfo.neighborhood
-            }, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''
-            } ${userInfo.logradouro ? `Logradouro: ${userInfo.logradouro}` : ''}`,
+          customerAddress: `${userInfo.street}, ${userInfo.addressNumber} - ${
+            userInfo.neighborhood
+          }, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${
+            userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''
+          } ${userInfo.logradouro ? `Logradouro: ${userInfo.logradouro}` : ''}`,
           situation: 'Recebido',
         });
 
@@ -212,7 +267,7 @@ export class OrdersService {
             productPrice: product.price,
             productParcels: prod.parcels,
             paymentMethod: prod.paymentMethod,
-            customerId: user.id,
+            customerId: user?.id ?? 'GUEST',
           });
 
           sumAmount +=
@@ -239,9 +294,9 @@ export class OrdersService {
                   coupon.discountValue,
                   coupon.discountPorcent,
                   prod.amount *
-                  (product.discount
-                    ? product.price * (product.discount / 100)
-                    : product.price),
+                    (product.discount
+                      ? product.price * (product.discount / 100)
+                      : product.price),
                 );
 
                 couponWasUsed = true;
@@ -259,14 +314,20 @@ export class OrdersService {
                 coupon.discountValue,
                 coupon.discountPorcent,
                 prod.amount *
-                (product.discount
-                  ? product.price * (product.discount / 100)
-                  : product.price),
+                  (product.discount
+                    ? product.price * (product.discount / 100)
+                    : product.price),
               );
 
               couponWasUsed = true;
             } else if (coupon.range === 'first-buy') {
               // verifica se é primeira compra
+              if (!user.id)
+                throw new HttpException(
+                  'Invalid Coupon',
+                  HttpStatus.BAD_REQUEST,
+                );
+
               const userHistory =
                 await this.historicsService.findCustomerHistory(
                   user.id,
@@ -280,9 +341,9 @@ export class OrdersService {
                   coupon.discountValue,
                   coupon.discountPorcent,
                   prod.amount *
-                  (product.discount
-                    ? product.price * (product.discount / 100)
-                    : product.price),
+                    (product.discount
+                      ? product.price * (product.discount / 100)
+                      : product.price),
                 );
 
                 couponWasUsed = true;
@@ -390,42 +451,44 @@ export class OrdersService {
       }
     })}`;
 
-    const text = `🛍️ *Novo pedido!* 🛍️%0a%0a*Nome do Cliente:* ${user.firstName
-      } ${user.lastName}%0a%0a*Itens do Pedido:*%0a${productsListToMsg
-        .map((p) => {
-          return '  🏷️ ' + p.amount + 'x ' + p.title + '%0a';
-        })
-        .join(
-          '',
-        )}%0a*Total do Pedido:* R$ ${formatedAmount}%0a*Forma de Envio:* ${delivery ? 'Entrega' : 'Retirada em loja'
-      }%0a${delivery
-        ? `*Custo do Envio:* ${store.deliveryFee
-          ? `${'R$ ' +
-          store.deliveryFee.toFixed(2).toString().replace('.', ',')
-          } `
-          : 'Taxa de envio não cadastrada'
-        }%0a`
+    const text = `🛍️ *Novo pedido!* 🛍️%0a%0a*Nome do Cliente:* ${
+      user?.firstName ?? 'CONVIDADO'
+    } ${user?.lastName ?? ''}%0a%0a*Itens do Pedido:*%0a${productsListToMsg
+      .map((p) => {
+        return '  🏷️ ' + p.amount + 'x ' + p.title + '%0a';
+      })
+      .join(
+        '',
+      )}%0a*Total do Pedido:* R$ ${formatedAmount}%0a*Forma de Envio:* ${
+      delivery ? 'Entrega' : 'Retirada em loja'
+    }%0a${
+      delivery
+        ? `*Custo do Envio:* ${
+            store.deliveryFee
+              ? `${
+                  'R$ ' +
+                  store.deliveryFee.toFixed(2).toString().replace('.', ',')
+                } `
+              : 'Taxa de envio não cadastrada'
+          }%0a`
         : '%0a'
-      }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*${user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
-      }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${user.neighborhood
-      }%0a*Cidade:* ${user.city} - ${user.uf}${user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''
-      }`;
+    }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*${
+      user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
+    }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${
+      user.neighborhood
+    }%0a*Cidade:* ${user.city} - ${user.uf}${
+      user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''
+    }`;
     return `https://api.whatsapp.com/send?phone=55${store.phone}&text=${text}`;
   }
 
-  async fillAllOrderByStatus(
-    storeId: string,
-    limit?: number,
-    offset?: number,
-  ) {
+  async fillAllOrderByStatus(storeId: string, limit?: number, offset?: number) {
     if (!limit) {
       limit = 10;
     }
     if (!offset) {
       offset = 0;
     }
-
-
 
     const query = await getManager().query(
       `
@@ -455,14 +518,12 @@ export class OrdersService {
       [storeId, limit, offset],
     );
 
-
     const total = await this.orderRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.store', 'store')
       .where('store.id = :storeId', { storeId })
       .getCount();
     return { results: query, totalOrders: total };
-
   }
 
   async confirmOrder(orderId: string, storeId: string) {

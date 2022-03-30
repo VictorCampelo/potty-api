@@ -23,16 +23,21 @@ import { FindMostSolds } from 'src/dashboard/dto/find-most-solds.dto';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { findOrdersDto } from './dto/find-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(AuthGuard(), RolesGuard)
+@ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly storesService: StoresService,
-  ) { }
+  ) {}
 
   @Post('')
+  @ApiOperation({
+    summary: 'Create a order as a common user',
+  })
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.USER)
   async create(
     @Body() createOrderDto: CreateOrderDto,
@@ -50,7 +55,25 @@ export class OrdersController {
     }
   }
 
+  @Post('guest')
+  @ApiOperation({ summary: 'Create a order as a guest user' })
+  async createGuestOrder(
+    @Body() createOrderDto: CreateOrderDto,
+  ): Promise<{ orders: Order[]; whatsapp: string[]; message: string }> {
+    try {
+      const result = await this.ordersService.create(createOrderDto);
+      return {
+        orders: result.orders,
+        whatsapp: result.messages,
+        message: 'Order sucessfuly created',
+      };
+    } catch (error) {
+      throw new ErrorHandling(error);
+    }
+  }
+
   @Post('store/confirm/:id')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async confirmOrder(@Param('id') orderId: string, @GetUser() user: User) {
     try {
@@ -61,6 +84,7 @@ export class OrdersController {
   }
 
   @Get('store')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async findAll(
     @Query(ValidationPipe) query: findOrdersDto,
@@ -78,6 +102,7 @@ export class OrdersController {
   }
 
   @Get('store/order')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async findOneToStore(@Query() id: string, @GetUser() user: User) {
     try {
@@ -88,6 +113,7 @@ export class OrdersController {
   }
 
   @Patch('update')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
   async update(@Body(ValidationPipe) updateOrderDto: UpdateOrderDto) {
     try {
@@ -98,6 +124,7 @@ export class OrdersController {
   }
 
   @Get('user')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.USER)
   async findAllOrdersByUser(
     @GetUser() user: User,
@@ -116,6 +143,7 @@ export class OrdersController {
   }
 
   @Get('user/:id')
+  @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.USER)
   async findOneToUser(@Param('id') id: string, @GetUser() user: User) {
     try {

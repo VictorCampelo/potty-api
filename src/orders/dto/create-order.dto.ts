@@ -1,3 +1,14 @@
+interface IUserAddress {
+  uf: string;
+  zipcode: string;
+  city: string;
+  street: string;
+  neighborhood: string;
+  addressNumber: string;
+  logradouro: string;
+  complement?: string;
+}
+
 interface IProducts {
   productId: string;
   amount: number;
@@ -13,6 +24,7 @@ interface IOrder {
 export class CreateOrderDto {
   products: IOrder[];
   couponCode?: string;
+  guestAddress?: IUserAddress;
 }
 
 export interface IProductsToListMsg {
