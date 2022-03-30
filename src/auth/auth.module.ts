@@ -18,7 +18,7 @@ import { PlansModule } from 'src/plans/plans.module';
     JwtModule.register({
       secret: 'super-secret',
       signOptions: {
-        expiresIn: 18000,
+        expiresIn: 86400000,
       },
     }),
     EmailsModule,
