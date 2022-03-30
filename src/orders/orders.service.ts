@@ -128,8 +128,8 @@ export class OrdersService {
         let acceptedPayments = [];
         store.paymentMethods &&
           store.paymentMethods.forEach((pm) => {
-            if (!acceptedPayments) acceptedPayments = [pm.methodName];
-            else acceptedPayments.push(pm.methodName);
+            if (!acceptedPayments) acceptedPayments = [pm.id];
+            else acceptedPayments.push(pm.id);
           });
 
         createOrderDto.products.forEach((storeProducts) => {
