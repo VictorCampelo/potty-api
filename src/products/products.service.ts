@@ -102,7 +102,11 @@ export class ProductsService {
   ): Promise<Product> {
     const userWithPlan = await this.usersService.findUserById(user.id);
 
-    const productAmount = await this.findAll(user.storeId, {});
+    const productAmount = await this.productRepository.find({
+      where: {
+        storeId: user.storeId,
+      },
+    });
 
     if (
       !userWithPlan.plan ||
