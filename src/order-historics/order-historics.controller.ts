@@ -1,8 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { OrderHistoricsService } from './order-historics.service';
 import { CreateOrderHistoricDto } from './dto/create-order-historic.dto';
 import { UpdateOrderHistoricDto } from './dto/update-order-historic.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('order-historics')
 @Controller('order-historics')
 export class OrderHistoricsController {
   constructor(private readonly orderHistoricsService: OrderHistoricsService) {}

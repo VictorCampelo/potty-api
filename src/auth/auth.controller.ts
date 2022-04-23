@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { UserRole } from 'src/users/user-roles.enum';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -35,6 +35,7 @@ import { RolesGuard } from './roles.guard';
 import { Response } from 'express';
 import { Res } from '@nestjs/common';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

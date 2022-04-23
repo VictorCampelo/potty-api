@@ -31,6 +31,11 @@ async function bootstrap() {
     .addTag('admin')
     .addTag('owner')
     .addTag('dashboard')
+    .addTag('orders')
+    .addTag('products')
+    .addTag('stores')
+    .addTag('auth')
+    .addTag('feedback')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
       'Bearer',

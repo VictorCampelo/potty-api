@@ -22,7 +22,10 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import { ErrorHandling } from 'src/configs/error-handling';
 import { StoresService } from 'src/stores/stores.service';
 import { FindFeedbackDto } from './dto/find-feedback.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('feedback')
+@ApiBearerAuth('Bearer')
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller('feedback')
 export class FeedbackController {

@@ -18,7 +18,7 @@ import {
   FileFieldsInterceptor,
   FileInterceptor,
 } from '@nestjs/platform-express';
-import { ApiConsumes } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -31,6 +31,7 @@ import { FindStoreDto } from './dto/find-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { StoresService } from './stores.service';
 
+@ApiTags('stores')
 @Controller('stores')
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}

@@ -31,7 +31,9 @@ import { multerOptions } from 'src/configs/multer.config';
 import { FindPromotedDto } from './dto/find-promoted.dto';
 import { UniqueUpdateDto } from './dto/unique-update.dto';
 import { Request } from 'express';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -112,6 +114,9 @@ export class ProductsController {
     }
   }
 
+  @ApiOperation({
+    summary: 'Creates a product',
+  })
   @Post()
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
@@ -133,6 +138,9 @@ export class ProductsController {
     }
   }
 
+  @ApiOperation({
+    deprecated: true,
+  })
   @Patch('details/:id')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)
@@ -151,6 +159,9 @@ export class ProductsController {
     }
   }
 
+  @ApiOperation({
+    deprecated: true,
+  })
   @Patch('images/:id')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.OWNER)

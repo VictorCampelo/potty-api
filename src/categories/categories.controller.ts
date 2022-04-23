@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -20,6 +21,8 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 const productsByCategory = 'products/:storeId/category/:categoryId';
+@ApiTags('categories')
+@ApiBearerAuth('Bearer')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
