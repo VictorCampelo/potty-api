@@ -165,10 +165,11 @@ export class ProductsService {
     });
   }
 
-  async findAll(
-    storeId: string,
-    findProducts: FindProductsDto,
-  ): Promise<Product[]> {
+  async findAll(storeId: string, findProducts: FindProductsDto) {
+    const parsedTake = findProducts.take || 10;
+    const parsedPage = findProducts.page || 1;
+    const parsedSkip = (parsedPage - 1) * parsedTake;
+
     let orderingBy;
     if (findProducts.loadLastSolds) {
       orderingBy = {
@@ -200,13 +201,15 @@ export class ProductsService {
       }
     }
 
-    return this.productRepository.find({
+    const products = this.productRepository.findAndCount({
       relations: findProducts.loadRelations ? ['files', 'categories'] : [],
       where: whereOpt,
-      skip: findProducts.offset ? findProducts.offset : 0,
-      take: findProducts.limit ? findProducts.limit : 10,
+      skip: parsedSkip,
+      take: parsedTake,
       order: orderingBy,
     });
+
+    return paginateResponse(products, parsedPage, parsedSkip);
   }
 
   async findOne(id: string, findProducts?: FindProductsDto): Promise<Product> {
@@ -369,52 +372,68 @@ export class ProductsService {
 
   async findWithDiscount(findPromotedDto: FindPromotedDto) {
     // const store = await this.storesService.findOne()
-    return this.productRepository.find({
+    const parsedTake = findPromotedDto.take || 10;
+    const parsedPage = findPromotedDto.page || 1;
+    const parsedSkip = (parsedPage - 1) * parsedTake;
+    const products = await this.productRepository.findAndCount({
       where: {
         discount: MoreThan(0),
       },
-      take: findPromotedDto.limit,
-      skip: findPromotedDto.offset,
+      take: parsedTake,
+      skip: parsedSkip,
       relations: ['files', 'store'],
       order: { discount: 'DESC' },
     });
+    return paginateResponse(products, parsedPage, parsedSkip);
   }
 
   async findRelatedMarketplace({
     categoryId,
     productName,
+    storeId,
+    take,
+    page,
   }: {
     categoryId: string;
     productName: string;
+    storeId?: string;
+    take?: number;
+    page?: number;
   }) {
+    const parsedTake = take || 10;
+    const parsedPage = page || 1;
+    const parsedSkip = (parsedPage - 1) * parsedTake;
+
     const products = await this.productRepository
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.categories', 'categories')
       .leftJoinAndSelect('product.files', 'files')
       .where('categories.id = :id', { id: categoryId })
       .orWhere('product.title LIKE :title', { title: `%${productName}%` })
-      .getMany();
+      .take(parsedTake)
+      .skip(parsedSkip)
+      .getManyAndCount();
 
-    // const productsWithDifferentCategories = products.filter((product) =>
-    //   product.categories.every((category) => category.id !== categoryId),
-    // );
-
-    // const productsByCategory = products.filter(
-    //   (product) => !productsWithDifferentCategories.includes(product),
-    // );
-
-    return { productsByCategory: products };
+    return paginateResponse(products, parsedPage, parsedSkip);
   }
 
   async findRelatedCatalog({
     categoryId,
     productName,
     storeId,
+    take,
+    page,
   }: {
     categoryId: string;
     productName: string;
     storeId: string;
+    take?: number;
+    page?: number;
   }) {
+    const parsedTake = take || 10;
+    const parsedPage = page || 1;
+    const parsedSkip = (parsedPage - 1) * parsedTake;
+
     const products = await this.productRepository
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.categories', 'categories')
@@ -422,36 +441,39 @@ export class ProductsService {
       .leftJoinAndSelect('product.store', 'store')
       .where('categories.id = :id', { id: categoryId })
       .andWhere('product.store_id = :storeId', { storeId })
-      // .orWhere('product.title LIKE :title', { title: `%${productName}%` })
-      .getMany();
+      .take(parsedTake)
+      .skip(parsedSkip)
+      .getManyAndCount();
 
-    // const products = await this.productRepository.find({
-    //   where: {
-    //     storeId,
-    //   },
-    //   relations: ['files'],
-    // });
-
-    // const productsWithDifferentCategories = products.filter((product) =>
-    //   product.categories.every((category) => category.id !== categoryId),
-    // );
-
-    // const productsByCategory = products.filter(
-    //   (product) => !productsWithDifferentCategories.includes(product),
-    // );
-
-    return { productsByCategoryAndStore: products };
+    return paginateResponse(products, parsedPage, parsedSkip);
   }
 
-  async findFromCategory(categoryId: string) {
-    return this.productRepository
+  async findFromCategory(
+    categoryId: string,
+    {
+      take,
+      page,
+    }: {
+      take?: number;
+      page?: number;
+    },
+  ) {
+    const parsedTake = take || 10;
+    const parsedPage = page || 1;
+    const parsedSkip = (parsedPage - 1) * parsedTake;
+
+    const products = await this.productRepository
       .createQueryBuilder('product')
       .innerJoinAndSelect('product.categories', 'categories')
       .leftJoinAndSelect('product.files', 'files')
       .where('categories.id = :category', {
         category: categoryId,
       })
-      .getMany();
+      .take(parsedTake)
+      .skip(parsedSkip)
+      .getManyAndCount();
+
+    return paginateResponse(products, parsedPage, parsedSkip);
   }
 
   async productsSold(
