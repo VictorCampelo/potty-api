@@ -137,7 +137,7 @@ export class StoresController {
     }
   }
 
-  @Post('addLike/:name')
+  @Post('toggleFavorite/:name')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.USER)
   async addLikeToStore(@Param('name') name: string, @GetUser() user: User) {
