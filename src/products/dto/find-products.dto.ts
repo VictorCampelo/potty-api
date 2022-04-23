@@ -14,4 +14,8 @@ export class FindProductsDto {
   starsMin?: number;
   starsEq?: number;
   starsNeq?: number;
+
+  //pagination
+  take?: number;
+  page?: number;
 }
