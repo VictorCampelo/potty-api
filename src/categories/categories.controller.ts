@@ -91,8 +91,8 @@ export class CategoriesController {
   }
 
   @Get('products/:storeId')
-  @UseGuards(AuthGuard(), RolesGuard)
-  @Role(UserRole.OWNER)
+  // @UseGuards(AuthGuard(), RolesGuard)
+  // @Role(UserRole.OWNER)
   async findAllProductsCategories(@Param('storeId') storeId: string) {
     try {
       return await this.categoriesService.findProductsCategories({

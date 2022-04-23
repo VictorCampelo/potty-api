@@ -42,7 +42,13 @@ export class ProductsController {
   async findRelatedProducts(
     @Req() request: Request,
     @Query()
-    relatedDto: { categoryId: string; productName: string; storeId: string },
+    relatedDto: {
+      categoryId: string;
+      productName: string;
+      storeId: string;
+      take: number;
+      page: number;
+    },
   ) {
     try {
       if (request.headers.app === 'marketplace') {
@@ -66,9 +72,19 @@ export class ProductsController {
 
   @Get('category/:id')
   @Role(UserRole.OWNER)
-  async findFromCategory(@Param('id') categoryId: string) {
+  async findFromCategory(
+    @Param('id') categoryId: string,
+    @Query()
+    fromCategoryDto: {
+      take: number;
+      page: number;
+    },
+  ) {
     try {
-      return await this.productsService.findFromCategory(categoryId);
+      return await this.productsService.findFromCategory(
+        categoryId,
+        fromCategoryDto,
+      );
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -80,7 +96,7 @@ export class ProductsController {
     @Query(ValidationPipe) query: FindProductsDto,
   ) {
     try {
-      return await this.productsService.findOne(id, query);
+      return this.productsService.findOne(id, query);
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -92,7 +108,7 @@ export class ProductsController {
     @Query(ValidationPipe) findProductsDto: FindProductsDto,
   ) {
     try {
-      return await this.productsService.findAll(storeId, findProductsDto);
+      return this.productsService.findAll(storeId, findProductsDto);
     } catch (error) {
       throw new ErrorHandling(error);
     }
