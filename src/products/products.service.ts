@@ -201,7 +201,7 @@ export class ProductsService {
       }
     }
 
-    const products = this.productRepository.findAndCount({
+    const products = await this.productRepository.findAndCount({
       relations: findProducts.loadRelations ? ['files', 'categories'] : [],
       where: whereOpt,
       skip: parsedSkip,
