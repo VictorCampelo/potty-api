@@ -22,7 +22,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 const productsByCategory = 'products/:storeId/category/:categoryId';
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
   async findAllPublicCategories() {
@@ -47,7 +47,10 @@ export class CategoriesController {
   @Patch('update/:categoryId')
   @UseGuards(AuthGuard(), RolesGuard)
   @Role(UserRole.ADMIN)
-  async updateCategory(@Body() updateCategoryDto: UpdateCategoryDto, @Param('categoryId') id: string) {
+  async updateCategory(
+    @Body() updateCategoryDto: UpdateCategoryDto,
+    @Param('categoryId') id: string,
+  ) {
     try {
       return await this.categoriesService.updateCategory(updateCategoryDto, id);
     } catch (error) {
@@ -60,7 +63,7 @@ export class CategoriesController {
   @Role(UserRole.ADMIN)
   async deleteCategory(@Param('categoryId') id: string) {
     try {
-      return this.categoriesService.deleteStoreCategory(id)
+      return this.categoriesService.deleteStoreCategory(id);
     } catch (error) {
       throw new ErrorHandling(error);
     }
@@ -85,8 +88,8 @@ export class CategoriesController {
   }
 
   @Get('products/:storeId')
-  @UseGuards(AuthGuard(), RolesGuard)
-  @Role(UserRole.OWNER)
+  // @UseGuards(AuthGuard(), RolesGuard)
+  // @Role(UserRole.OWNER)
   async findAllProductsCategories(@Param('storeId') storeId: string) {
     try {
       return await this.categoriesService.findProductsCategories({
