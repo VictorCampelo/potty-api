@@ -36,8 +36,9 @@ jobs:
           ssh -i private_key ${USER_NAME}@${HOSTNAME} '
           cd /var/www/ultimo-api &&
           git pull origin dev &&
+          nvm deactivate &&
           export NODE_OPTIONS="--max-old-space-size=4096" &&
-          yarn install &&
+          yarn install --check-files &&
           yarn build &&
           pm2 delete bdv-api &&
           pm2 start dist/main.js --name "bdv-api"
