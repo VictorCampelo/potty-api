@@ -17,7 +17,7 @@ jobs:
       with:
         node-version: 16.13.1
         cache: 'npm'
-    - run: npm i
+    - run: npm i --legacy-peer-deps
     # - run: npm test
 
   deploy_dev:
@@ -37,7 +37,7 @@ jobs:
           . ~/.nvm/nvm.sh &&
           cd /var/www/ultimo-api &&
           git pull origin dev &&
-          npm i &&
+          npm i --legacy-peer-deps &&
           export NODE_OPTIONS="--max-old-space-size=1024" &&
           npm run build &&
           pm2 delete bdv-api &&
