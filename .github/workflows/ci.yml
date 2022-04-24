@@ -15,7 +15,7 @@ jobs:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
-        node-version: 16.13.1
+        node-version: 16.14.2
         cache: 'npm'
     - run: npm i --legacy-peer-deps
     # - run: npm test
@@ -38,8 +38,7 @@ jobs:
           cd /var/www/ultimo-api &&
           git pull origin dev &&
           npm i --legacy-peer-deps &&
-          export NODE_OPTIONS="--max-old-space-size=1024" &&
-          npm run build &&
+          NODE_OPTIONS="--max-old-space-size=1024" npm run build &&
           pm2 delete bdv-api &&
           pm2 start dist/main.js --name "bdv-api"
           '
