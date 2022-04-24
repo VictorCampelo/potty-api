@@ -37,8 +37,7 @@ jobs:
           cd /var/www/ultimo-api &&
           git pull origin dev &&
           export NODE_OPTIONS="--max-old-space-size=4096" &&
-          yarn install &&
-          yarn build &&
+          npm i &&
           pm2 delete bdv-api &&
-          pm2 start dist/main.js --name "bdv-api"
+          pm2 start npm --name "bdv-api" -- start
           '

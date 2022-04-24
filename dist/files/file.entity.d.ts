@@ -1,0 +1,30 @@
+import { Store } from 'src/stores/store.entity';
+import { Product } from 'src/products/product.entity';
+import { User } from 'src/users/user.entity';
+import { BaseEntity } from 'typeorm';
+export declare class File extends BaseEntity {
+    id: string;
+    name: string;
+    filename: string;
+    alternativeText: string;
+    caption: string;
+    hash: string;
+    ext: string;
+    mime: string;
+    provider: string;
+    url: string;
+    previewUrl: string;
+    width: number;
+    height: number;
+    createdBy: number;
+    updatedBy: number;
+    formats: any;
+    providerMetadata: any;
+    user: User;
+    product: Product;
+    store: Store;
+    tags: string[];
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date;
+}

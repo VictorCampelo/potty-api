@@ -5,7 +5,7 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-import { instanceToPlain } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class CustomValidationPipe implements PipeTransform {
       );
     }
 
-    const object = instanceToPlain(metaData.metatype, value);
+    const object = plainToClass(metaData.metatype, value);
 
     const errors = await validate(object);
 
