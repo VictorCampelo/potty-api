@@ -34,7 +34,6 @@ jobs:
       - run: ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} uptime
       - run: |
           ssh -i private_key ${USER_NAME}@${HOSTNAME} '
-          . ~/.nvm/nvm.sh &&
           cd /var/www/ultimo-api &&
           git pull origin dev &&
           npm i &&
