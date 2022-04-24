@@ -36,7 +36,7 @@ jobs:
           ssh -i private_key ${USER_NAME}@${HOSTNAME} '
           cd /var/www/ultimo-api &&
           git pull origin dev &&
-          npm i &&
+          npm ci &&
           NODE_OPTIONS="--max-old-space-size=4096" npm run build &&
           pm2 delete bdv-api &&
           pm2 start dist/main.js --name "bdv-api"

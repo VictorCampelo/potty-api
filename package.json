@@ -1,8 +1,8 @@
 {
-  "name": "vuttr",
-  "version": "0.0.1",
+  "name": "bdv",
+  "version": "1.0.0",
   "description": "",
-  "author": "",
+  "author": "Elliptic-technology",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
