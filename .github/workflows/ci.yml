@@ -37,8 +37,8 @@ jobs:
           . ~/.nvm/nvm.sh &&
           cd /var/www/ultimo-api &&
           git pull origin dev &&
-          npm i --legacy-peer-deps &&
-          NODE_OPTIONS="--max-old-space-size=1024" npm run build &&
+          npm i &&
+          NODE_OPTIONS="--max-old-space-size=4096" npm run build &&
           pm2 delete bdv-api &&
           pm2 start dist/main.js --name "bdv-api"
           '
