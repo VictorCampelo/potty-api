@@ -39,5 +39,5 @@ jobs:
           export NODE_OPTIONS="--max-old-space-size=4096" &&
           npm i &&
           pm2 delete bdv-api &&
-          pm2 start npm --name "bdv-api" -- start
+          pm2 start dist/main.js --name "bdv-api"
           '
