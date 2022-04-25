@@ -4,6 +4,7 @@ export declare class FindProductsDto {
     loadRelations?: boolean;
     loadLastSolds?: boolean;
     loadLastCreated?: boolean;
+    loadWithHighestPrice?: boolean;
     files?: boolean;
     categories?: boolean;
     store?: boolean;

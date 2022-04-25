@@ -190,7 +190,7 @@ export class OrdersService {
             storeProducts.orderProducts.forEach((orderHistoric) => {
               if (!acceptedPayments.includes(orderHistoric.paymentMethod)) {
                 throw new HttpException(
-                  `Store ${store.name} doesnt accept ${orderHistoric.paymentMethod} as a payment method`,
+                  `Store ${store.name} does not accept ${orderHistoric.paymentMethod} as a payment method`,
                   HttpStatus.BAD_REQUEST,
                 );
               }

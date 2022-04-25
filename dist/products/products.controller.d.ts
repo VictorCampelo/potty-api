@@ -24,7 +24,7 @@ export declare class ProductsController {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     findWithDiscount(findPromotedDto: FindPromotedDto): Promise<{
         statusCode: string;
@@ -33,7 +33,7 @@ export declare class ProductsController {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     findFromCategory(categoryId: string, fromCategoryDto: {
         take: number;
@@ -45,7 +45,7 @@ export declare class ProductsController {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     findOne(id: string, query: FindProductsDto): Promise<import("./product.entity").Product>;
     findAllProduct(storeId: string, findProductsDto: FindProductsDto): Promise<{
@@ -55,7 +55,7 @@ export declare class ProductsController {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     create(createProductDto: CreateProductDto, user: User, images?: Express.Multer.File[]): Promise<{
         product: import("./product.entity").Product;

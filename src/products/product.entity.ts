@@ -14,6 +14,8 @@ import {
   JoinColumn,
   ManyToMany,
   JoinTable,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { File } from 'src/files/file.entity';
 import { Category } from 'src/categories/category.entity';
@@ -35,6 +37,9 @@ export class Product extends BaseEntity {
 
   @Column({ nullable: false, type: 'float', default: 0 })
   price: number;
+
+  @Column({ nullable: true, type: 'float' })
+  priceWithDiscount: number;
 
   @Column({ nullable: true, type: 'float' })
   discount: number;
@@ -88,4 +93,14 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => OrderHistoric, (orderHistoric) => orderHistoric.product)
   orderHistorics: OrderHistoric[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  calculateDiscount() {
+    let value = this.price * (this.discount / 100 - 1);
+    this.priceWithDiscount =
+      value > 0
+        ? parseFloat(value.toFixed(2))
+        : parseFloat((value * -1).toFixed(2));
+  }
 }

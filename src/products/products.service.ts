@@ -179,6 +179,10 @@ export class ProductsService {
       orderingBy = {
         createdAt: 'DESC',
       };
+    } else if (findProducts.loadWithHighestPrice) {
+      orderingBy = {
+        price: 'DESC',
+      };
     } else {
       orderingBy = {
         sumOrders: 'ASC',
@@ -506,10 +510,15 @@ export class ProductsService {
 }
 
 export function paginateResponse(data, page, limit) {
+  page = parseInt(page);
+  limit = parseInt(limit);
   const [result, total] = data;
-  const lastPage = Math.ceil(total / limit);
+  const calculatedLastPage = Math.ceil(total / limit);
+
+  const lastPage = calculatedLastPage === Infinity ? page : calculatedLastPage;
   const nextPage = page + 1 > lastPage ? null : page + 1;
   const prevPage = page - 1 < 1 ? null : page - 1;
+
   return {
     statusCode: 'success',
     data: [...result],

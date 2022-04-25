@@ -10,6 +10,7 @@ export declare class Product extends BaseEntity {
     description?: string;
     tags?: string[];
     price: number;
+    priceWithDiscount: number;
     discount: number;
     sumOrders?: number;
     sumFeedbacks?: number;
@@ -27,4 +28,5 @@ export declare class Product extends BaseEntity {
     categories: Category[];
     feedbacks: Feedback[];
     orderHistorics: OrderHistoric[];
+    calculateDiscount(): void;
 }
