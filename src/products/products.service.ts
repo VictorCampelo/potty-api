@@ -179,6 +179,10 @@ export class ProductsService {
       orderingBy = {
         createdAt: 'DESC',
       };
+    } else if (findProducts.loadWithHighestPrice) {
+      orderingBy = {
+        price: 'DESC',
+      };
     } else {
       orderingBy = {
         sumOrders: 'ASC',
