@@ -31,7 +31,7 @@ export declare class ProductsService {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     findOne(id: string, findProducts?: FindProductsDto): Promise<Product>;
     updateProductDetails(id: string, updateProductDto: UpdateProductDto): Promise<import("typeorm").UpdateResult>;
@@ -46,7 +46,7 @@ export declare class ProductsService {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     findRelatedMarketplace({ categoryId, productName, storeId, take, page, }: {
         categoryId: string;
@@ -61,7 +61,7 @@ export declare class ProductsService {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     findRelatedCatalog({ categoryId, productName, storeId, take, page, }: {
         categoryId: string;
@@ -76,7 +76,7 @@ export declare class ProductsService {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     findFromCategory(categoryId: string, { take, page, }: {
         take?: number;
@@ -88,7 +88,7 @@ export declare class ProductsService {
         currentPage: any;
         nextPage: any;
         prevPage: number;
-        lastPage: number;
+        lastPage: any;
     }>;
     productsSold(storeId: string, startDate: Date, endDate: Date, limit?: number, offset?: number): Promise<any[]>;
 }
@@ -99,5 +99,5 @@ export declare function paginateResponse(data: any, page: any, limit: any): {
     currentPage: any;
     nextPage: any;
     prevPage: number;
-    lastPage: number;
+    lastPage: any;
 };

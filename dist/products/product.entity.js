@@ -18,8 +18,15 @@ const file_entity_1 = require("../files/file.entity");
 const category_entity_1 = require("../categories/category.entity");
 const order_historic_entity_1 = require("../order-historics/entities/order-historic.entity");
 let Product = class Product extends typeorm_1.BaseEntity {
+    calculateDiscount() {
+        let value = this.price * (this.discount / 100 - 1);
+        this.priceWithDiscount =
+            value > 0
+                ? parseFloat(value.toFixed(2))
+                : parseFloat((value * -1).toFixed(2));
+    }
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String }, title: { required: true, type: () => String }, description: { required: false, type: () => String }, tags: { required: false, type: () => [String] }, price: { required: true, type: () => Number }, discount: { required: true, type: () => Number }, sumOrders: { required: false, type: () => Number }, sumFeedbacks: { required: false, type: () => Number }, sumStars: { required: false, type: () => Number }, avgStars: { required: false, type: () => Number }, inventory: { required: true, type: () => Number }, lastSold: { required: false, type: () => Date }, parcelAmount: { required: false, type: () => Number }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date }, deletedAt: { required: false, type: () => Date }, store: { required: true, type: () => require("../stores/store.entity").Store }, storeId: { required: true, type: () => String }, files: { required: true, type: () => [require("../files/file.entity").File] }, categories: { required: true, type: () => [require("../categories/category.entity").Category] }, feedbacks: { required: true, type: () => [require("../feedback/feedback.entity").Feedback] }, orderHistorics: { required: true, type: () => [require("../order-historics/entities/order-historic.entity").OrderHistoric] } };
+        return { id: { required: true, type: () => String }, title: { required: true, type: () => String }, description: { required: false, type: () => String }, tags: { required: false, type: () => [String] }, price: { required: true, type: () => Number }, priceWithDiscount: { required: true, type: () => Number }, discount: { required: true, type: () => Number }, sumOrders: { required: false, type: () => Number }, sumFeedbacks: { required: false, type: () => Number }, sumStars: { required: false, type: () => Number }, avgStars: { required: false, type: () => Number }, inventory: { required: true, type: () => Number }, lastSold: { required: false, type: () => Date }, parcelAmount: { required: false, type: () => Number }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date }, deletedAt: { required: false, type: () => Date }, store: { required: true, type: () => require("../stores/store.entity").Store }, storeId: { required: true, type: () => String }, files: { required: true, type: () => [require("../files/file.entity").File] }, categories: { required: true, type: () => [require("../categories/category.entity").Category] }, feedbacks: { required: true, type: () => [require("../feedback/feedback.entity").Feedback] }, orderHistorics: { required: true, type: () => [require("../order-historics/entities/order-historic.entity").OrderHistoric] } };
     }
 };
 __decorate([
@@ -42,6 +49,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: false, type: 'float', default: 0 }),
     __metadata("design:type", Number)
 ], Product.prototype, "price", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true, type: 'float' }),
+    __metadata("design:type", Number)
+], Product.prototype, "priceWithDiscount", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true, type: 'float' }),
     __metadata("design:type", Number)
@@ -112,6 +123,13 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => order_historic_entity_1.OrderHistoric, (orderHistoric) => orderHistoric.product),
     __metadata("design:type", Array)
 ], Product.prototype, "orderHistorics", void 0);
+__decorate([
+    (0, typeorm_1.BeforeInsert)(),
+    (0, typeorm_1.BeforeUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], Product.prototype, "calculateDiscount", null);
 Product = __decorate([
     (0, typeorm_1.Entity)('product'),
     (0, typeorm_1.Unique)(['id', 'title'])

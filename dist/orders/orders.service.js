@@ -133,7 +133,7 @@ let OrdersService = class OrdersService {
                     if (storeProducts.storeId === store.id) {
                         storeProducts.orderProducts.forEach((orderHistoric) => {
                             if (!acceptedPayments.includes(orderHistoric.paymentMethod)) {
-                                throw new common_1.HttpException(`Store ${store.name} doesnt accept ${orderHistoric.paymentMethod} as a payment method`, common_1.HttpStatus.BAD_REQUEST);
+                                throw new common_1.HttpException(`Store ${store.name} does not accept ${orderHistoric.paymentMethod} as a payment method`, common_1.HttpStatus.BAD_REQUEST);
                             }
                             const paymentInput = store.paymentMethods.find((method) => method.methodName === orderHistoric.paymentMethod);
                             if (orderHistoric.parcels && !paymentInput.allowParcels) {

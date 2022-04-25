@@ -15,7 +15,7 @@ let CustomValidationPipe = class CustomValidationPipe {
         if (this.isEmpty(value)) {
             throw new common_1.HttpException(`Validation failed: No payload provided`, common_1.HttpStatus.BAD_REQUEST);
         }
-        const object = (0, class_transformer_1.plainToClass)(metaData.metatype, value);
+        const object = (0, class_transformer_1.plainToInstance)(metaData.metatype, value);
         const errors = await (0, class_validator_1.validate)(object);
         if (errors.length > 0) {
             throw new common_1.HttpException(`Validation failed: ${this.formatErrors(errors)}`, common_1.HttpStatus.BAD_REQUEST);
