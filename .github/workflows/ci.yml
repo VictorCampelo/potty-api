@@ -41,7 +41,7 @@ jobs:
       - name: Adding Known Hosts
         run: 'echo "$PRIVATE_KEY" >> ~/.ssh/github-action'
       - run: chmod 400 ~/.ssh/github-action
-      - run: echo -e "Host github-actions-tutorial\n\tUser github-actions-tutorial\n\tHostname ${SSH_HOST}\n\tIdentityFile ~/.ssh/github-action\n\tStrictHostKeyChecking No" >> ~/.ssh/config       
+      - run: echo -e "Host github-actions-tutorial\n\tUser github-actions-tutorial\n\tHostname ${HOSTNAME}\n\tIdentityFile ~/.ssh/github-action\n\tStrictHostKeyChecking No" >> ~/.ssh/config       
       
       - name: Deploy with rsync
         run: rsync -e ssh ./dist/ github-actions-tutorial:/var/www/ultimo-api/dist/
