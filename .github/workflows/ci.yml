@@ -39,8 +39,11 @@ jobs:
           known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
           
       - name: Adding Known Hosts
-        run: ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
-        
+        run: mkdir ~/.ssh
+      - run: 'echo "$PRIVATE_KEY" >> ~/.ssh/github-action'
+      - run: chmod 400 ~/.ssh/github-action
+      - run: echo -e "Host github-actions-tutorial\n\tUser github-actions-tutorial\n\tHostname ${SSH_HOST}\n\tIdentityFile ~/.ssh/github-action\n\tStrictHostKeyChecking No" >> ~/.ssh/config       
+      
       - name: Deploy with rsync
         run: rsync -avz ./dist/ ${USER_NAME}@${HOSTNAME}:/var/www/ultimo-api/dist/
         
