@@ -8,17 +8,17 @@ on:
     branches: [ staging, dev ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
-        cache: 'yarn'
-    - run: yarn install
-    - run: yarn build
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Use Node.js ${{ matrix.node-version }}
+#       uses: actions/setup-node@v2
+#       with:
+#         node-version: 16
+#         cache: 'yarn'
+#     - run: yarn install
+#     - run: yarn build
     # - run: npm test
 
   deploy_dev:
@@ -32,6 +32,14 @@ jobs:
         USER_NAME : ${{ secrets.USER_NAME  }}
         SSH_HOST: ${{ secrets.SSH_HOST }}
     steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+      - run: yarn install
+      - run: yarn build
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
