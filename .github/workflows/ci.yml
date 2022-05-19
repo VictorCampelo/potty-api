@@ -44,7 +44,7 @@ jobs:
       - run: echo -e "Host bdv\n\tUser ${USER_NAME}\n\tHostname ${HOSTNAME}\n\tIdentityFile ~/.ssh/github-action\n\tStrictHostKeyChecking No" >> ~/.ssh/config       
       
       - name: Deploy with rsync
-        run: rsync -e ssh ./dist/ bdv:/var/www/ultimo-api/dist/
+        run: rsync -e ssh dist/ bdv:/var/www/ultimo-api/dist/
         
       - name: build pm2
         run: echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
