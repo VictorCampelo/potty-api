@@ -52,17 +52,17 @@ jobs:
       - run: echo -e "Host bdv\n\tUser ${USER_NAME}\n\tHostname ${HOSTNAME}\n\tIdentityFile ~/.ssh/github-action\n\tStrictHostKeyChecking No" >> ~/.ssh/config       
       
       - name: Deploy with rsync
-        run: rsync -e ssh /home/runner/work/ultimo-api/ultimo-api/dist bdv:/var/www/ultimo-api/dist/
+        run: rsync -e ssh /home/runner/work/potty-api/potty-api/dist bdv:/var/www/potty-api/dist/
         
       - name: build pm2
         run: echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
       - run: ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} uptime
       - run: |
           ssh -i private_key ${USER_NAME}@${HOSTNAME} '
-          cd /var/www/ultimo-api &&
+          cd /var/www/potty-api &&
           git pull origin dev &&
           export NODE_OPTIONS="--max-old-space-size=4096" &&
           npm i &&
-          pm2 delete bdv-api &&
-          pm2 start dist/main.js --name "bdv-api"
+          pm2 delete potty-api &&
+          pm2 start dist/main.js --name "potty-api"
           '
