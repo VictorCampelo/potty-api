@@ -62,7 +62,7 @@ jobs:
           cd /var/www/potty-api &&
           git pull origin dev &&
           export NODE_OPTIONS="--max-old-space-size=4096" &&
-          npm i &&
+          yarn install &&
           pm2 delete potty-api &&
           pm2 start dist/main.js --name "potty-api"
           '
