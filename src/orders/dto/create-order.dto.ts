@@ -5,7 +5,7 @@ interface IUserAddress {
   street: string;
   neighborhood: string;
   addressNumber: string;
-  logradouro: string;
+  logradouro?: string;
   complement?: string;
 }
 
