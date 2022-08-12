@@ -61,7 +61,7 @@ export class OrdersService {
           neighborhood: '',
           addressNumber: 0,
           logradouro: '',
-          complement: '',
+          // complement: '',
         };
 
         let keys = [
@@ -73,7 +73,7 @@ export class OrdersService {
           'zipcode',
           'neighborhood',
           'addressNumber',
-          'logradouro',
+          // 'logradouro',
           'complement',
         ];
         keys.forEach((key) => {
@@ -220,7 +220,7 @@ export class OrdersService {
             userInfo.neighborhood
           }, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${
             userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''
-          } ${userInfo.logradouro ? `Logradouro: ${userInfo.logradouro}` : ''}`,
+          } ${userInfo.street ? `Logradouro: ${userInfo.street}` : ''}`,
           situation: 'Recebido',
         });
 
