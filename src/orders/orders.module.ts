@@ -43,7 +43,7 @@ export class OrdersModule implements NestModule {
           'street',
           'neighborhood',
           'addressNumber',
-          'logradouro',
+          // 'logradouro',
           'zipcode',
           'complement',
         ];

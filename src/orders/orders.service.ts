@@ -473,7 +473,7 @@ export class OrdersService {
           }%0a`
         : '%0a'
     }*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*${
-      user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''
+      user.street ? `%0a*Logradouro:*  ${user.street}` : ''
     }%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${
       user.neighborhood
     }%0a*Cidade:* ${user.city} - ${user.uf}${
