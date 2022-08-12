@@ -30,7 +30,6 @@ let OrdersModule = class OrdersModule {
                 'street',
                 'neighborhood',
                 'addressNumber',
-                'logradouro',
                 'zipcode',
                 'complement',
             ];

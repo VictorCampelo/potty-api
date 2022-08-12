@@ -56,7 +56,6 @@ let OrdersService = class OrdersService {
                     zipcode: '',
                     neighborhood: '',
                     addressNumber: 0,
-                    logradouro: '',
                     complement: '',
                 };
                 let keys = [
@@ -68,7 +67,6 @@ let OrdersService = class OrdersService {
                     'zipcode',
                     'neighborhood',
                     'addressNumber',
-                    'logradouro',
                     'complement',
                 ];
                 keys.forEach((key) => {
@@ -149,7 +147,7 @@ let OrdersService = class OrdersService {
                     status: false,
                     couponId: coupon && coupon.id,
                     requiresDelivery: storeOrder.delivery,
-                    customerAddress: `${userInfo.street}, ${userInfo.addressNumber} - ${userInfo.neighborhood}, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''} ${userInfo.logradouro ? `Logradouro: ${userInfo.logradouro}` : ''}`,
+                    customerAddress: `${userInfo.street}, ${userInfo.addressNumber} - ${userInfo.neighborhood}, ${userInfo.city} - ${userInfo.uf}, ${userInfo.zipcode}. ${userInfo.complement ? `Complemento: ${userInfo.complement}.` : ''} ${userInfo.street ? `Logradouro: ${userInfo.street}` : ''}`,
                     situation: 'Recebido',
                 });
                 let sumAmount = 0;
@@ -286,7 +284,7 @@ let OrdersService = class OrdersService {
                 ? `${'R$ ' +
                     store.deliveryFee.toFixed(2).toString().replace('.', ',')} `
                 : 'Taxa de envio não cadastrada'}%0a`
-            : '%0a'}*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*${user.logradouro ? `%0a*Logradouro:*  ${user.logradouro}` : ''}%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${user.neighborhood}%0a*Cidade:* ${user.city} - ${user.uf}${user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''}`;
+            : '%0a'}*Forma de pagamento:*${paymentMethod}%0a%0a*Endereço do Cliente:*${user.street ? `%0a*Logradouro:*  ${user.street}` : ''}%0a*Número:* ${user.addressNumber}%0a*Bairro:* ${user.neighborhood}%0a*Cidade:* ${user.city} - ${user.uf}${user.complement ? `%0a*Complemento:* ${user.complement}%0a` : ''}`;
         return `https://api.whatsapp.com/send?phone=55${store.phone}&text=${text}`;
     }
     async fillAllOrderByStatus(storeId, limit, offset) {
