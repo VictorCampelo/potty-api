@@ -60,8 +60,8 @@ export class OrdersService {
           zipcode: '',
           neighborhood: '',
           addressNumber: 0,
-          logradouro: '',
-          // complement: '',
+          // logradouro: '',
+          complement: '',
         };
 
         let keys = [
