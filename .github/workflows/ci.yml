@@ -49,10 +49,10 @@ jobs:
       - name: Adding Known Hosts
         run: 'echo "$PRIVATE_KEY" >> ~/.ssh/github-action'
       - run: chmod 400 ~/.ssh/github-action
-      - run: echo -e "Host bdv\n\tUser ${USER_NAME}\n\tHostname ${HOSTNAME}\n\tIdentityFile ~/.ssh/github-action\n\tStrictHostKeyChecking No" >> ~/.ssh/config       
+      - run: echo -e "Host potty-api\n\tUser ${USER_NAME}\n\tHostname ${HOSTNAME}\n\tIdentityFile ~/.ssh/github-action\n\tStrictHostKeyChecking No" >> ~/.ssh/config       
       
       - name: Deploy with rsync
-        run: rsync -e ssh /home/runner/work/potty-api/potty-api/dist bdv:/var/www/potty-api/dist/
+        run: rsync -e ssh /home/runner/work/potty-api/potty-api/dist potty-api:/var/www/potty-api/dist/
         
       - name: build pm2
         run: echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
