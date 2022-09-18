@@ -141,6 +141,15 @@ export class AuthService {
     }
 
     if (!user.enabled) {
+      await this.emailsService.sendEmail(
+        user.email,
+        'Boa de venda - Confirme seu e-mail',
+        'email-confirmation',
+        {
+          token: user.confirmationToken,
+          tokenDigits: user.confirmationTokenDigits,
+        },
+      );
       throw new HttpException('Need e-mail activation', HttpStatus.FORBIDDEN);
     }
 
