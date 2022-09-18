@@ -1,8 +1,7 @@
-import { Store } from "src/stores/store.entity";
-import PaymentUtils from "./payment";
+import { Store } from 'src/stores/store.entity';
+import PaymentUtils from './payment';
 
 export default class StoreUtils {
-
   static giveMeAValidStore(
     id: string,
     phone: string,
@@ -25,5 +24,4 @@ export default class StoreUtils {
     // store.paymentMethods = [this.giveMeAValidPaymentMethod()];
     return store;
   }
-
 }

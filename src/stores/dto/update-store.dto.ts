@@ -1,5 +1,8 @@
 import { Matches } from 'class-validator';
-import { DispatchTypes, ScheduleProperties } from '../types/scheduleProperties.interface';
+import {
+  DispatchTypes,
+  ScheduleProperties,
+} from '../types/scheduleProperties.interface';
 
 export class UpdateStoreDto {
   name: string;

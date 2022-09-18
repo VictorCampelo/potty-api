@@ -52,8 +52,20 @@ describe('ProductsService', () => {
   describe('find products', () => {
     it('should find products by its IDs and storeId', async () => {
       const storeId = '1';
-      const product1 = ProductUtils.giveMeAValidProduct('1', storeId, 10, 20, 'geladeira');
-      const product2 = ProductUtils.giveMeAValidProduct('2', storeId, 20, 10, 'cafeteira');
+      const product1 = ProductUtils.giveMeAValidProduct(
+        '1',
+        storeId,
+        10,
+        20,
+        'geladeira',
+      );
+      const product2 = ProductUtils.giveMeAValidProduct(
+        '2',
+        storeId,
+        20,
+        10,
+        'cafeteira',
+      );
       mockRepository.findByIds.mockReturnValueOnce([product1, product2]);
 
       const spy = jest.spyOn(service, 'findProductstByIdsAndStoreId');

@@ -52,7 +52,7 @@ export class UserRepository extends Repository<User> {
   async createUser(
     createUserDto: CreateUserDto,
     role: UserRole,
-    fromEduzz?: boolean
+    fromEduzz?: boolean,
   ): Promise<User> {
     const {
       email,

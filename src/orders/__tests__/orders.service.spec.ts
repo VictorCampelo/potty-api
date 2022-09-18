@@ -113,7 +113,9 @@ describe('OrdersService', () => {
       .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('5'))
       .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('6'))
       .mockReturnValueOnce(OrderUtils.giveMeAValidCreatedOrder('7'));
-    UsersMockedService.findUserById.mockReturnValue(UserUtils.giveMeAValidUser());
+    UsersMockedService.findUserById.mockReturnValue(
+      UserUtils.giveMeAValidUser(),
+    );
     /* global mocks --- */
     it('should create a simple order', async () => {
       /* --- mocks */
@@ -122,7 +124,11 @@ describe('OrdersService', () => {
         ProductUtils.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
       ]);
       StoresMockedService.findAllByIds.mockReturnValue([
-        StoreUtils.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
+        StoreUtils.giveMeAValidStore('1', '86981834269', [
+          'visa',
+          'pix',
+          'boleto',
+        ]),
       ]);
       /* mocks --- */
 
@@ -146,8 +152,16 @@ describe('OrdersService', () => {
         ProductUtils.giveMeAValidProduct('4', '2', 10, 15, 'Cafeteira', 80),
       ]);
       StoresMockedService.findAllByIds.mockReturnValue([
-        StoreUtils.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
-        StoreUtils.giveMeAValidStore('2', '86981818181', ['visa', 'pix', 'boleto']),
+        StoreUtils.giveMeAValidStore('1', '86981834269', [
+          'visa',
+          'pix',
+          'boleto',
+        ]),
+        StoreUtils.giveMeAValidStore('2', '86981818181', [
+          'visa',
+          'pix',
+          'boleto',
+        ]),
       ]);
 
       const createOrder = await ordersService.create(
@@ -211,8 +225,16 @@ describe('OrdersService', () => {
       OrdersHistoricsMockedService.findCustomerHistory.mockReturnValue(false);
 
       StoresMockedService.findAllByIds.mockReturnValue([
-        StoreUtils.giveMeAValidStore('1', '86981834269', ['visa', 'pix', 'boleto']),
-        StoreUtils.giveMeAValidStore('2', '86981818181', ['visa', 'pix', 'boleto']),
+        StoreUtils.giveMeAValidStore('1', '86981834269', [
+          'visa',
+          'pix',
+          'boleto',
+        ]),
+        StoreUtils.giveMeAValidStore('2', '86981818181', [
+          'visa',
+          'pix',
+          'boleto',
+        ]),
       ]);
 
       ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([
@@ -293,7 +315,6 @@ describe('OrdersService', () => {
     });
 
     it('shoud not accept a payment method', async () => {
-
       ProductsMockedService.findProductstByIdsAndStoreId.mockReturnValue([
         ProductUtils.giveMeAValidProduct('1', '1', 10, 15, 'Cadeira'),
         ProductUtils.giveMeAValidProduct('2', '1', 10, 15, 'Geladeira'),
@@ -305,11 +326,14 @@ describe('OrdersService', () => {
 
       /* - main test - */
 
-      await expect(ordersService.create(
-        PayloadUtils.giveMeAValidCreateOrderPayload(),
-        UserUtils.giveMeAValidUser(),
-      )).rejects.toThrowError(new Error('Store minha loja doesnt accept visa as a payment method'));
-
-    })
+      await expect(
+        ordersService.create(
+          PayloadUtils.giveMeAValidCreateOrderPayload(),
+          UserUtils.giveMeAValidUser(),
+        ),
+      ).rejects.toThrowError(
+        new Error('Store minha loja doesnt accept visa as a payment method'),
+      );
+    });
   });
 });

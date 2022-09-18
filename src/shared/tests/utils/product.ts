@@ -1,9 +1,7 @@
-import { Product } from "src/products/product.entity";
-import CategoryUtils from "./category";
+import { Product } from 'src/products/product.entity';
+import CategoryUtils from './category';
 
 export default class ProductUtils {
-
-
   static giveMeAValidProduct(
     id: string,
     storeId: string,
@@ -25,6 +23,4 @@ export default class ProductUtils {
     ];
     return product;
   }
-
-
 }

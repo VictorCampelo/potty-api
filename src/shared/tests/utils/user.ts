@@ -1,8 +1,6 @@
-import { User } from "src/users/user.entity";
+import { User } from 'src/users/user.entity';
 
 export default class UserUtils {
-
-
   static giveMeAValidUser(id = '123'): User {
     const user = new User();
     user.id = id;
@@ -17,6 +15,4 @@ export default class UserUtils {
 
     return user;
   }
-
-
 }

@@ -24,7 +24,7 @@ import { WebhookRequestDto } from './dto/webhook-request.dto';
 
 @Controller('plans')
 export class PlansController {
-  constructor(private readonly plansService: PlansService) { }
+  constructor(private readonly plansService: PlansService) {}
 
   @Post()
   @UseGuards(AuthGuard(), RolesGuard)

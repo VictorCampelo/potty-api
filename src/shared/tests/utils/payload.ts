@@ -1,6 +1,6 @@
-import { CreateOrderDto } from "src/orders/dto/create-order.dto";
+import { CreateOrderDto } from 'src/orders/dto/create-order.dto';
 
-export default class PayloadUtils{
+export default class PayloadUtils {
   static giveMeAValidCreateOrderWithDiscountPayload(
     coupon?: string,
   ): CreateOrderDto {

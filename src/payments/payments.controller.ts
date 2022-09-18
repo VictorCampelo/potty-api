@@ -19,7 +19,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) { }
+  constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post('create')
   @UseGuards(AuthGuard(), RolesGuard)

@@ -9,7 +9,7 @@ export interface ScheduleProperties {
 }
 
 export enum DispatchTypes {
-  DELIVERY = "delivery",
-  WITHDRAWAL = "withdrawal",
-  ALL = "all"
+  DELIVERY = 'delivery',
+  WITHDRAWAL = 'withdrawal',
+  ALL = 'all',
 }

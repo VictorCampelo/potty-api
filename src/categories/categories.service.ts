@@ -24,7 +24,7 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
     @Inject(forwardRef(() => StoresService))
     private readonly storesService: StoresService,
-  ) { }
+  ) {}
   async create(
     createCategoryDto: CreateCategoryDto,
     typeOfCategory: string,
@@ -42,15 +42,15 @@ export class CategoriesService {
   async updateCategory(updateCategoryDto: UpdateCategoryDto, id: string) {
     const category = await this.categoryRepository.findOne(id, {
       where: {
-        type: 'store'
-      }
-    })
+        type: 'store',
+      },
+    });
 
     if (!category) {
-      throw new HttpException('Category not found', HttpStatus.NOT_FOUND)
+      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
 
-    return this.categoryRepository.update(category.id, updateCategoryDto)
+    return this.categoryRepository.update(category.id, updateCategoryDto);
   }
 
   async findAll(): Promise<Category[]> {
@@ -134,6 +134,6 @@ export class CategoriesService {
   }
 
   async deleteStoreCategory(id: string) {
-    return this.categoryRepository.delete(id)
+    return this.categoryRepository.delete(id);
   }
 }

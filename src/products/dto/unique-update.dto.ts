@@ -1,6 +1,5 @@
-
-import { Transform } from "class-transformer";
-import { IsInt, IsNumber, IsOptional, Max, Min } from "class-validator";
+import { Transform } from 'class-transformer';
+import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
 
 export class UniqueUpdateDto {
   product_id?: string;

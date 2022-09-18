@@ -1,5 +1,5 @@
-import { CreateFeedbackDto } from "src/feedback/dto/create-feedback.dto";
-import { Feedback } from "src/feedback/feedback.entity";
+import { CreateFeedbackDto } from 'src/feedback/dto/create-feedback.dto';
+import { Feedback } from 'src/feedback/feedback.entity';
 
 export default class FeedbackUtils {
   static giveMeAValidFeedback(id = '1'): Feedback {

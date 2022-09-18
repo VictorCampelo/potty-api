@@ -1,9 +1,8 @@
-import { Coupon } from "src/coupons/entities/coupon.entity";
-import CategoryUtils from "./category";
-import { CouponRange, CouponDiscountType } from "./dto";
+import { Coupon } from 'src/coupons/entities/coupon.entity';
+import CategoryUtils from './category';
+import { CouponRange, CouponDiscountType } from './dto';
 
 export default class CouponUtils {
-
   static giveMeAValidCoupon(
     code = 'cupom',
     isExpired = false,
@@ -36,6 +35,4 @@ export default class CouponUtils {
 
     return coupon;
   }
-
-
 }

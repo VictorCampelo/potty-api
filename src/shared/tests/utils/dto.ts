@@ -1,4 +1,3 @@
-
 export enum CouponRange {
   category = 'category',
   store = 'store',
