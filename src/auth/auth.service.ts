@@ -98,7 +98,7 @@ export class AuthService {
 
       await this.emailsService.sendEmail(
         user.email,
-        'Boa de venda - Confirme seu e-mail',
+        'Potty - Confirme seu e-mail',
         'email-confirmation',
         {
           token: user.confirmationToken,
@@ -143,7 +143,7 @@ export class AuthService {
     if (!user.enabled) {
       await this.emailsService.sendEmail(
         user.email,
-        'Boa de venda - Confirme seu e-mail',
+        'Potty - Confirme seu e-mail',
         'email-confirmation',
         {
           token: user.confirmationToken,
@@ -218,7 +218,7 @@ export class AuthService {
     await user.save();
     await this.emailsService.sendEmail(
       user.email,
-      'Boa de venda - Confirme seu e-mail',
+      'Potty - Confirme seu e-mail',
       'email-confirmation',
       {
         token: user.confirmationToken,
@@ -237,7 +237,7 @@ export class AuthService {
     await user.save();
     await this.emailsService.sendEmail(
       user.email,
-      'Boa de venda - Recuperação de senha',
+      'Potty - Recuperação de senha',
       'recover-password',
       {
         token: user.recoverToken,

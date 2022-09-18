@@ -65,7 +65,7 @@ export class PlansService {
       if (!generatedPassword) {
         await this.emailsService.sendEmail(
           user.email,
-          'Boa de venda - Parabéns! Seu plano já está ativado',
+          'Potty - Parabéns! Seu plano já está ativado',
           'plan-activated',
           {
             planName: plan.name,
@@ -75,7 +75,7 @@ export class PlansService {
       } else {
         await this.emailsService.sendEmail(
           user.email,
-          'Boa de venda - Parabéns! Seu plano já está ativado, falta ativar sua conta',
+          'Potty - Parabéns! Seu plano já está ativado, falta ativar sua conta',
           'plan-activated-created-user',
           {
             planName: plan.name,
@@ -97,7 +97,7 @@ export class PlansService {
 
       await this.emailsService.sendEmail(
         user.email,
-        'Boa de venda - Solicitação de compra de Plano',
+        'Potty - Solicitação de compra de Plano',
         'plan-requested',
         {
           planName: plan.name,
@@ -115,7 +115,7 @@ export class PlansService {
 
       await this.emailsService.sendEmail(
         user.email,
-        'Boa de venda - Compra cancelada',
+        'Potty - Compra cancelada',
         'plan-requested',
         {
           planName: plan.name,

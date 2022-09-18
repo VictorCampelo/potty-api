@@ -62,13 +62,13 @@ let PlansService = class PlansService {
                 user,
             });
             if (!generatedPassword) {
-                await this.emailsService.sendEmail(user.email, 'Boa de venda - Parabéns! Seu plano já está ativado', 'plan-activated', {
+                await this.emailsService.sendEmail(user.email, 'Potty - Parabéns! Seu plano já está ativado', 'plan-activated', {
                     planName: plan.name,
                     planValue: plan.price,
                 });
             }
             else {
-                await this.emailsService.sendEmail(user.email, 'Boa de venda - Parabéns! Seu plano já está ativado, falta ativar sua conta', 'plan-activated-created-user', {
+                await this.emailsService.sendEmail(user.email, 'Potty - Parabéns! Seu plano já está ativado, falta ativar sua conta', 'plan-activated-created-user', {
                     planName: plan.name,
                     planValue: plan.price,
                     userToken: user.confirmationToken,
@@ -84,7 +84,7 @@ let PlansService = class PlansService {
                 accountStatus: 'Aberta',
                 user,
             });
-            await this.emailsService.sendEmail(user.email, 'Boa de venda - Solicitação de compra de Plano', 'plan-requested', {
+            await this.emailsService.sendEmail(user.email, 'Potty - Solicitação de compra de Plano', 'plan-requested', {
                 planName: plan.name,
                 planValue: plan.price,
                 fullName: user.firstName + ' ' + user.lastName,
@@ -97,7 +97,7 @@ let PlansService = class PlansService {
                 accountStatus: 'Cancelada',
                 user,
             });
-            await this.emailsService.sendEmail(user.email, 'Boa de venda - Compra cancelada', 'plan-requested', {
+            await this.emailsService.sendEmail(user.email, 'Potty - Compra cancelada', 'plan-requested', {
                 planName: plan.name,
                 planValue: plan.price,
                 fullName: user.firstName + ' ' + user.lastName,

@@ -38,7 +38,7 @@ let AuthService = class AuthService {
         try {
             const user = await this.userRepository.createUser(createUserDto, role);
             await user.save();
-            await this.emailsService.sendEmail(user.email, 'Boa de venda - Confirme seu e-mail', 'email-confirmation', {
+            await this.emailsService.sendEmail(user.email, 'Potty - Confirme seu e-mail', 'email-confirmation', {
                 token: user.confirmationToken,
                 tokenDigits: user.confirmationTokenDigits,
             });
@@ -69,7 +69,7 @@ let AuthService = class AuthService {
             user.storeId = store.id;
             await store.save();
             await user.save();
-            await this.emailsService.sendEmail(user.email, 'Boa de venda - Confirme seu e-mail', 'email-confirmation', {
+            await this.emailsService.sendEmail(user.email, 'Potty - Confirme seu e-mail', 'email-confirmation', {
                 token: user.confirmationToken,
                 tokenDigits: user.confirmationTokenDigits,
             });
@@ -141,7 +141,7 @@ let AuthService = class AuthService {
                     user.confirmationTokenDigits;
         }
         await user.save();
-        await this.emailsService.sendEmail(user.email, 'Boa de venda - Confirme seu e-mail', 'email-confirmation', {
+        await this.emailsService.sendEmail(user.email, 'Potty - Confirme seu e-mail', 'email-confirmation', {
             token: user.confirmationToken,
             tokenDigits: user.confirmationTokenDigits,
         });
@@ -152,7 +152,7 @@ let AuthService = class AuthService {
             throw new common_1.NotFoundException('Não há usuário cadastrado com esse email.');
         user.recoverToken = (Math.floor(Math.random() * 999999) + 1).toString();
         await user.save();
-        await this.emailsService.sendEmail(user.email, 'Boa de venda - Recuperação de senha', 'recover-password', {
+        await this.emailsService.sendEmail(user.email, 'Potty - Recuperação de senha', 'recover-password', {
             token: user.recoverToken,
         });
     }
