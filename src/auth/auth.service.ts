@@ -301,7 +301,7 @@ export class AuthService {
 
   async socialsLogin(req, service: string) {
     if (!req.user) {
-      return `https://www.boadevenda.com.br/404`;
+      return `https://www.potty.com.br/404`;
     }
 
     const whereSocial =
@@ -343,7 +343,7 @@ export class AuthService {
 
         const jwtToken = this.jwtService.sign(jwtPayload);
 
-        return `https://www.boadevenda.com.br/login?accessToken=${jwtToken}`;
+        return `https://www.potty.com.br/login?accessToken=${jwtToken}`;
       }
 
       return {
@@ -361,7 +361,7 @@ export class AuthService {
 
       const jwtToken = this.jwtService.sign(jwtPayload);
 
-      return `https://www.boadevenda.com.br/login?accessToken=${jwtToken}`;
+      return `https://www.potty.com.br/login?accessToken=${jwtToken}`;
     }
   }
 }

@@ -202,7 +202,7 @@ let AuthService = class AuthService {
     }
     async socialsLogin(req, service) {
         if (!req.user) {
-            return `https://www.boadevenda.com.br/404`;
+            return `https://www.potty.com.br/404`;
         }
         const whereSocial = service === 'google'
             ? {
@@ -234,7 +234,7 @@ let AuthService = class AuthService {
                         : null,
                 };
                 const jwtToken = this.jwtService.sign(jwtPayload);
-                return `https://www.boadevenda.com.br/login?accessToken=${jwtToken}`;
+                return `https://www.potty.com.br/login?accessToken=${jwtToken}`;
             }
             return {
                 id: req.user.id,
@@ -250,7 +250,7 @@ let AuthService = class AuthService {
                 storeId: user.store && user.store.id ? user.store.id : null,
             };
             const jwtToken = this.jwtService.sign(jwtPayload);
-            return `https://www.boadevenda.com.br/login?accessToken=${jwtToken}`;
+            return `https://www.potty.com.br/login?accessToken=${jwtToken}`;
         }
     }
 };

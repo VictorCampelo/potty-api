@@ -199,7 +199,7 @@ export class OrdersService {
                 (method) => method.methodName === orderHistoric.paymentMethod,
               );
 
-              if (orderHistoric.parcels && !paymentInput.allowParcels) {
+              if (orderHistoric.parcels && !paymentInput?.allowParcels) {
                 throw new HttpException(
                   `Method ${paymentInput.methodName.toUpperCase()} doesnt accept parcels`,
                   HttpStatus.BAD_REQUEST,

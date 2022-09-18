@@ -20,7 +20,7 @@ let EmailsService = class EmailsService {
         try {
             const mail = {
                 to: emailTo,
-                from: 'noreply@boadevenda.com.br',
+                from: 'noreply@potty.com.br',
                 subject: subject,
                 template: `./public/templates/${template}.hbs`,
                 context: body,

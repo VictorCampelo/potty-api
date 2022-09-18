@@ -167,7 +167,7 @@ let AuthController = class AuthController {
     async facebookRedirect(req, res) {
         const url = await this.authService.socialsLogin(req, 'facebook');
         if (typeof url !== 'string') {
-            res.redirect(`https://www.boadevenda.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=${url.lastName}&facebookId=${url.id}`);
+            res.redirect(`https://www.potty.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=${url.lastName}&facebookId=${url.id}`);
         }
         else {
             res.redirect(url);
@@ -176,7 +176,7 @@ let AuthController = class AuthController {
     async googleRedirect(req, res) {
         const url = await this.authService.socialsLogin(req, 'google');
         if (typeof url !== 'string') {
-            res.redirect(`https://www.boadevenda.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=${url.lastName}&googleId=${url.id}`);
+            res.redirect(`https://www.potty.com.br/cadastro?email=${url.email}&firstName=${url.firstName}&lastName=${url.lastName}&googleId=${url.id}`);
         }
         else {
             res.redirect(url);
