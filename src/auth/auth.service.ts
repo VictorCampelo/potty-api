@@ -46,7 +46,7 @@ export class AuthService {
 
       await this.emailsService.sendEmail(
         user.email,
-        'Boa de venda - Confirme seu e-mail',
+        'Potty - Confirme seu e-mail',
         'email-confirmation',
         {
           token: user.confirmationToken,
