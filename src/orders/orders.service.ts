@@ -144,6 +144,8 @@ export class OrdersService {
         );
 
         if (storeOrder.delivery) {
+          console.log('User Info >>> ', userInfo);
+
           if (
             !userInfo.zipcode ||
             !userInfo.city ||
