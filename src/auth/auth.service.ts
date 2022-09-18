@@ -141,6 +141,8 @@ export class AuthService {
     }
 
     if (!user.enabled) {
+      console.log('user not enabled');
+
       await this.emailsService.sendEmail(
         user.email,
         'Potty - Confirme seu e-mail',
@@ -150,6 +152,8 @@ export class AuthService {
           tokenDigits: user.confirmationTokenDigits,
         },
       );
+
+      console.log('Email has sended');
       throw new HttpException('Need e-mail activation', HttpStatus.FORBIDDEN);
     }
 
