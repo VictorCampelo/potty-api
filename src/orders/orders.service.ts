@@ -201,6 +201,13 @@ export class OrdersService {
                 (method) => method.methodName === orderHistoric.paymentMethod,
               );
 
+              if (!paymentInput) {
+                throw new HttpException(
+                  `Payment Method not found for this store`,
+                  HttpStatus.BAD_REQUEST,
+                );
+              }
+
               if (orderHistoric.parcels && !paymentInput?.allowParcels) {
                 throw new HttpException(
                   `Method ${paymentInput.methodName.toUpperCase()} doesnt accept parcels`,
