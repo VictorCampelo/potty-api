@@ -13,7 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
 import { UserRole } from './user-roles.enum';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
-import { FilesService } from 'src/files/files.service';
+import { FileStorageProvider as FilesService } from 'src/files/providers/fileStorage.provider';
 import { getConnection } from 'typeorm';
 import _ from 'lodash';
 
@@ -138,12 +138,7 @@ export class UsersService {
     user = Object.assign(user, updateUserRequestDto.updateUserDto);
 
     if (updateUserRequestDto.file && user) {
-      // file = await this.filesService.createFiles([updateUserRequestDto.file]);
-      file = await this.filesService.uploadSingleFileToS3(
-        updateUserRequestDto.file,
-        user.id,
-      );
-      await this.filesService.saveFile(file);
+      file = await this.filesService.saveFiles([updateUserRequestDto.file]);
       user.profileImage = file;
     }
 
@@ -151,7 +146,7 @@ export class UsersService {
   }
 
   async addUserPic(user: User, newProfileImage: Express.Multer.File) {
-    const file = await this.filesService.createFiles([newProfileImage]);
+    const file = await this.filesService.saveFiles([newProfileImage]);
     if (!file) {
       throw new NotFoundException('File not found');
     }
@@ -160,12 +155,12 @@ export class UsersService {
   }
 
   async deleteUserPic(userFileId: string) {
-    return this.filesService.remove([userFileId]);
+    return this.filesService.removeFiles([userFileId]);
   }
 
   async updateUserPic(user: User, newProfileImage: Express.Multer.File) {
-    await this.filesService.remove([user.profileImage.id]);
-    const file = await this.filesService.createFiles([newProfileImage]);
+    await this.filesService.removeFiles([user.profileImage.id]);
+    const file = await this.filesService.saveFiles([newProfileImage]);
     user.profileImage = file[0];
     return this.userRepository.save(user);
   }

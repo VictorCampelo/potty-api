@@ -14,7 +14,9 @@ class OrderUtils {
     static giveMeAValidOrder(id = '1', historicsId = '1') {
         const order = new order_entity_1.Order();
         order.id = id;
-        order.orderHistorics = [orderHistorics_1.default.giveMeAValidOrderHistoric(historicsId)];
+        order.orderHistorics = [
+            orderHistorics_1.default.giveMeAValidOrderHistoric(historicsId),
+        ];
         return order;
     }
 }

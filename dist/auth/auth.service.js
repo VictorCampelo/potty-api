@@ -97,6 +97,12 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Credenciais inválidas');
         }
         if (!user.enabled) {
+            console.log('user not enabled');
+            await this.emailsService.sendEmail(user.email, 'Potty - Confirme seu e-mail', 'email-confirmation', {
+                token: user.confirmationToken,
+                tokenDigits: user.confirmationTokenDigits,
+            });
+            console.log('Email has sended');
             throw new common_1.HttpException('Need e-mail activation', common_1.HttpStatus.FORBIDDEN);
         }
         const jwtPayload = {

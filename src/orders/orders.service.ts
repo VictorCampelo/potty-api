@@ -181,6 +181,7 @@ export class OrdersService {
         }
 
         let acceptedPayments = [];
+        let paymentInput = null;
         store.paymentMethods &&
           store.paymentMethods.forEach((pm) => {
             if (!acceptedPayments) acceptedPayments = [pm.id];
@@ -197,8 +198,11 @@ export class OrdersService {
                 );
               }
 
-              const paymentInput = store.paymentMethods.find(
-                (method) => method.methodName === orderHistoric.paymentMethod,
+              console.log(store.paymentMethods, orderHistoric);
+              
+
+              paymentInput = store.paymentMethods.find(
+                (method) => method.id === orderHistoric.paymentMethod,
               );
 
               if (!paymentInput) {
@@ -242,6 +246,8 @@ export class OrdersService {
         );
 
         for (const prod of storeOrder.orderProducts) {
+          console.log("PROD",prod);
+          
           const product = products.find((obj) => obj.id === prod.productId);
 
           if (!product) {
@@ -370,7 +376,7 @@ export class OrdersService {
             amount: prod.amount,
             title: product.title,
             parcels: prod.parcels,
-            paymentMethod: prod.paymentMethod,
+            paymentMethod: paymentInput.methodName,
           });
 
           // order.amount =
@@ -443,6 +449,8 @@ export class OrdersService {
     store: Store,
     delivery?: boolean,
   ) {
+    console.log(productsListToMsg);
+    
     const formatedAmount = sumAmount.toFixed(2).toString().replace('.', ',');
     const paymentMethod = `${productsListToMsg.map((p) => {
       if (p.parcels > 1) {

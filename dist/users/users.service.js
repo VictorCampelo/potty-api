@@ -18,7 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const users_repository_1 = require("./users.repository");
 const user_entity_1 = require("./user.entity");
 const user_roles_enum_1 = require("./user-roles.enum");
-const files_service_1 = require("../files/files.service");
+const fileStorage_provider_1 = require("../files/providers/fileStorage.provider");
 const typeorm_2 = require("typeorm");
 let UsersService = class UsersService {
     constructor(userRepository, filesService) {
@@ -119,14 +119,13 @@ let UsersService = class UsersService {
         }
         user = Object.assign(user, updateUserRequestDto.updateUserDto);
         if (updateUserRequestDto.file && user) {
-            file = await this.filesService.uploadSingleFileToS3(updateUserRequestDto.file, user.id);
-            await this.filesService.saveFile(file);
+            file = await this.filesService.saveFiles([updateUserRequestDto.file]);
             user.profileImage = file;
         }
         return this.userRepository.save(user);
     }
     async addUserPic(user, newProfileImage) {
-        const file = await this.filesService.createFiles([newProfileImage]);
+        const file = await this.filesService.saveFiles([newProfileImage]);
         if (!file) {
             throw new common_1.NotFoundException('File not found');
         }
@@ -134,11 +133,11 @@ let UsersService = class UsersService {
         return this.userRepository.save(user);
     }
     async deleteUserPic(userFileId) {
-        return this.filesService.remove([userFileId]);
+        return this.filesService.removeFiles([userFileId]);
     }
     async updateUserPic(user, newProfileImage) {
-        await this.filesService.remove([user.profileImage.id]);
-        const file = await this.filesService.createFiles([newProfileImage]);
+        await this.filesService.removeFiles([user.profileImage.id]);
+        const file = await this.filesService.saveFiles([newProfileImage]);
         user.profileImage = file[0];
         return this.userRepository.save(user);
     }
@@ -172,7 +171,7 @@ UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(users_repository_1.UserRepository)),
     __metadata("design:paramtypes", [users_repository_1.UserRepository,
-        files_service_1.FilesService])
+        fileStorage_provider_1.FileStorageProvider])
 ], UsersService);
 exports.UsersService = UsersService;
 //# sourceMappingURL=users.service.js.map

@@ -11,7 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import camelcaseKeys from 'camelcase-keys';
 import * as _ from 'lodash';
 import { CategoriesService } from 'src/categories/categories.service';
-import { FilesService } from 'src/files/files.service';
+import { FileStorageProvider as FilesService } from './../files/providers/fileStorage.provider';
 import { StoresService } from 'src/stores/stores.service';
 import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';
@@ -134,7 +134,7 @@ export class ProductsService {
     product.store = store;
 
     if (createProductDto.files) {
-      product.files = await this.filesService.uploadMultipleFilesToS3(
+      product.files = await this.filesService.saveFiles(
         createProductDto.files,
         `${store.name}/${product.title}`,
       );
@@ -281,17 +281,17 @@ export class ProductsService {
     }
 
     if (toBeDeleted) {
-      await this.filesService.remove(toBeDeleted, product.files);
+      await this.filesService.removeFiles(toBeDeleted);
     }
 
     if (files) {
       if (product.files && product.files.length === 0) {
-        product.files = await this.filesService.uploadMultipleFilesToS3(
+        product.files = await this.filesService.saveFiles(
           files,
           `${product.store.name}/${product.title}`,
         );
       } else {
-        const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
+        const uploadedFiles = await this.filesService.saveFiles(
           files,
           `${product.store.name}/${product.title}`,
         );
@@ -316,7 +316,7 @@ export class ProductsService {
     }
 
     if (updateProductDto.toBeDeleted) {
-      await this.filesService.remove(updateProductDto.toBeDeleted);
+      await this.filesService.removeFiles(updateProductDto.toBeDeleted);
       //fetch again
       product = await this.findOne(updateProductDto.product_id, {
         store: true,
@@ -340,7 +340,7 @@ export class ProductsService {
 
     if (updateProductDto.files) {
       if (product.files) {
-        const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
+        const uploadedFiles = await this.filesService.saveFiles(
           updateProductDto.files,
           `${product.store.name}/${product.title}`,
         );
@@ -349,7 +349,7 @@ export class ProductsService {
           product.files.push(f);
         });
       } else {
-        const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(
+        const uploadedFiles = await this.filesService.saveFiles(
           updateProductDto.files,
           `${product.store.name}/${product.title}`,
         );

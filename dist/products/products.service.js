@@ -44,7 +44,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const camelcase_keys_1 = __importDefault(require("camelcase-keys"));
 const _ = __importStar(require("lodash"));
 const categories_service_1 = require("../categories/categories.service");
-const files_service_1 = require("../files/files.service");
+const fileStorage_provider_1 = require("./../files/providers/fileStorage.provider");
 const stores_service_1 = require("../stores/stores.service");
 const users_service_1 = require("../users/users.service");
 const typeorm_2 = require("typeorm");
@@ -119,7 +119,7 @@ let ProductsService = class ProductsService {
             : null;
         product.store = store;
         if (createProductDto.files) {
-            product.files = await this.filesService.uploadMultipleFilesToS3(createProductDto.files, `${store.name}/${product.title}`);
+            product.files = await this.filesService.saveFiles(createProductDto.files, `${store.name}/${product.title}`);
         }
         if (createProductDto.categoriesIds.length &&
             createProductDto.categoriesIds[0].length > 0) {
@@ -238,14 +238,14 @@ let ProductsService = class ProductsService {
             throw new common_1.NotFoundException("The product_id sent doesn't matches any product on the database.");
         }
         if (toBeDeleted) {
-            await this.filesService.remove(toBeDeleted, product.files);
+            await this.filesService.removeFiles(toBeDeleted);
         }
         if (files) {
             if (product.files && product.files.length === 0) {
-                product.files = await this.filesService.uploadMultipleFilesToS3(files, `${product.store.name}/${product.title}`);
+                product.files = await this.filesService.saveFiles(files, `${product.store.name}/${product.title}`);
             }
             else {
-                const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(files, `${product.store.name}/${product.title}`);
+                const uploadedFiles = await this.filesService.saveFiles(files, `${product.store.name}/${product.title}`);
                 product.files = [];
                 product.files.push(...uploadedFiles);
             }
@@ -261,7 +261,7 @@ let ProductsService = class ProductsService {
             throw new common_1.NotFoundException("The product_id sent doesn't matches any product on the database.");
         }
         if (updateProductDto.toBeDeleted) {
-            await this.filesService.remove(updateProductDto.toBeDeleted);
+            await this.filesService.removeFiles(updateProductDto.toBeDeleted);
             product = await this.findOne(updateProductDto.product_id, {
                 store: true,
                 files: true,
@@ -275,13 +275,13 @@ let ProductsService = class ProductsService {
         }
         if (updateProductDto.files) {
             if (product.files) {
-                const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(updateProductDto.files, `${product.store.name}/${product.title}`);
+                const uploadedFiles = await this.filesService.saveFiles(updateProductDto.files, `${product.store.name}/${product.title}`);
                 uploadedFiles.forEach((f) => {
                     product.files.push(f);
                 });
             }
             else {
-                const uploadedFiles = await this.filesService.uploadMultipleFilesToS3(updateProductDto.files, `${product.store.name}/${product.title}`);
+                const uploadedFiles = await this.filesService.saveFiles(updateProductDto.files, `${product.store.name}/${product.title}`);
                 product.files = [];
                 product.files.push(...uploadedFiles);
             }
@@ -383,7 +383,7 @@ ProductsService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
     __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => stores_service_1.StoresService))),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        files_service_1.FilesService,
+        fileStorage_provider_1.FileStorageProvider,
         stores_service_1.StoresService,
         categories_service_1.CategoriesService,
         users_service_1.UsersService])

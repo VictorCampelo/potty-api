@@ -35,8 +35,8 @@ let CategoriesService = class CategoriesService {
     async updateCategory(updateCategoryDto, id) {
         const category = await this.categoryRepository.findOne(id, {
             where: {
-                type: 'store'
-            }
+                type: 'store',
+            },
         });
         if (!category) {
             throw new common_1.HttpException('Category not found', common_1.HttpStatus.NOT_FOUND);

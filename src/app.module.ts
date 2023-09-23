@@ -26,6 +26,9 @@ import { PaymentsModule } from './payments/payments.module';
 import { GoogleStrategy } from './auth/google.strategy';
 import { FacebookStrategy } from './auth/facebook.strategy';
 import { BuyerhistoryModule } from './buyerhistory/buyerhistory.module';
+import { ServeStaticModule } from '@nestjs/serve-static'; // Importe o módulo para servir arquivos estáticos
+import * as path from 'path'; // Importe o módulo 'path' para lidar com caminhos de arquivos
+
 
 dotenv.config();
 
@@ -49,6 +52,10 @@ dotenv.config();
     PlansModule,
     PaymentsModule,
     BuyerhistoryModule,
+    ServeStaticModule.forRoot({
+      rootPath: path.resolve(__dirname, '..', 'public', 'uploads'), // Caminho para o diretório de uploads
+      serveRoot: '/uploads', // Rota de onde os arquivos serão servidos
+    }),
   ],
   controllers: [AppController],
   // providers: [

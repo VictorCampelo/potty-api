@@ -8,20 +8,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FilesModule = void 0;
 const common_1 = require("@nestjs/common");
-const passport_1 = require("@nestjs/passport");
 const typeorm_1 = require("@nestjs/typeorm");
 const files_repository_1 = require("./files.repository");
 const files_service_1 = require("./files.service");
+const fileStorage_provider_1 = require("./providers/fileStorage.provider");
+const localFile_service_1 = require("./services/localFile.service");
+const s3File_service_1 = require("./services/s3File.service");
 let FilesModule = class FilesModule {
 };
 FilesModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([files_repository_1.FileRepository]),
-            passport_1.PassportModule.register({ defaultStrategy: 'jwt' }),
         ],
-        providers: [files_service_1.FilesService],
-        exports: [files_service_1.FilesService],
+        providers: [
+            files_service_1.FilesService,
+            localFile_service_1.LocalFileService,
+            s3File_service_1.S3FileService,
+            fileStorage_provider_1.FileStorageProvider,
+        ],
+        exports: [files_service_1.FilesService, fileStorage_provider_1.FileStorageProvider],
     })
 ], FilesModule);
 exports.FilesModule = FilesModule;

@@ -54,6 +54,8 @@ const payments_module_1 = require("./payments/payments.module");
 const google_strategy_1 = require("./auth/google.strategy");
 const facebook_strategy_1 = require("./auth/facebook.strategy");
 const buyerhistory_module_1 = require("./buyerhistory/buyerhistory.module");
+const serve_static_1 = require("@nestjs/serve-static");
+const path = __importStar(require("path"));
 dotenv.config();
 let AppModule = class AppModule {
 };
@@ -77,6 +79,10 @@ AppModule = __decorate([
             plans_module_1.PlansModule,
             payments_module_1.PaymentsModule,
             buyerhistory_module_1.BuyerhistoryModule,
+            serve_static_1.ServeStaticModule.forRoot({
+                rootPath: path.resolve(__dirname, '..', 'public', 'uploads'),
+                serveRoot: '/uploads',
+            }),
         ],
         controllers: [app_controller_1.AppController],
         providers: [google_strategy_1.GoogleStrategy, facebook_strategy_1.FacebookStrategy],

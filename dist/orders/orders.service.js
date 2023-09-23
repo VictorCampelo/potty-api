@@ -101,6 +101,7 @@ let OrdersService = class OrdersService {
             for (const storeOrder of createOrderDto.products) {
                 const store = stores.find((obj) => obj.id === storeOrder.storeId);
                 if (storeOrder.delivery) {
+                    console.log('User Info >>> ', userInfo);
                     if (!userInfo.zipcode ||
                         !userInfo.city ||
                         !userInfo.street ||
@@ -120,6 +121,7 @@ let OrdersService = class OrdersService {
                     }
                 }
                 let acceptedPayments = [];
+                let paymentInput = null;
                 store.paymentMethods &&
                     store.paymentMethods.forEach((pm) => {
                         if (!acceptedPayments)
@@ -133,8 +135,12 @@ let OrdersService = class OrdersService {
                             if (!acceptedPayments.includes(orderHistoric.paymentMethod)) {
                                 throw new common_1.HttpException(`Store ${store.name} does not accept ${orderHistoric.paymentMethod} as a payment method`, common_1.HttpStatus.BAD_REQUEST);
                             }
-                            const paymentInput = store.paymentMethods.find((method) => method.methodName === orderHistoric.paymentMethod);
-                            if (orderHistoric.parcels && !paymentInput.allowParcels) {
+                            console.log(store.paymentMethods, orderHistoric);
+                            paymentInput = store.paymentMethods.find((method) => method.id === orderHistoric.paymentMethod);
+                            if (!paymentInput) {
+                                throw new common_1.HttpException(`Payment Method not found for this store`, common_1.HttpStatus.BAD_REQUEST);
+                            }
+                            if (orderHistoric.parcels && !paymentInput?.allowParcels) {
                                 throw new common_1.HttpException(`Method ${paymentInput.methodName.toUpperCase()} doesnt accept parcels`, common_1.HttpStatus.BAD_REQUEST);
                             }
                         });
@@ -154,6 +160,7 @@ let OrdersService = class OrdersService {
                 const productsListToMsg = [];
                 const products = await this.productService.findProductstByIdsAndStoreId(storeOrder.orderProducts.map((prod) => prod.productId), store.id);
                 for (const prod of storeOrder.orderProducts) {
+                    console.log("PROD", prod);
                     const product = products.find((obj) => obj.id === prod.productId);
                     if (!product) {
                         throw new common_1.HttpException(`Product not found`, common_1.HttpStatus.NOT_FOUND);
@@ -225,7 +232,7 @@ let OrdersService = class OrdersService {
                         amount: prod.amount,
                         title: product.title,
                         parcels: prod.parcels,
-                        paymentMethod: prod.paymentMethod,
+                        paymentMethod: paymentInput.methodName,
                     });
                     order.amount = sumAmount;
                     historics.push(history);
@@ -260,6 +267,7 @@ let OrdersService = class OrdersService {
         return (currentSumAmount -= productPrice * discountPorcent);
     }
     createWhatsappMessage(user, productsListToMsg, sumAmount, store, delivery) {
+        console.log(productsListToMsg);
         const formatedAmount = sumAmount.toFixed(2).toString().replace('.', ',');
         const paymentMethod = `${productsListToMsg.map((p) => {
             if (p.parcels > 1) {

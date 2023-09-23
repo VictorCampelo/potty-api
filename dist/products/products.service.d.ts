@@ -1,5 +1,5 @@
 import { CategoriesService } from 'src/categories/categories.service';
-import { FilesService } from 'src/files/files.service';
+import { FileStorageProvider as FilesService } from './../files/providers/fileStorage.provider';
 import { StoresService } from 'src/stores/stores.service';
 import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';

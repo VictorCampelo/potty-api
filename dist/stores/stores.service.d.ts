@@ -1,5 +1,5 @@
 /// <reference types="multer" />
-import { FilesService } from './../files/files.service';
+import { FileStorageProvider as FilesService } from './../files/providers/fileStorage.provider';
 import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { CreateStoreDto } from './dto/create-store.dto';

@@ -5,7 +5,7 @@ import { UserRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
-import { FilesService } from 'src/files/files.service';
+import { FileStorageProvider as FilesService } from 'src/files/providers/fileStorage.provider';
 export declare class UsersService {
     private userRepository;
     private filesService;

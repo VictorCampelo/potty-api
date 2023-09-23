@@ -36,7 +36,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StoresService = void 0;
-const files_service_1 = require("./../files/files.service");
+const fileStorage_provider_1 = require("./../files/providers/fileStorage.provider");
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const users_service_1 = require("../users/users.service");
@@ -78,9 +78,8 @@ let StoresService = class StoresService {
             throw new common_1.HttpException('Já existe uma Loja com esse nome', common_1.HttpStatus.BAD_REQUEST);
         }
         if (createStoreDto.avatar) {
-            const avatar = await this.filesService.uploadSingleFileToS3(createStoreDto.avatar, store.name);
-            store.avatar = avatar;
-            await this.filesService.saveFile(avatar);
+            const avatar = await this.filesService.saveFiles([createStoreDto.avatar], store.name);
+            store.avatar = avatar[0];
         }
         if (user) {
             await store.save();
@@ -204,15 +203,13 @@ let StoresService = class StoresService {
                 .toLowerCase();
         }
         if (files && files[0]) {
-            const avatar = await this.filesService.uploadSingleFileToS3(files[0], store.name);
-            store.avatar = avatar;
-            await this.filesService.saveFile(avatar);
+            const avatar = await this.filesService.saveFiles([files[0]], store.name);
+            store.avatar = avatar[0];
         }
         if (files && files[1]) {
             console.log(files);
-            const background = await this.filesService.uploadSingleFileToS3(files[1], store.name);
-            store.background = background;
-            await this.filesService.saveFile(background);
+            const background = await this.filesService.saveFiles([files[1]], store.name);
+            store.background = background[0];
         }
         if (updateStoreDto.categoriesIds) {
             store.categories = await this.categoriesService.findAllByIdsTypeStore(updateStoreDto.categoriesIds);
@@ -326,7 +323,7 @@ StoresService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(stores_repository_1.StoreRepository)),
     __metadata("design:paramtypes", [stores_repository_1.StoreRepository,
         users_service_1.UsersService,
-        files_service_1.FilesService,
+        fileStorage_provider_1.FileStorageProvider,
         categories_service_1.CategoriesService,
         payments_service_1.PaymentsService])
 ], StoresService);

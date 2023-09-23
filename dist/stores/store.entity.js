@@ -193,7 +193,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Store.prototype, "deliveryFee", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: scheduleProperties_interface_1.DispatchTypes, default: scheduleProperties_interface_1.DispatchTypes.WITHDRAWAL }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: scheduleProperties_interface_1.DispatchTypes,
+        default: scheduleProperties_interface_1.DispatchTypes.WITHDRAWAL,
+    }),
     __metadata("design:type", String)
 ], Store.prototype, "dispatch", void 0);
 __decorate([

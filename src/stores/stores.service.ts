@@ -1,4 +1,4 @@
-import { FilesService } from './../files/files.service';
+import { FileStorageProvider as FilesService } from './../files/providers/fileStorage.provider';
 import {
   forwardRef,
   HttpException,
@@ -72,14 +72,12 @@ export class StoresService {
     }
 
     if (createStoreDto.avatar) {
-      const avatar = await this.filesService.uploadSingleFileToS3(
-        createStoreDto.avatar,
+      const avatar = await this.filesService.saveFiles(
+        [createStoreDto.avatar],
         store.name,
       );
 
-      store.avatar = avatar;
-
-      await this.filesService.saveFile(avatar);
+      store.avatar = avatar[0];
     }
 
     if (user) {
@@ -254,25 +252,19 @@ export class StoresService {
     }
 
     if (files && files[0]) {
-      const avatar = await this.filesService.uploadSingleFileToS3(
-        files[0],
-        store.name,
-      );
+      const avatar = await this.filesService.saveFiles([files[0]], store.name);
 
-      store.avatar = avatar;
-      await this.filesService.saveFile(avatar);
+      store.avatar = avatar[0];
     }
 
     if (files && files[1]) {
       console.log(files);
-      const background = await this.filesService.uploadSingleFileToS3(
-        files[1],
+      const background = await this.filesService.saveFiles(
+        [files[1]],
         store.name,
       );
 
-      store.background = background;
-
-      await this.filesService.saveFile(background);
+      store.background = background[0];
     }
 
     if (updateStoreDto.categoriesIds) {
