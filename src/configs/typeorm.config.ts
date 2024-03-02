@@ -36,7 +36,7 @@ class ConfigService {
       username: this.getValue('TYPEORM_USERNAME'),
       password: this.getValue('TYPEORM_PASSWORD'),
       database: this.getValue('TYPEORM_DATABASE'),
-      synchronize: true,
+      synchronize: false,
       entities: [
         (__dirname + this.getValue('TYPEORM_ENTITIES_OPTIONS')) as any,
       ],
