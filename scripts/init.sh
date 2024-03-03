@@ -1,6 +1,9 @@
 #!/bin/sh
 
-./scripts/wait-for-it.sh -t 0 pgsql:5432
+./scripts/wait-for-it.sh -t 0 potty-db:5432
+
+yarn typeorm:run-migrations
+
 # yarn typeorm migration:run
 
 if [ "${NODE_ENV}" = 'test' ]; then

@@ -7,10 +7,10 @@ services:
     container_name: potty_api
     restart: always
     ports:
-      - '3000:3000'
+      - '3001:3001'
     volumes:
-      - ./logs:/usr/src/vuttr/logs:rw
-      - ./src:/usr/src/vuttr/src
+      - ./logs:/usr/src/potty/logs:rw
+      - ./src:/usr/src/potty/src
     environment:
       - NODE_ENV=${NODE_ENV}
     depends_on:
@@ -30,13 +30,13 @@ services:
       - TYPEORM_PASSWORD=$TYPEORM_PASSWORD
       - TYPEORM_DATABASE=$TYPEORM_DATABASE
     ports:
-      - '5433:5432'
+      - '5432:5432'
 
-  potty_adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+  # potty_adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8080:8080
 
 #  pgadmin:
 #    container_name: pgadmin
