@@ -8,5 +8,5 @@ if [ "${NODE_ENV}" = 'test' ]; then
 	yarn test
 else 
 	echo "Running Dev Mode"
-    yarn start:dev
+    yarn dev
 fi
